@@ -1,4 +1,4 @@
-# GitHub examples repository path: SpectrumAnalyzers/Python/RsInstrument
+# GitHubb examples repository path: SpectrumAnalyzers/Python/RsInstrument
 # Example for FSW / FSV / FSVA / FPS Spectrum Analyzers
 # Example for FSW showing binary IQ data read from the instrument and displayed as power spectrum
 # Preconditions:
