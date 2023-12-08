@@ -6,7 +6,7 @@ try:
     with open ("config.json") as config_f:
         config = json.load(config_f)
         IP_ADDRESS_ANALYZER = config["IP_ADDRESS_ANALYZER"]
-        PORT_ANALYZER = config["PORT_ANALYZER"]
+        PORT_ANALYZER = config["PORT"]
         CONNECTION_TYPE = config["CONNECTION_TYPE"]
         TRACE_FILE = config["TRACE_FILE"] 
         MEASURE_TIME = config["MEASURE_TIME"]
@@ -51,10 +51,13 @@ def com_check():
     print('Hello, I am ' + idn_response)
     
    
-def meas_prep(freq : int, span : int, mode : str):
+def meas_prep(freq : int, span : int, mode : str, revlevel : int, rbw : str):
     analyzer.write_str_with_opc(f'FREQuency:CENTer {freq}')  
     analyzer.write_str_with_opc(f'FREQuency:SPAN {span}')  
+    analyzer.write_str_with_opc(f'BAND {rbw}')  
     analyzer.write_str_with_opc(f'DISPlay:TRACe1:MODE {mode}')  # Trace to Max Hold
+    analyzer.write_str_with_opc(f'DISPlay:WINDow:TRACe:Y:SCALe:RLEVel {revlevel}')
+    
 
 
 def trace_get():
@@ -95,7 +98,7 @@ def trace_get():
 if __name__ == "__main__":
     com_prep()
     com_check()
-    meas_prep(20E9, 1E6, "MAXHold ")
+    meas_prep(28E9, 100E3, "MAXHold ", -30, "500 Hz")
     trace_get()
     close()
     print('Program successfully ended.')

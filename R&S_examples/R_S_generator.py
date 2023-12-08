@@ -13,7 +13,7 @@ smw.repcap_hwInstance_set(repcap.HwInstance.InstA)
 smw.output.state.set_value(True)
 smw.source.frequency.set_mode(enums.FreqMode.CW)
 smw.source.power.level.immediate.set_amplitude(-20)
-smw.source.frequency.fixed.set_value(23E9)
+smw.source.frequency.fixed.set_value(28E9)
 print(f'Channeel 1 PEP level: {smw.source.power.get_pep()} dBm')
 
 
