@@ -17,36 +17,20 @@ except FileNotFoundError:
     print("Brak pliku konfiguracyjnego.")
     exit()
 
-'''
-- option SelectVisa:
-    - 'SelectVisa = 'socket' - uses no VISA implementation for socket connections 
-                             - you do not need any VISA-C installation
-    - 'SelectVisa = 'rs' - forces usage of Rohde&Schwarz Visa
-    - 'SelectVisa = 'ni' - forces usage of National Instruments Visa     
-'''
-
-#
-# Define subroutines
-#
-
 
 def com_prep():
-    """Preparation of the communication (termination, timeout, etc...)"""
-    
-    print(f'VISA Manufacturer: {analyzer.visa_manufacturer}')  # Confirm VISA package to be chosen
-    analyzer.visa_timeout = 5000  # Timeout in ms for VISA Read Operations
-    analyzer.opc_timeout = 3000  # Timeout in ms for opc-synchronised operations
-    analyzer.instrument_status_checking = True  # Error check after each command
-    analyzer.clear_status()  # Clear status register
+    print(f'VISA Manufacturer: {analyzer.visa_manufacturer}')  
+    analyzer.visa_timeout = 5000  
+    analyzer.opc_timeout = 3000  
+    analyzer.instrument_status_checking = True  
+    analyzer.clear_status()  
   
     
 def close():
-    """Close the VISA session"""
     analyzer.close()
 
 
 def com_check():
-    """Check communication with the device by requesting it's ID"""
     idn_response = analyzer.query_str('*IDN?')
     print('Hello, I am ' + idn_response)
     
@@ -55,24 +39,23 @@ def meas_prep(freq : int, span : int, mode : str, revlevel : int, rbw : str):
     analyzer.write_str_with_opc(f'FREQuency:CENTer {freq}')  
     analyzer.write_str_with_opc(f'FREQuency:SPAN {span}')  
     analyzer.write_str_with_opc(f'BAND {rbw}')  
-    analyzer.write_str_with_opc(f'DISPlay:TRACe1:MODE {mode}')  # Trace to Max Hold
+    analyzer.write_str_with_opc(f'DISPlay:TRACe1:MODE {mode}')  
     analyzer.write_str_with_opc(f'DISPlay:WINDow:TRACe:Y:SCALe:RLEVel {revlevel}')
     
 
 
 def trace_get(az_angle,el_angle):
     """Initialize continuous measurement, stop it after the desired time, query trace data"""
-    analyzer.write_str_with_opc('INITiate:CONTinuous ON')  # Continuous measurement on trace 1 ON
-    print('Please wait for maxima to be found...')
-    sleep(int(MEASURE_TIME))  # Wait for preset record time
-    analyzer.write('DISPlay:TRACe1:MODE VIEW')  # Set trace to view mode / stop collecting data
+    analyzer.write_str_with_opc('INITiate:CONTinuous ON')  
+    sleep(int(MEASURE_TIME))  
+    analyzer.write('DISPlay:TRACe1:MODE VIEW')
     analyzer.query_opc()
     sleep(0.5)
 
     # Get y data (amplitude for each point)
-    trace_data = analyzer.query('Trace:DATA? TRACe1')  # Read y data of trace 1
-    csv_trace_data = trace_data.split(",")  # Slice the amplitude list
-    trace_len = len(csv_trace_data)  # Get number of elements of this list
+    trace_data = analyzer.query('Trace:DATA? TRACe1') 
+    csv_trace_data = trace_data.split(",")  
+    trace_len = len(csv_trace_data)  
 
     # Reconstruct x data (frequency for each point) as it can not be directly read from the analyzer
     start_freq = analyzer.query_float('FREQuency:STARt?')
@@ -80,7 +63,7 @@ def trace_get(az_angle,el_angle):
     step_size = span / (trace_len-1)
 
     # Now write values into file
-    file = open(TRACE_FILE, 'a+')  # Open file for writing
+    file = open(TRACE_FILE, 'a+')  
     max_amp = -150
     x = 0  # Set counter to 0 as list starts with 0
     while x < int(trace_len):  # Perform loop until all sweep points are covered
