@@ -25,8 +25,10 @@ def set_BT_key(key : str):
     response = ris.readline().decode('utf-8').rstrip()
     print(f"Response from setting a new Static Pass Key: {response}")
     
-def set_pattern(pattern):
-    
+def set_pattern(pattern : str):
+    ris.writeline(f"!{pattern}")
+    currentPattern = ris.readline()
+    print(f"Current pattern {currentPattern}");
     
 def read_EXT_voltage() -> float:
     ris.writeline('?Vext')
