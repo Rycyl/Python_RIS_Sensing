@@ -4,5 +4,6 @@
     "PORT" : 5025,
     "CONNECTION_TYPE" : "SOCKET",
     "TRACE_FILE": "Trace_file.csv",
-    "MEASURE_TIME" : 10
+    "MEASURE_TIME" : 10,
+    "RIS_PORT" : "COM7"
 }
