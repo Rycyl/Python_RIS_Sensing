@@ -27,7 +27,7 @@ def set_BT_key(key : str):
 def set_pattern(pattern : str):
     ris.writeline(f"!{pattern}")
     currentPattern = ris.readline()
-    print(f"Current pattern {currentPattern}");
+    print(f"Current pattern is {currentPattern}");
     
 def read_EXT_voltage() -> float:
     ris.writeline('?Vext')
