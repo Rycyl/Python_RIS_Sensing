@@ -5,7 +5,6 @@ try:
     with open ("config.json") as config_f:
        ris_port = config_f["RIS_PORT"]
        ris = Serial(ris_port, 115200)
-    
 except FileNotFoundError:
     print("Brak pliku konfiguracyjnego.")
     exit()

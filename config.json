@@ -5,5 +5,15 @@
     "CONNECTION_TYPE" : "SOCKET",
     "TRACE_FILE": "Trace_file.csv",
     "MEASURE_TIME" : 10,
-    "RIS_PORT" : "COM7"
+    "START_FREQ": 5.4E9,
+    "END_FREQ":   5.9E9,
+    "STEP_FREQ":  10E6,
+    "RIS_PORT" : "COM7",
+    "SPAN" : 100E3,
+    "ANALYZER_MODE" : "MAXHold",
+    "REVLEVEL" : -30,
+    "RBW" : "500 Hz",
+    "GENERATOR_AMPLITUDE" : -10,
+    "GENERATOR_MODE" : "CW"
+   
 }
