@@ -30,6 +30,8 @@ def meas_prep(set : True, mode, amplitude : int, freq : int):
     print(f'Channel 1 PEP level: {generator.source.power.get_pep()} dBm')
     response = generator.utilities.query_str('*IDN?')
     print(f'Direct SCPI response on *IDN?: {response}')
+
+def meas_close():
     generator.close()
 
 if __name__ == "__main__":
