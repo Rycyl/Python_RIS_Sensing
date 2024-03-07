@@ -80,7 +80,7 @@ def trace_get():
 if __name__ == "__main__":
     com_prep()
     com_check()
-    meas_prep(28E9, 100E3, "MAXHold ", -30, "500 Hz")
+    meas_prep(5.5E9, 100E3, "MAXHold ", -30, "500 Hz")
     trace_get()
     meas_close()
     print('Program successfully ended.')
