@@ -28,7 +28,7 @@ def set_BT_key(key : str):
     
 def set_pattern(pattern):
     ris.write(bytes(f"!{pattern}\n", 'utf-8'))
-    time.sleep(1)
+    time.sleep(0.5)
     
 def read_EXT_voltage() -> float:
     ris.write(bytes('?Vext\n', 'utf-8'))
