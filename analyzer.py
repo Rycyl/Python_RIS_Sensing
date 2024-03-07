@@ -44,7 +44,7 @@ def meas_prep(freq : int, span : int, mode : str, revlevel : int, rbw : str):
     
 
 
-def trace_get(az_angle,el_angle):
+def trace_get():
     """Initialize continuous measurement, stop it after the desired time, query trace data"""
     analyzer.write_str_with_opc('INITiate:CONTinuous ON')  
     sleep(int(MEASURE_TIME))  
@@ -72,7 +72,6 @@ def trace_get(az_angle,el_angle):
             max_amp = amp
             max_x = x
         x = x+1
-    file.write(f'Az_angle= {az_angle},El_angle= {el_angle} ')  # Write kąty 
     file.write(f'{(start_freq + max_x * step_size):.1f}')  # Write adequate frequency information
     file.write(";")
     file.write(f'{max_amp:.2f}')  # Write adequate amplitude information
@@ -80,12 +79,10 @@ def trace_get(az_angle,el_angle):
     file.close()  # CLose the file
     
 if __name__ == "__main__":
-    az_angle=0
-    el_angle=10
     com_prep()
     com_check()
     meas_prep(28E9, 100E3, "MAXHold ", -30, "500 Hz")
-    trace_get(az_angle,el_angle)
+    trace_get()
     close()
     print('Program successfully ended.')
     print('Wrote trace data into', TRACE_FILE)
