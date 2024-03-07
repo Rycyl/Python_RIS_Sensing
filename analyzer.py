@@ -26,7 +26,7 @@ def com_prep():
     analyzer.clear_status()  
   
     
-def close():
+def meas_close():
     analyzer.close()
 
 
@@ -51,7 +51,6 @@ def trace_get():
     analyzer.write('DISPlay:TRACe1:MODE VIEW')
     analyzer.query_opc()
     sleep(0.5)
-
     # Get y data (amplitude for each point)
     trace_data = analyzer.query('Trace:DATA? TRACe1') 
     csv_trace_data = trace_data.split(",")  
@@ -63,7 +62,6 @@ def trace_get():
     step_size = span / (trace_len-1)
 
     # Now write values into file
-    file = open(TRACE_FILE, 'a+')  
     max_amp = -150
     x = 0  # Set counter to 0 as list starts with 0
     while x < int(trace_len):  # Perform loop until all sweep points are covered
@@ -72,18 +70,19 @@ def trace_get():
             max_amp = amp
             max_x = x
         x = x+1
-    file.write(f'{(start_freq + max_x * step_size):.1f}')  # Write adequate frequency information
-    file.write(";")
-    file.write(f'{max_amp:.2f}')  # Write adequate amplitude information
-    file.write("\n")
-    file.close()  # CLose the file
+    with open(TRACE_FILE, 'a+') as file:
+        file.write(f'{(start_freq + max_x * step_size):.1f}')  # Write adequate frequency information
+        file.write(";")
+        file.write(f'{max_amp:.2f}')  # Write adequate amplitude information
+        file.write("\n")
+        file.close()  # CLose the file
     
 if __name__ == "__main__":
     com_prep()
     com_check()
     meas_prep(28E9, 100E3, "MAXHold ", -30, "500 Hz")
     trace_get()
-    close()
+    meas_close()
     print('Program successfully ended.')
     print('Wrote trace data into', TRACE_FILE)
     exit()
