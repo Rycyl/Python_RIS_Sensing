@@ -36,5 +36,5 @@ def meas_close():
 
 if __name__ == "__main__":
     com_check()
-    meas_prep(True, enums.FreqMode.CW, -10, 28E9)
+    meas_prep(True, enums.FreqMode.CW, -10, 5.9E9)
     exit()
