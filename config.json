@@ -8,7 +8,7 @@
     "RIS_SET_TIME" : 0.1,
     "START_FREQ": 5.2E9,
     "END_FREQ":   5.9E9,
-    "STEP_FREQ":  10E6,
+    "STEP_FREQ":  30E6,
     "RIS_PORT" : "COM7",
     "SPAN" : 10E3,
     "ANALYZER_MODE" : "MAXHold",
