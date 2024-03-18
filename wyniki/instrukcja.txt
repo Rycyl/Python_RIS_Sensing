@@ -1,3 +1,0 @@
-Format zapisu plików: [dd_mm_rr]_reflection_[odleglosc_od_risa]_[odleglosc_pomiedzy_antenami].csv
-W razie potrzeby dokładniejszego opisu pliku, mozna tutaj opisac wraz z nazwą.
-
