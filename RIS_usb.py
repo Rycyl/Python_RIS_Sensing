@@ -1,4 +1,4 @@
-from serial import Serial
+import serial
 import time
 import json
 
@@ -7,7 +7,11 @@ try:
        config = json.load(config_f)
        ris_port = config["RIS_PORT"]
        ris_set_time = config["RIS_SET_TIME"]
-       ris = Serial(ris_port, 115200)
+       try:
+            ris = serial.Serial(ris_port, 115200)
+       except serial.SerialException:
+           print("[SERIAL ERROR] Change port number in config file. Check correct port in device manager.")
+           exit()
 except FileNotFoundError:
     print("Brak pliku konfiguracyjnego.")
     exit()

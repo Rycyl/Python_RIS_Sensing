@@ -11,7 +11,11 @@ try:
         TRACE_FILE = config["TRACE_FILE"] 
         MEASURE_TIME = config["MEASURE_TIME"]
         resource = f'TCPIP::{IP_ADDRESS_ANALYZER}::{PORT_ANALYZER}::{CONNECTION_TYPE}'  # Resource string for the device
-        analyzer = RsInstrument(resource, True, True, "SelectVisa='socket'")   
+        try:
+            analyzer = RsInstrument(resource, True, True, "SelectVisa='socket'")   
+        except TimeoutError:
+            print("[TIMEOUT ERROR] Check is computer and analyzer is connected to the same local network. Then try again.")
+            exit()
         config_f.close()
 except FileNotFoundError:
     print("Brak pliku konfiguracyjnego.")
