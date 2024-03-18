@@ -117,20 +117,24 @@ for i in data:
 # Wykres
 for i in range(5):
     fig, ax = plt.subplots(figsize=(8, 6))
+    handles, labels = [], []
     for item in data[i*5:i*5+5]:
         ax.plot(item.measures[0], item.measures[1])
+        handles.append(ax.plot([], [], label=item.pattern)[0])
+        labels.append(item.pattern)
+        
 
     ax.set_xlabel('Częstotliwość')
     ax.set_ylabel('Poziom mocy (dBm)')
     ax.grid()
-    
-    # Tworzenie legendy
-    handles, labels = [], []
-    for item in data[i*5:i*5+5]:
-        handles.append(ax.plot([], [], label=item.pattern)[0])
-        labels.append(item.pattern)
-
     fig.legend(handles, labels, loc='upper right')
+    # Tworzenie legendy
+    #handles, labels = [], []
+    #for item in data[i*5:i*5+5]:
+    #    handles.append(ax.plot([], [], label=item.pattern)[0])
+    #    labels.append(item.pattern)
+
+    #fig.legend(handles, labels, loc='upper right')
     
     # Tworzenie nazwy pliku
     file_name = os.path.splitext(file_path)[0] + "_wykres" + str(i+1) + ".png"
