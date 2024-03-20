@@ -45,7 +45,7 @@ def pattern_loop(freq):
             file.write(";")
             file.close()  # CLose the file
         time.sleep(0.1)
-        RIS_usb.read_pattern()
+        # RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
         analyzer.trace_get()
 
 def freq_loop(freq_data):

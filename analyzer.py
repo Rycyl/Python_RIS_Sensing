@@ -51,20 +51,18 @@ def meas_prep(freq : int, span : int, mode : str, revlevel : int, rbw : str):
 def trace_get():
     """Initialize continuous measurement, stop it after the desired time, query trace data"""
     analyzer.write_str_with_opc('INITiate:CONTinuous ON')  
-    sleep(int(MEASURE_TIME))  
+    sleep(int(MEASURE_TIME))  # Wait for preset record time
     analyzer.write('DISPlay:TRACe1:MODE VIEW')
     analyzer.query_opc()
-    sleep(0.5)
+    sleep(0.5) # Wait for data
     # Get y data (amplitude for each point)
     trace_data = analyzer.query('Trace:DATA? TRACe1') 
     csv_trace_data = trace_data.split(",")  
     trace_len = len(csv_trace_data)  
-
     # Reconstruct x data (frequency for each point) as it can not be directly read from the analyzer
     start_freq = analyzer.query_float('FREQuency:STARt?')
     span = analyzer.query_float('FREQuency:SPAN?')
     step_size = span / (trace_len-1)
-
     # Now write values into file
     max_amp = -150
     x = 0  # Set counter to 0 as list starts with 0
