@@ -39,9 +39,9 @@ except FileNotFoundError:
 def pattern_loop(freq):
     for pattern in patterns_data:
         analyzer.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
-        RIS_usb.set_pattern(pattern)
+        RIS_usb.set_pattern(pattern["HEX"])
         with open(trace_file, 'a+') as file:
-            file.write(pattern)  # Write adequate frequency information
+            file.write(pattern["DESC"])  # Write information about pattern information
             file.write(";")
             file.close()  # CLose the file
         time.sleep(0.1)
