@@ -13,7 +13,7 @@ try:
         resource = f'TCPIP::{IP_ADDRESS_GENERATOR}::{PORT}::{CONNECTION_TYPE}'  # Resource string for the device
         try:
             generator = RsSmw(resource, True, True, "SelectVisa='socket'")   
-        except TimeoutError:
+        except TimeoutError or ConnectionAbortedError:
             print("[TIMEOUT ERROR] Check is  computer and generator is connected to the same local network. Then try again.")
             exit()
         config_f.close()

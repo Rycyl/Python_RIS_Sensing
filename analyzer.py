@@ -13,7 +13,7 @@ try:
         resource = f'TCPIP::{IP_ADDRESS_ANALYZER}::{PORT_ANALYZER}::{CONNECTION_TYPE}'  # Resource string for the device
         try:
             analyzer = RsInstrument(resource, True, True, "SelectVisa='socket'")   
-        except TimeoutError:
+        except TimeoutError or ConnectionAbortedError:
             print("[TIMEOUT ERROR] Check is computer and analyzer is connected to the same local network. Then try again.")
             exit()
         config_f.close()
