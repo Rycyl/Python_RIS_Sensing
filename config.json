@@ -9,7 +9,7 @@
     "START_FREQ": 5.1E9,
     "END_FREQ":   5.9E9,
     "STEP_FREQ":  30E6,
-    "RIS_PORT" : "COM7",
+    "RIS_PORT" : "/dev/tty.usbserial-D382L3CH", //COM7 - Marcel, /dev/tty.usbserial-D382L3CH - Dawid
     "SPAN" : 10E3,
     "ANALYZER_MODE" : "MAXHold",
     "REVLEVEL" : -30,
