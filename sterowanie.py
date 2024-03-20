@@ -137,28 +137,27 @@ def kroki_wstecz_el(ile):
 
 def step_up():
     DIR_EL_GPIO.write(False) 
-
     STEP_EL_GPIO.write(True)
     time.sleep(0.006)
     STEP_EL_GPIO.write(False)
     time.sleep(0.006)
+
 def step_down():
     DIR_EL_GPIO.write(True) 
-
     STEP_EL_GPIO.write(True)
     time.sleep(0.006)
     STEP_EL_GPIO.write(False)
     time.sleep(0.006)
+
 def step_left():
     DIR_AZ_GPIO.write(False) 
-
     STEP_AZ_GPIO.write(True)
     time.sleep(0.006)
     STEP_AZ_GPIO.write(False)
     time.sleep(0.006)
+
 def step_right():
     DIR_AZ_GPIO.write(True) 
-
     STEP_AZ_GPIO.write(True)
     time.sleep(0.006)
     STEP_AZ_GPIO.write(False)
