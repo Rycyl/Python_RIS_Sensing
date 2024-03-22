@@ -1,9 +1,13 @@
 import csv
 import matplotlib.pyplot as plt
 import os
+import os.path
+import json
 # Wczytanie danych z pliku CSV
-file_path = "12_03_24_reflection.csv"  # Zastąp nazwa_pliku.csv właściwą ścieżką do pliku
 
+#file_path = '\11_03_17_03\12_03_24_reflection.csv'
+data_folder = os.path.join("11_03_17_03")
+file_path = os.path.join(data_folder, "11_03_24_through_RIS_10cm.csv")
 def check_pattern(pattern):
     if pattern == "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000000000000000000000000000":
         return "Góra włączona, dół wyłączony"
@@ -117,17 +121,13 @@ for i in data:
 # Wykres
 for i in range(5):
     fig, ax = plt.subplots(figsize=(8, 6))
-    handles, labels = [], []
+    #ax.set_color_cycle(['red', 'salmon', '','','',' 'black', 'yellow'])
     for item in data[i*5:i*5+5]:
-        ax.plot(item.measures[0], item.measures[1])
-        handles.append(ax.plot([], [], label=item.pattern)[0])
-        labels.append(item.pattern)
-        
-
+        ax.plot(item.measures[0], item.measures[1], label=item.pattern)
     ax.set_xlabel('Częstotliwość')
     ax.set_ylabel('Poziom mocy (dBm)')
     ax.grid()
-    fig.legend(handles, labels, loc='upper right')
+    fig.legend()
     # Tworzenie legendy
     #handles, labels = [], []
     #for item in data[i*5:i*5+5]:
