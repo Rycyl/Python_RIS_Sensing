@@ -5,6 +5,10 @@ import os.path
 import sys
 import numpy as np
 import copy
+if len(sys.argv)<3:
+    print("podaj argumenty: plt_draw.py [folder name] [file name]")
+    input("Press enter to exit...")
+    exit()
 #name_of_script = sys.argv[0]
 folder = sys.argv[1]
 file = sys.argv[2]
@@ -107,8 +111,8 @@ x = data[0].measures[0]
 max_handle = data[0].measures[1]
 min_handle = copy.deepcopy(max_handle)
 fig, ax = plt.subplots(figsize=(15, 12))
-print(max_handle, id(max_handle))
-print(min_handle, id(min_handle))
+#print(max_handle, id(max_handle))
+#print(min_handle, id(min_handle))
 for i in data[1:]:
     for j in range(0,(len(i.measures[1]))):
     
@@ -118,8 +122,8 @@ for i in data[1:]:
         if(min_handle[j]>i.measures[1][j]):
             min_handle[j]=i.measures[1][j]
             
-print(max_handle)
-print(min_handle)
+#print(max_handle)
+#print(min_handle)
 ax.plot(x, max_handle, label="maksima znalezione")
 ax.plot(x, min_handle, label="minima znalezione")
 ax.set_xlabel('Częstotliwość [Hz]')
