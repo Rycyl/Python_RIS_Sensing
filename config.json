@@ -10,7 +10,7 @@
     "END_FREQ":   5.9E9,
     "STEP_FREQ":  30E6,
     "RIS_PORT_COMMENT": "COM7 - Windows, /dev/tty.usbserial-D382L3CH - MacOS",
-    "RIS_PORT" : "/dev/tty.usbserial-D382L3CH", 
+    "RIS_PORT" : "COM7", 
     "SPAN" : 10E3,
     "ANALYZER_MODE" : "MAXHold",
     "REVLEVEL" : -30,

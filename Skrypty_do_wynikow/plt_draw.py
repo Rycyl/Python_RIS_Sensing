@@ -78,7 +78,7 @@ for i in range(5):
     ax.set_xlabel('Częstotliwość [Hz]')
     ax.set_ylabel('Poziom mocy [dBm]')
     ax.grid()
-    ax.set_ylim(mes_min-1, mes_max+1)
+    ax.set_ylim(-65, -30)
     fig.legend()
     # Tworzenie nazwy pliku
     file_name = os.path.splitext(file_path)[0] + "_wykres" + str(i+1) + ".png"
