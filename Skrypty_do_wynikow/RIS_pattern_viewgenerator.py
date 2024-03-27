@@ -22,7 +22,6 @@ def generate_image(binary_string):
         row = i // grid_size
         col = i % grid_size
         color = "green" if binary_string[i] == '1' else "white"
-        
         canvas = tk.Canvas(window, width=cell_size*2, height=cell_size , highlightthickness=0)
         canvas.create_rectangle(1, 1, cell_size*2, cell_size, fill=color, outline=color)
         canvas.grid(row=row, column=col, padx=(0.1), pady=(0.1))
@@ -33,7 +32,10 @@ def on_convert():
     hex_string = entry.get()
     bin_string = hex_to_bin(hex_string)
     img = generate_image(bin_string)
-    img.show()
+    try:
+        img.show()
+    except AttributeError:
+        print("EXIT")
 
 # Ustawienia GUI
 root = tk.Tk()
