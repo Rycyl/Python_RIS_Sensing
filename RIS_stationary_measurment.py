@@ -63,6 +63,7 @@ if __name__=="__main__":
         freq_loop(freq_data)
         analyzer.meas_close()
         generator.meas_close()
+        exit()
     except KeyboardInterrupt:
         print("[KEY]Keyboard interrupt.")
         exit()
