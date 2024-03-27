@@ -107,21 +107,25 @@ def step_left_right():
 
 
 def obrot_lewo(ilosc_krokow):
+    print("Obrót w lewo o " + ilosc_krokow*1.8)
     DIR_AZ_GPIO.write(False)  #lewo
     for i in range(ilosc_krokow):
         step_left_right()
 
 def obrot_prawo(ilosc_krokow):
+    print("Obrót w prawo o " + ilosc_krokow*1.8)
     DIR_AZ_GPIO.write(True)  #prawo
     for i in range(ilosc_krokow):
         step_left_right()
 
 def obrot_gora(ilosc_krokow):
+    print("Obrót w góra o " + ilosc_krokow*1.8)
     DIR_EL_GPIO.write(False) #gora
     for i in range(ilosc_krokow):
         step_up_down()
 
 def obrot_dol(ilosc_krokow):
+    print("Obrót w dół o " + ilosc_krokow*1.8)
     DIR_EL_GPIO.write(True) #dol
     for i in range(ilosc_krokow):
         step_up_down()
@@ -186,7 +190,7 @@ def klawisze():
     # Uruchomienie pętli głównej
     root.mainloop()
 
-    print("Zamknieto okno, uzupełnij dane pomiaru.")
+    print("Zamknieto okno.")
 
 
 ################################# MENU #################################
