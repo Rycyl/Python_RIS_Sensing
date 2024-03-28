@@ -1,8 +1,19 @@
 from periphery import GPIO
 import time
 from tkinter import *
+import json
 
 #======================== PINOUT DEF ======================
+
+try:
+    with open ("config.json") as config_f:
+       config = json.load(config_f)
+       angle_resolution = config["ANGLE_RESOLUTION"]
+except FileNotFoundError:
+    print("Brak pliku konfiguracyjnego.")
+    exit()
+
+
 #Kąt azymut-dolny silnik
 DIR_AZ_GPIO=GPIO(95,'out')
 STEP_AZ_GPIO=GPIO(96,'out')
@@ -24,33 +35,37 @@ MS2_GPIO.write(False)
 MS3_GPIO.write(False)
 
 
-def resolution(res_val=1):
-    #res_val=input("Wybierz rozdzielczość: \n 1. full \n 2. 1/2 \n 4. 1/4 \n 8. 1/8 \n 16. 1/16 \n Wybieram: ")
-    if res_val==1:
+def resolution(angle_resolution): #brane z configu
+    if angle_resolution==1:
         #full step
         MS1_GPIO.write(False)
         MS2_GPIO.write(False)
         MS3_GPIO.write(False)
-    elif res_val==2:
+        print("Dokładność ustawiona na 1.8 stopnia.")
+    elif angle_resolution==2:
         #half step
         MS1_GPIO.write(True)
         MS2_GPIO.write(False)
         MS3_GPIO.write(False)
-    elif res_val==4:
+        print("Dokładność ustawiona na 0.9 stopnia")
+    elif angle_resolution==4:
         #1/4 step
         MS1_GPIO.write(False)
         MS2_GPIO.write(True)
         MS3_GPIO.write(False)
-    elif res_val==8:
+        print("Dokładność ustawiona na  0.45 stopnia")
+    elif angle_resolution==8:
         #1/8 step
         MS1_GPIO.write(True)
         MS2_GPIO.write(True)
         MS3_GPIO.write(False)
-    elif res_val==16:
+        print("Dokładność ustawiona na 0.225 stopnia")
+    elif angle_resolution==16:
         #1/16 step
         MS1_GPIO.write(True)
         MS2_GPIO.write(True)
         MS3_GPIO.write(True)
+        print("Dokładność ustawiona na 0.1125 stopnia")
     else: 
         #full
         MS1_GPIO.write(False)
@@ -103,35 +118,29 @@ def step_left_right():
     STEP_AZ_GPIO.write(False)
     time.sleep(0.006)
 
-
-
-
 def obrot_lewo(ilosc_krokow):
-    print("Obrót w lewo o " + ilosc_krokow*1.8)
+    print("Obrót w lewo o " + ilosc_krokow*(1/angle_resolution)*1.8)
     DIR_AZ_GPIO.write(False)  #lewo
     for i in range(ilosc_krokow):
         step_left_right()
 
 def obrot_prawo(ilosc_krokow):
-    print("Obrót w prawo o " + ilosc_krokow*1.8)
+    print("Obrót w prawo o " + ilosc_krokow*(1/angle_resolution)*1.8)
     DIR_AZ_GPIO.write(True)  #prawo
     for i in range(ilosc_krokow):
         step_left_right()
 
 def obrot_gora(ilosc_krokow):
-    print("Obrót w góra o " + ilosc_krokow*1.8)
+    print("Obrót w góra o " + ilosc_krokow*(1/angle_resolution)*1.8)
     DIR_EL_GPIO.write(False) #gora
     for i in range(ilosc_krokow):
         step_up_down()
 
 def obrot_dol(ilosc_krokow):
-    print("Obrót w dół o " + ilosc_krokow*1.8)
+    print("Obrót w dół o " + ilosc_krokow*(1/angle_resolution)*1.8)
     DIR_EL_GPIO.write(True) #dol
     for i in range(ilosc_krokow):
         step_up_down()
-
-    
-
 
 ######## TK_INTER_KLAWIATURA ###############
 def move_left():
@@ -195,7 +204,7 @@ def klawisze():
 
 ################################# MENU #################################
 if __name__ == "__main__":
-
+    resolution(angle_resolution)
     while True:
         print("MENU: \n 1.Pokaz obrotu lewo-prawo \n 2.Sterowanie klawiatura \n 3.Kalibracja obrotu j\n 0.Wyjście")
         menu_val=input("Wybierz numer: ")

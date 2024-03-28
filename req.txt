@@ -3,3 +3,4 @@ RsInstrument
 RsSmw
 pyserial
 numpy
+periphery
