@@ -46,30 +46,27 @@ def count_angle(step):
     angle = step*1/(step_resolution)
     return angle
     
-def pattern_loop(freq):
+def pattern_loop(freq, angle):
     for pattern in patterns_data:
         analyzer.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
         RIS_usb.set_pattern(pattern["HEX"])
         with open(trace_file, 'a+') as file:
-            file.write(pattern["ID"]+";")  # Write information about pattern information
+            file.write(angle+";"+pattern["ID"]+";")  # Write information about pattern iand angle
             file.close()  # Close the file
         time.sleep(0.1)
         # RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
         analyzer.trace_get()
 
-def freq_loop(freq_data):
+def freq_loop(freq_data, angle):
      for freq in freq_data:
         generator.meas_prep(True, generator_mode, generator_amplitude, freq) # True means that generator is set up an generate something.
-        pattern_loop(freq)
+        pattern_loop(freq, angle)
         
 def angle_loop(step_data):
     for step in step_data:
-        with open(trace_file, 'a+') as file:
-            file.write(count_angle(step) + ";")  # Write information about angle
-            file.close()  # Close the file
-        time.sleep(0.1)
+        angle = count_angle(step)
         remote_head.obrot_prawo(step) # move few steps to the right (descroption in config file)
-        freq_loop(freq_data)
+        freq_loop(freq_data, angle)
 
     
 if __name__=="__main__":
