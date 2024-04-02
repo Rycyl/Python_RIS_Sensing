@@ -11,16 +11,22 @@ if len(sys.argv)<3:
     exit()
 #name_of_script = sys.argv[0]
 folder = sys.argv[1]
-file = sys.argv[2]
+filename = sys.argv[2]
+fi=copy.deepcopy(filename)
 # Wczytanie danych z pliku CSV
 data_folder = os.path.join("..","wyniki",folder)
-file_path = os.path.join(data_folder, file)
-
+file_path = os.path.join(data_folder, filename)
+dest_folder = os.path.join(data_folder, "wykresy")
+#print(dest_folder)
+try:
+    os.mkdir(dest_folder)
+except:
+    print()
 
 class baza: #klasa przechowuje poukładane pomiary wg patternów na RIS
         def __init__(self, pattern,fq,lvl):
             self.pattern = pattern
-            #print("Added measurements of:: ", self.pattern)
+            print("Added measurements of:: ", self.pattern)
             self.measures = [[fq],[lvl]]
             self.mean_pow = 0
         
@@ -43,12 +49,13 @@ data = []
 mes_max=-100.0
 mes_min=0
 with open(file_path, 'r') as file:
-    csv_reader = csv.reader(file, delimiter=';')
+    csv_reader = csv.reader(file, delimiter=',')
     
     next(csv_reader)  # Pominięcie nagłówka, jeśli istnieje
     for row in csv_reader:
         #print(row)
         #print("ROW", row[0])
+        #print(len(row))
         if len(row) < 3: #jezeli wiersz jest za krotki pomin
             continue
         found = False
@@ -70,20 +77,22 @@ for i in data:
 
 
 # Wykresy normalne
-for i in range(5):
-    fig, ax = plt.subplots(figsize=(15, 12))
+fig, axs = plt.subplots(nrows=2, ncols=2, layout='constrained', figsize=(20,16))
+axs = axs.flatten()
+for i in range(4):  # Loop through each subplot
+    for item in data[i*4:i*4+int((len(data))/4)]:  # Plot data for each subplot
+        axs[i].plot(item.measures[0], item.measures[1], label=item.pattern)
+        axs[i].set_xlabel('Częstotliwość [Hz]')
+        axs[i].set_ylabel('Poziom mocy [dBm]')
+        axs[i].set_title(fi)
+        axs[i].set_ylim(-65, -30)
+        axs[i].legend()
+# Tworzenie nazwy pliku
+plt.title(filename)
+file_name = os.path.join(dest_folder, filename + "_wykres.png")
+plt.savefig(file_name)
+plt.close()
 
-    for item in data[i*5:i*5+5]:
-        ax.plot(item.measures[0], item.measures[1], label=item.pattern)
-    ax.set_xlabel('Częstotliwość [Hz]')
-    ax.set_ylabel('Poziom mocy [dBm]')
-    ax.grid()
-    ax.set_ylim(-65, -30)
-    fig.legend()
-    # Tworzenie nazwy pliku
-    file_name = os.path.splitext(file_path)[0] + "_wykres" + str(i+1) + ".png"
-    plt.savefig(file_name)
-    plt.close()
 
 ##poziomy średnie
 fig, ax = plt.subplots(figsize=(15, 12))
@@ -94,6 +103,7 @@ for item in data:
     y[1].append(item.pattern)
 y_pos = np.arange(len(y[1]))
 min=min(y[0])
+
 max=max(y[0])
 ax.barh(y_pos, y[0], align='center')
 ax.set_xlabel('Średni poziom mocy [dBm]')
@@ -101,7 +111,9 @@ ax.set_yticks(y_pos, labels=y[1])
 ax.invert_yaxis()  # labels read top-to-bottom
 ax.set_xlim(min-1, max + 5)
 plt.tight_layout()
-file_name = os.path.splitext(file_path)[0] + "_mean_pow" + ".png"
+plt.subplots_adjust(top=0.95)
+plt.title(filename)
+file_name = os.path.join(dest_folder, filename + "mean_pow.png")
 plt.savefig(file_name)
 plt.close()
     
@@ -110,26 +122,31 @@ plt.close()
 x = data[0].measures[0]
 max_handle = data[0].measures[1]
 min_handle = copy.deepcopy(max_handle)
+mean_handle = copy.deepcopy(max_handle)
 fig, ax = plt.subplots(figsize=(15, 12))
 #print(max_handle, id(max_handle))
 #print(min_handle, id(min_handle))
 for i in data[1:]:
     for j in range(0,(len(i.measures[1]))):
-    
+        mean_handle[j]+=i.measures[1][j]
         if(max_handle[j]<i.measures[1][j]):
             max_handle[j]=i.measures[1][j]
             
         if(min_handle[j]>i.measures[1][j]):
             min_handle[j]=i.measures[1][j]
             
+for i in range(len(mean_handle)):
+    mean_handle[i] = mean_handle[i]/len(data)
 #print(max_handle)
 #print(min_handle)
 ax.plot(x, max_handle, label="maksima znalezione")
 ax.plot(x, min_handle, label="minima znalezione")
+ax.plot(x, mean_handle, label="średni wynik pomiarów")
 ax.set_xlabel('Częstotliwość [Hz]')
 ax.set_ylabel('Poziom mocy [dBm]') 
 ax.grid()
+plt.title(filename)
 fig.legend()
-file_name = os.path.splitext(file_path)[0] + "_min_max" + ".png"
+file_name = os.path.join(dest_folder, filename + "_min_max.png")
 plt.savefig(file_name)
 plt.close()
