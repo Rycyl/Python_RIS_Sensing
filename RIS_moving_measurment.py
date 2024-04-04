@@ -16,7 +16,7 @@ try:
         step_freq=config["STEP_FREQ"]
         motor_step=config["MOTOR_STEP"]
         step_resolution = config["STEP_RESOLUTION"]
-        snumber_of_angles = config[]
+        number_of_angles = config[]
         span=config["SPAN"]
         analyzer_mode=config["ANALYZER_MODE"]
         revlevel=config["REVLEVEL"]
@@ -60,10 +60,10 @@ def freq_loop(freq_data, angle):
         generator.meas_prep(True, generator_mode, generator_amplitude, freq) # True means that generator is set up an generate something.
         pattern_loop(freq, angle)
         
-def angle_loop(step_data):
-    for step in step_data:
-        angle = count_angle(step)
-        remote_head.obrot_prawo(step) # move few steps to the right (descroption in config file)
+def angle_loop():
+    for angle in range(number_of_angles):
+        angle = count_angle(motor_step)
+        remote_head.obrot_prawo(motor_step) # move few steps to the right (descroption in config file)
         freq_loop(freq_data, angle)
 
     
@@ -75,7 +75,7 @@ if __name__=="__main__":
         remote_head.az360()
         RIS_usb.reset_RIS()
         freq_data = np.arange(start_freq, end_freq, step_freq)
-        angle_loop(step_data)
+        angle_loop(motor_step, freq_data)
         analyzer.meas_close()
         generator.meas_close()
         exit()
