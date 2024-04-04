@@ -14,11 +14,9 @@ try:
         start_freq=config["START_FREQ"]
         end_freq=config["END_FREQ"]
         step_freq=config["STEP_FREQ"]
-        start_step=config["START_STEP"]
-        end_step=config["END_STEP"]
         motor_step=config["MOTOR_STEP"]
         step_resolution = config["STEP_RESOLUTION"]
-        step_data = np.arange(start_step, end_step, motor_step)
+        snumber_of_angles = config[]
         span=config["SPAN"]
         analyzer_mode=config["ANALYZER_MODE"]
         revlevel=config["REVLEVEL"]
@@ -44,7 +42,7 @@ except FileNotFoundError:
     
 def count_angle(step):
     angle = step*1/(step_resolution)
-    return angle
+    return str(angle)
     
 def pattern_loop(freq, angle):
     for pattern in patterns_data:
@@ -77,7 +75,6 @@ if __name__=="__main__":
         remote_head.az360()
         RIS_usb.reset_RIS()
         freq_data = np.arange(start_freq, end_freq, step_freq)
-        step_data = np.arange(start_step, end_step, motor_step)
         angle_loop(step_data)
         analyzer.meas_close()
         generator.meas_close()

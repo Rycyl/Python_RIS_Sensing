@@ -8,7 +8,7 @@ import json
 try:
     with open ("config.json") as config_f:
        config = json.load(config_f)
-       angle_resolution = config["ANGLE_RESOLUTION"]
+       step_resolution = config["STEP_RESOLUTION"]
 except FileNotFoundError:
     print("Brak pliku konfiguracyjnego.")
     exit()
@@ -35,32 +35,32 @@ MS2_GPIO.write(False)
 MS3_GPIO.write(False)
 
 
-def resolution(angle_resolution): #brane z configu
-    if angle_resolution==1:
+def resolution(step_resolution): #brane z configu
+    if step_resolution==1:
         #full step
         MS1_GPIO.write(False)
         MS2_GPIO.write(False)
         MS3_GPIO.write(False)
         print("Dokładność ustawiona na 1.8 stopnia.")
-    elif angle_resolution==2:
+    elif step_resolution==2:
         #half step
         MS1_GPIO.write(True)
         MS2_GPIO.write(False)
         MS3_GPIO.write(False)
         print("Dokładność ustawiona na 0.9 stopnia")
-    elif angle_resolution==4:
+    elif step_resolution==4:
         #1/4 step
         MS1_GPIO.write(False)
         MS2_GPIO.write(True)
         MS3_GPIO.write(False)
         print("Dokładność ustawiona na  0.45 stopnia")
-    elif angle_resolution==8:
+    elif step_resolution==8:
         #1/8 step
         MS1_GPIO.write(True)
         MS2_GPIO.write(True)
         MS3_GPIO.write(False)
         print("Dokładność ustawiona na 0.225 stopnia")
-    elif angle_resolution==16:
+    elif step_resolution==16:
         #1/16 step
         MS1_GPIO.write(True)
         MS2_GPIO.write(True)
@@ -76,16 +76,16 @@ def az360(): #kalibracja
     DIR_AZ_GPIO.write(True)#lewo
     for i in range(200):
         STEP_AZ_GPIO.write(True)
-        time.sleep(0.006)
+        time.sleep(0.01)
         STEP_AZ_GPIO.write(False)
-        time.sleep(0.006)
+        time.sleep(0.01)
     x=input("Kliknij enter aby wrócić do startowej pozycji.")
     DIR_AZ_GPIO.write(False)#prawo
     for i in range(200):
         STEP_AZ_GPIO.write(True)
-        time.sleep(0.006)
+        time.sleep(0.01)
         STEP_AZ_GPIO.write(False)
-        time.sleep(0.006)
+        time.sleep(0.01)
     DIR_AZ_GPIO.write(True)#lewo
     print("System w pozycji startowej.")
 
@@ -108,36 +108,36 @@ def el360(): #kalibracja
 
 def step_up_down():
     STEP_EL_GPIO.write(True)
-    time.sleep(0.006)
+    time.sleep(0.01)
     STEP_EL_GPIO.write(False)
-    time.sleep(0.006)
+    time.sleep(0.01)
 
 def step_left_right():
     STEP_AZ_GPIO.write(True)
-    time.sleep(0.006)
+    time.sleep(0.01)
     STEP_AZ_GPIO.write(False)
-    time.sleep(0.006)
+    time.sleep(0.01)
 
 def obrot_lewo(ilosc_krokow):
-    print("Obrót w lewo o " + ilosc_krokow*(1/angle_resolution)*1.8)
+    print("Obrót w lewo o " + str(ilosc_krokow*(1/step_resolution)*1.8))
     DIR_AZ_GPIO.write(False)  #lewo
     for i in range(ilosc_krokow):
         step_left_right()
 
 def obrot_prawo(ilosc_krokow):
-    print("Obrót w prawo o " + ilosc_krokow*(1/angle_resolution)*1.8)
+    print("Obrót w prawo o " + str(ilosc_krokow*(1/step_resolution)*1.8))
     DIR_AZ_GPIO.write(True)  #prawo
     for i in range(ilosc_krokow):
         step_left_right()
 
 def obrot_gora(ilosc_krokow):
-    print("Obrót w góra o " + ilosc_krokow*(1/angle_resolution)*1.8)
+    print("Obrót w góra o " + str(ilosc_krokow*(1/step_resolution)*1.8))
     DIR_EL_GPIO.write(False) #gora
     for i in range(ilosc_krokow):
         step_up_down()
 
 def obrot_dol(ilosc_krokow):
-    print("Obrót w dół o " + ilosc_krokow*(1/angle_resolution)*1.8)
+    print("Obrót w dół o " + str(ilosc_krokow*(1/step_resolution)*1.8))
     DIR_EL_GPIO.write(True) #dol
     for i in range(ilosc_krokow):
         step_up_down()
@@ -204,7 +204,7 @@ def klawisze():
 
 ################################# MENU #################################
 if __name__ == "__main__":
-    resolution(angle_resolution)
+    resolution(step_resolution)
     while True:
         print("MENU: \n 1.Pokaz obrotu lewo-prawo \n 2.Sterowanie klawiatura \n 3.Kalibracja obrotu j\n 0.Wyjście")
         menu_val=input("Wybierz numer: ")
