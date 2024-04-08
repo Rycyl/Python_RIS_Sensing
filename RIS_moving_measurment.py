@@ -22,7 +22,6 @@ try:
         revlevel=config["REVLEVEL"]
         rbw=config["RBW"]
         generator_amplitude=config["GENERATOR_AMPLITUDE"]
-        steps_from_start = 0 # counts how many steps remote head did. Could be used to count actual measurement angle.
         # More modes will be add later.
         if config["GENERATOR_MODE"] == "CW":
             generator_mode = enums.FreqMode.CW
@@ -41,11 +40,18 @@ except FileNotFoundError:
     print("File with patterns doesn't exist.")
     exit()
     
-def count_angle(step):
+def count_angle(step : int) -> str:
     angle = step*1/(step_resolution)*1.8
-    return str(angle)
-    
-def pattern_loop(freq, angle):
+    return str(float(angle))
+
+def prepare_freq() -> list:
+    if start_freq != end_freq:   
+        freq_data = np.arange(start_freq, end_freq+step_freq, step_freq)
+    else:
+        freq_data = [start_freq]
+    return freq_data
+
+def pattern_loop(freq : int, angle : str):
     for pattern in patterns_data:
         analyzer.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
         RIS_usb.set_pattern(pattern["HEX"])
@@ -56,29 +62,32 @@ def pattern_loop(freq, angle):
         # RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
         analyzer.trace_get()
 
-def freq_loop(freq_data, angle):
+def freq_loop(freq_data : list, angle : str):
      for freq in freq_data:
         generator.meas_prep(True, generator_mode, generator_amplitude, freq) # True means that generator is set up an generate something.
         pattern_loop(freq, angle)
         
-def angle_loop(freq_data):
+def angle_loop(freq_data : list, steps_from_start : int) -> bool:
     for i in range(number_of_angles):
+        print("Ilość kroków od startu: ", steps_from_start)
         angle = count_angle(steps_from_start)
+        print("Aktualny kąt: ", angle)
         freq_loop(freq_data, angle)
         remote_head.obrot_prawo(motor_step) # move few steps to the right (descroption in config file)
         steps_from_start += motor_step
+    return True
        
 
-    
 if __name__=="__main__":
     try:
         analyzer.com_prep()
         analyzer.com_check()
         generator.com_check()
-        remote_head.az360()
         RIS_usb.reset_RIS()
-        freq_data = np.arange(start_freq, end_freq, step_freq)
-        angle_loop(freq_data)
+        #remote_head.az360()
+        freq_data = prepare_freq()
+        steps_from_start = 0 # counts how many steps remote head did. Could be used to count actual measurement angle.
+        measure_ended = angle_loop(freq_data, steps_from_start)
         analyzer.meas_close()
         generator.meas_close()
         exit()

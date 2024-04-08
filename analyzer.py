@@ -54,7 +54,7 @@ def trace_get():
     sleep(int(MEASURE_TIME))  # Wait for preset record time
     analyzer.write('DISPlay:TRACe1:MODE VIEW')
     analyzer.query_opc()
-    sleep(0.5) # Wait for data
+    sleep(0.1) # Wait for data
     # Get y data (amplitude for each point)
     trace_data = analyzer.query('Trace:DATA? TRACe1') 
     csv_trace_data = trace_data.split(",")  
@@ -82,7 +82,7 @@ def trace_get():
 if __name__ == "__main__":
     com_prep()
     com_check()
-    meas_prep(5.9E9, 100E3, "MAXHold ", -30, "500 Hz")
+    meas_prep(5.9E9, 0, "MAXHold ", -30, "500 Hz")
     trace_get()
     meas_close()
     print('Program successfully ended.')

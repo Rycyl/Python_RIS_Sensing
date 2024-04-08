@@ -9,6 +9,7 @@ try:
     with open ("config.json") as config_f:
        config = json.load(config_f)
        step_resolution = config["STEP_RESOLUTION"]
+       step_time = config["STEP_TIME"]
 except FileNotFoundError:
     print("Brak pliku konfiguracyjnego.")
     exit()
@@ -76,16 +77,16 @@ def az360(): #kalibracja
     DIR_AZ_GPIO.write(True)#lewo
     for i in range(200):
         STEP_AZ_GPIO.write(True)
-        time.sleep(0.01)
+        time.sleep(step_time)
         STEP_AZ_GPIO.write(False)
-        time.sleep(0.01)
+        time.sleep(step_time)
     x=input("Kliknij enter aby wrócić do startowej pozycji.")
     DIR_AZ_GPIO.write(False)#prawo
     for i in range(200):
         STEP_AZ_GPIO.write(True)
-        time.sleep(0.01)
+        time.sleep(step_time)
         STEP_AZ_GPIO.write(False)
-        time.sleep(0.01)
+        time.sleep(step_time)
     DIR_AZ_GPIO.write(True)#lewo
     print("System w pozycji startowej.")
 
@@ -93,30 +94,30 @@ def el360(): #kalibracja
     DIR_EL_GPIO.write(False) #gora
     for i in range(200):
         STEP_EL_GPIO.write(True)
-        time.sleep(0.01)
+        time.sleep(step_time)
         STEP_EL_GPIO.write(False)
-        time.sleep(0.01)
+        time.sleep(step_time)
     x=input("Kliknij enter aby wrócić do startowej pozycji.")
     DIR_EL_GPIO.write(True) #dol
     for i in range(200):
         STEP_EL_GPIO.write(True)
-        time.sleep(0.01)
+        time.sleep(step_time)
         STEP_EL_GPIO.write(False)
-        time.sleep(0.01)
+        time.sleep(step_time)
     DIR_EL_GPIO.write(False) #gora
     print("System w pozycji startowej.")
 
 def step_up_down():
     STEP_EL_GPIO.write(True)
-    time.sleep(0.01)
+    time.sleep(step_time)
     STEP_EL_GPIO.write(False)
-    time.sleep(0.01)
+    time.sleep(step_time)
 
 def step_left_right():
     STEP_AZ_GPIO.write(True)
-    time.sleep(0.01)
+    time.sleep(step_time)
     STEP_AZ_GPIO.write(False)
-    time.sleep(0.01)
+    time.sleep(step_time)
 
 def obrot_lewo(ilosc_krokow):
     print("Obrót w lewo o " + str(ilosc_krokow*(1/step_resolution)*1.8))
