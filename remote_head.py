@@ -93,16 +93,16 @@ def el360(): #kalibracja
     DIR_EL_GPIO.write(False) #gora
     for i in range(200):
         STEP_EL_GPIO.write(True)
-        time.sleep(0.006)
+        time.sleep(0.01)
         STEP_EL_GPIO.write(False)
-        time.sleep(0.006)
+        time.sleep(0.01)
     x=input("Kliknij enter aby wrócić do startowej pozycji.")
     DIR_EL_GPIO.write(True) #dol
     for i in range(200):
         STEP_EL_GPIO.write(True)
-        time.sleep(0.006)
+        time.sleep(0.01)
         STEP_EL_GPIO.write(False)
-        time.sleep(0.006)
+        time.sleep(0.01)
     DIR_EL_GPIO.write(False) #gora
     print("System w pozycji startowej.")
 
