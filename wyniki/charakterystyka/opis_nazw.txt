@@ -1,0 +1,6 @@
+Pliki nazwane:
+-data
+-częstotliwość
+-odległość od stelażu
+Charakterystyka robiona -90 do 90 stopni, 90 z prawej strony patrząc na stelaż. W pliku wynikowym
+90 stopni to 0, trzeba przeliczyć przy rysowaniu wykresu.
