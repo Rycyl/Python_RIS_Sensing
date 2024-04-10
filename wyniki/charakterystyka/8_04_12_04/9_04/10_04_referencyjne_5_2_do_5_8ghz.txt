@@ -1,0 +1,26 @@
+Referencyjne:
+
+Referencyjny bez risa 5.5GHz - 1m odleglosci :  - 67,8 dBm
+
+
+Referencyjny bez risa 5.2GHz - 1m odleglosci :  -68 dBm
+
+
+Referencyjny bez risa 5.8GHz - 1m odleglosci :  
+tutaj działy się dziwne rzeczy. głowica z risem została zabrana na bok (ris odwrócony w stronę ściany)
+moc powinna być stała dla każdego patternu a dość mocno zmieniały się moce.
+Możliwe że, trzeba będzie powtórzyć.
+
+1;All elements turn off;5800000000.0;-81.49
+2;All elements turn on;5800000000.0;-82.26
+3;Only first element turn on;5800000000.0;-81.88
+4;Only last element turn on;5800000000.0;-87.87
+5;Left side on;5800000000.0;-83.26
+6;Right side on;5800000000.0;-84.41
+7;Upper half on;5800000000.0;-82.69
+8;Lower half on;5800000000.0;-87.59
+9;Vertical strips [1010];5800000000.0;-83.47
+10;Vertical strips [0101];5800000000.0;-79.74
+
+
+
