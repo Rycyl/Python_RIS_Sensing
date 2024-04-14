@@ -70,20 +70,15 @@ def pattern_iterative_state_optimization(freq):
     current_apm = analyzer.trace_get_return()
     for i in range(len(current_pattern)):
         current_pattern[i]=1
-        new_amp = current_amp+random.randint(-2,2)
-        print("I", i, "    N: ",new_amp, "    C: ", current_amp)
+        new_amp = analyzer.trace_get_return()
+        #print("I", i, "    N: ",new_amp, "    C: ", current_amp)
         if (new_amp < current_amp):
             current_pattern[i]=0
+        else:
+            current_amp = new_amp
         print(def_pattern.pattern_bin_to_hex(current_pattern))
         time.sleep(0.1)
     return current_pattern
-    
-    
-    
-    with open(trace_file, 'a+') as file:
-    file.write(pattern["ID"]+";"+pattern["DESC"]+";")  # Write information about pattern information
-    file.close()  # CLose the file
-    return
 
 def freq_loop(freq_data):
      for freq in freq_data:
