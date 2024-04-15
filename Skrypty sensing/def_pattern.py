@@ -51,9 +51,13 @@ def check_pattern_from_label(pattern):
 def pattern_bin_to_hex(bits):
     ret = "0x"
     a = ""
+    i = 0
     for b in bits:
+        #print(i, len(a))
+        i+=1
+        a+=str(b)
+        #print("ret:  ", ret, "    a:", a)
         if (len(a)<4):
-            a+=str(b)
             continue
         if a == "0000":
             ret += "0"

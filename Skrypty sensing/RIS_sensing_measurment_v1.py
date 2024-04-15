@@ -9,7 +9,7 @@ from bitarray import bitarray
 import binascii
 import def_pattern
 try:
-    with open ("config.json") as config_f:
+    with open ("config_sensing.json") as config_f:
         config = json.load(config_f)
         trace_file = config["TRACE_FILE"]
         start_freq=config["START_FREQ"]
@@ -32,13 +32,34 @@ try:
 except FileNotFoundError:
     print("File with configuration doesn't exist.")
     exit()
-    
+
+try:
+    with open("RIS_patterns.json") as json_patterns:
+        patterns_obj = json.load(json_patterns)
+        patterns_data = patterns_obj["PATTERNS"]
+except FileNotFoundError:
+    print("File with patterns doesn't exist.")
+    exit()
+
+ 
 def prepare_freq() -> list:
     if start_freq != end_freq:   
         freq_data = np.arange(start_freq, end_freq+step_freq, step_freq)
     else:
         freq_data = [start_freq]
     return freq_data
+
+def pattern_loop(freq):
+    for pattern in patterns_data:
+        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+        RIS_usb.set_pattern(pattern["HEX"])
+        with open(trace_file, 'a+') as file:
+            file.write(pattern["DESC"])  # Write information about pattern information
+            file.write(";")
+            file.close()  # CLose the file
+        time.sleep(0.1)
+        # RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
+        analyzer_sensing.trace_get()
 
 def pattern_iterative_state_optimization(freq):
     analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
@@ -47,30 +68,39 @@ def pattern_iterative_state_optimization(freq):
     current_pattern = current_pattern.tolist()
     RIS_usb.set_pattern(def_pattern.pattern_bin_to_hex(current_pattern))
     time.sleep(0.1)
-    # RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
-    current_apm = analyzer_sensing.trace_get_return()
+    #RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
+    current_amp = analyzer_sensing.trace_get_return()
+    print(current_amp)
     for i in range(len(current_pattern)):
+        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
         current_pattern[i]=1
+        #print(current_pattern)
+        #print(len(current_pattern))
+        #print(def_pattern.pattern_bin_to_hex(current_pattern))
         RIS_usb.set_pattern(def_pattern.pattern_bin_to_hex(current_pattern))
         new_amp = analyzer_sensing.trace_get_return()
+        #print(type(new_amp))
         #print("I", i, "    N: ",new_amp, "    C: ", current_amp)
+        #RIS_usb.read_pattern()
         if (new_amp < current_amp):
             current_pattern[i]=0
         else:
             current_amp = new_amp
+        with open(trace_file, 'a+') as file:
+          file.write(str(def_pattern.pattern_bin_to_hex(current_pattern)))
+          file.write(";")
+          file.write(str(current_amp))
+          file.write("\n")
+          file.close()
         #print(def_pattern.pattern_bin_to_hex(current_pattern))
-        time.sleep(0.1)
-    with open(trace_file, 'a+') as file:
-        file.write(str(def_pattern.pattern_bin_to_hex(current_pattern)))
-        file.write(";")
-        file.write(str(current_amp))
-        file.write("\n")
-        file.close()
+        #time.sleep(0.1)
+
 
 def freq_loop(freq_data):
      for freq in freq_data:
         generator.meas_prep(True, generator_mode, generator_amplitude, freq) # True means that generator is set up an generate something.
         pattern_iterative_state_optimization(freq)
+        pattern_loop(freq)
 
 if __name__=="__main__":
     try:

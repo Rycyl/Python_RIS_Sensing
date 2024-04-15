@@ -3,7 +3,7 @@ import time
 import json
 
 try:
-    with open ("config.json") as config_f:
+    with open ("config_sensing.json") as config_f:
        config = json.load(config_f)
        ris_port = config["RIS_PORT"]
        ris_set_time = config["RIS_SET_TIME"]

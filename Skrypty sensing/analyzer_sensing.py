@@ -3,7 +3,7 @@ from time import sleep
 import json
 
 try:
-    with open ("config.json") as config_f:
+    with open ("config_sensing.json") as config_f:
         config = json.load(config_f)
         IP_ADDRESS_ANALYZER = config["IP_ADDRESS_ANALYZER"]
         PORT_ANALYZER = config["PORT"]

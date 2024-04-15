@@ -2,7 +2,7 @@ from RsSmw import *
 import json
 
 try:
-    with open ("config.json") as config_f:
+    with open ("config_sensing.json") as config_f:
         RsSmw.assert_minimum_version('5.0.44')
         config = json.load(config_f)
         IP_ADDRESS_GENERATOR = config["IP_ADDRESS_GENERATOR"]
