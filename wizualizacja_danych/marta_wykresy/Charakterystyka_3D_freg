@@ -1,0 +1,65 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import re
+from mpl_toolkits.mplot3d import Axes3D
+
+def extract_distance_from_filename(filename):
+    match = re.search(r'(\d+)m', filename)
+    return int(match.group(1)) if match else None
+
+def process_csv_files_for_pattern(file_paths, selected_pattern):
+    aggregated_data = []
+
+    for file_path in file_paths:
+        print(f"Processing file: {file_path}")
+        distance = extract_distance_from_filename(os.path.basename(file_path))
+        if distance is None:
+            continue
+
+        df = pd.read_csv(file_path, sep=';', names=['Degrees','Paterns', 'Frequency', 'Power'])
+        filtered_df = df[(df['Paterns'] == selected_pattern) & (df['Degrees'] >= 0) & (df['Degrees'] <= 180)]
+        mean_power_df = filtered_df.groupby('Degrees')['Power'].mean().reset_index()
+        mean_power_df['Distance'] = distance
+        aggregated_data.append(mean_power_df)
+
+    return pd.concat(aggregated_data, ignore_index=True) if aggregated_data else pd.DataFrame()
+
+def plot_data_3d(data):
+    if data.empty:
+        print("No data to plot.")
+        return
+
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111, projection='3d')
+
+    distances = data['Distance'].unique()
+    colors = plt.cm.jet(np.linspace(0, 1, len(distances)))
+    
+    for color, distance in zip(colors, distances):
+        dist_data = data[data['Distance'] == distance]
+        dist_data = dist_data.sort_values(by='Degrees')
+        ax.plot(dist_data['Degrees']-90, [distance] * len(dist_data), dist_data['Power'], marker='.', linestyle='-', color=color, label=f'Distance {distance} m')
+
+    ax.set_xlabel('DEG')
+    ax.set_ylabel('Distance (cm)')
+    ax.set_zlabel('Power (dBm)')
+    ax.set_title('Name of pattern: ' + f'{selected_pattern}')
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title="Distance",prop={'size': 5}, ncol=1, handletextpad=2, labelspacing=1.5, borderpad=1, frameon=True)
+    plt.xticks([x *10 for x in range(-9, 9)], rotation=45)  
+    plt.tight_layout()
+    plt.show()
+
+file_paths = [
+    r'C:\Users\Paweł\Desktop\Kliks\Ris\Python_RIS\wyniki\charakterystyka\9_04\9_04_5_5GHz_1.5m_ch_ka.csv',
+    r'C:\Users\Paweł\Desktop\Kliks\Ris\Python_RIS\wyniki\charakterystyka\10_04\10_04_5_5GHz_1m_ch_ka.csv',
+    r'C:\Users\Paweł\Desktop\Kliks\Ris\Python_RIS\wyniki\charakterystyka\9_04\9_04_5_5GHz_2m_ch_ka.csv',
+   
+]
+
+selected_pattern = 1
+
+
+aggregated_data = process_csv_files_for_pattern(file_paths, selected_pattern)
+plot_data_3d(aggregated_data)
