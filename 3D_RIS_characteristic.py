@@ -14,9 +14,12 @@ try:
         start_freq=config["START_FREQ"]
         end_freq=config["END_FREQ"]
         step_freq=config["STEP_FREQ"]
-        motor_step=config["MOTOR_STEPS"]
+        azimuth_step=config["AZIMUTH_STEP"]
+        azimuth_no_angles = config["AZIMUTH_NO_ANGLES"]
+        elevation_step=config["ELEVATION_STEP"]
+        elevation_start_steps = config["ELVATION_START_STEPS"]  
         step_resolution = config["STEP_RESOLUTION"]
-        number_of_angles = config["NUMBER_OF_ANGLES"]
+        elevation_no_angles = config["ELEVATION_NO_ANGLES"]
         span=config["SPAN"]
         analyzer_mode=config["ANALYZER_MODE"]
         revlevel=config["REVLEVEL"]
@@ -51,15 +54,15 @@ def prepare_freq() -> list:
         freq_data = [start_freq]
     return freq_data
 
-def pattern_loop(freq : int, angle : str):
+def pattern_loop(freq : int, azimuth_angle : str, elevation_angle : str):
     for pattern in patterns_data:
         analyzer.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
         RIS_usb.set_pattern(pattern["HEX"])
         with open(trace_file, 'a+') as file:
-            file.write(angle+";"+pattern["ID"]+";")  # Write information about pattern iand angle
+            file.write(azimuth_angle+";"+elevation_angle+";"+pattern["ID"]+";")  # Write information about pattern and angle
             file.close()  # Close the file
         time.sleep(0.1)
-        # RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
+        # RIS_usb.read_pattern() #Information about pattern set on RIS.
         analyzer.trace_get()
 
 def freq_loop(freq_data : list, angle : str):
@@ -67,14 +70,20 @@ def freq_loop(freq_data : list, angle : str):
         generator.meas_prep(True, generator_mode, generator_amplitude, freq) # True means that generator is set up an generate something.
         pattern_loop(freq, angle)
         
-def angle_loop(freq_data : list, steps_from_start : int) -> bool:
-    for i in range(number_of_angles):
-        print("Ilość kroków od startu: ", steps_from_start)
-        angle = count_angle(steps_from_start)
-        print("Aktualny kąt: ", angle)
-        freq_loop(freq_data, angle)
-        remote_head.obrot_prawo(motor_step) # move few steps to the right (descroption in config file)
-        steps_from_start += motor_step
+def angle_loop(freq_data : list, azimuth_steps_form_start : int, elevation_steps_from_start : int) -> bool:
+    for i in range(azimuth_no_of_angles+1):
+        azimuth_angle = count_angle(azimuth_steps_form_start)
+        print("Aktualny kąt azymutu: ", azimuth_angle)
+        for i in range(elevation_no_angles+1):
+            elevation_angle = count_angle(elevation_steps_from_start)
+            print("Aktualny kąt elewacji: ", elevation_angle)
+            freq_loop(freq_data, azimuth_angle, elevation_angle)
+            remote_head.rotate_up(elevation_step)
+            elevation_steps_from_start+=elevation_step
+        remote_head.rotate_down(2*elevation_start_steps) # back to starting postion
+        elevation_no_angles = -elevation_start_position
+        remote_head.rotate_right(azimuth_step) # move few steps to the right (descroption in config file)
+        azimuth_steps_form_start += azimuth_step
     return True
        
 
@@ -84,10 +93,12 @@ if __name__=="__main__":
         analyzer.com_check()
         generator.com_check()
         RIS_usb.reset_RIS()
-        #remote_head.az360()
+        remote_head.az360()
+        remote_head.rotate_down(elevation_start_position)
+        elevation_steps_from_start = -elevation_start_position
+        azimuth_steps_form_start = 0 # counts how many steps remote head did. Could be used to count actual measurement angle.
         freq_data = prepare_freq()
-        steps_from_start = 0 # counts how many steps remote head did. Could be used to count actual measurement angle.
-        measure_ended = angle_loop(freq_data, steps_from_start)
+        measure_ended = angle_loop(freq_data, azimuth_steps_form_start, elevation_steps_from_start)
         analyzer.meas_close()
         generator.meas_close()
         exit()

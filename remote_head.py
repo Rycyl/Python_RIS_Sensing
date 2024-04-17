@@ -9,7 +9,8 @@ try:
     with open ("config.json") as config_f:
        config = json.load(config_f)
        step_resolution = config["STEP_RESOLUTION"]
-       step_time = config["STEP_TIME"]
+       azimuth_step_time = config["AZIMUTH_STEP_TIME"]
+       elevation_step_time = config["ELEVATION_STEP_TIME"]
 except FileNotFoundError:
     print("Brak pliku konfiguracyjnego.")
     exit()
@@ -77,16 +78,16 @@ def az360(): #kalibracja
     DIR_AZ_GPIO.write(True)#lewo
     for i in range(200):
         STEP_AZ_GPIO.write(True)
-        time.sleep(step_time)
+        time.sleep(azimuth_step_time)
         STEP_AZ_GPIO.write(False)
-        time.sleep(step_time)
+        time.sleep(azimuth_step_time)
     x=input("Kliknij enter aby wrócić do startowej pozycji.")
     DIR_AZ_GPIO.write(False)#prawo
     for i in range(200):
         STEP_AZ_GPIO.write(True)
-        time.sleep(step_time)
+        time.sleep(azimuth_step_time)
         STEP_AZ_GPIO.write(False)
-        time.sleep(step_time)
+        time.sleep(azimuth_step_time)
     DIR_AZ_GPIO.write(True)#lewo
     print("System w pozycji startowej.")
 
@@ -94,53 +95,53 @@ def el360(): #kalibracja
     DIR_EL_GPIO.write(False) #gora
     for i in range(200):
         STEP_EL_GPIO.write(True)
-        time.sleep(step_time)
+        time.sleep(elevation_step_time)
         STEP_EL_GPIO.write(False)
-        time.sleep(step_time)
+        time.sleep(elevation_step_time)
     x=input("Kliknij enter aby wrócić do startowej pozycji.")
     DIR_EL_GPIO.write(True) #dol
     for i in range(200):
         STEP_EL_GPIO.write(True)
-        time.sleep(step_time)
+        time.sleep(elevation_step_time)
         STEP_EL_GPIO.write(False)
-        time.sleep(step_time)
+        time.sleep(elevation_step_time)
     DIR_EL_GPIO.write(False) #gora
     print("System w pozycji startowej.")
 
 def step_up_down():
     STEP_EL_GPIO.write(True)
-    time.sleep(step_time)
+    time.sleep(elevation_step_time)
     STEP_EL_GPIO.write(False)
-    time.sleep(step_time)
+    time.sleep(elevation_step_time)
 
 def step_left_right():
     STEP_AZ_GPIO.write(True)
-    time.sleep(step_time)
+    time.sleep(azimuth_step_time)
     STEP_AZ_GPIO.write(False)
-    time.sleep(step_time)
+    time.sleep(azimuth_step_time)
 
-def obrot_lewo(ilosc_krokow):
-    print("Obrót w lewo o " + str(ilosc_krokow*(1/step_resolution)*1.8))
+def rotate_left(step_number):
+    print("Obrót w lewo o " + str(step_number*(1/step_resolution)*1.8))
     DIR_AZ_GPIO.write(False)  #lewo
-    for i in range(ilosc_krokow):
+    for i in range(step_number):
         step_left_right()
 
-def obrot_prawo(ilosc_krokow):
-    print("Obrót w prawo o " + str(ilosc_krokow*(1/step_resolution)*1.8))
+def rotate_right(step_number):
+    print("Obrót w prawo o " + str(step_number*(1/step_resolution)*1.8))
     DIR_AZ_GPIO.write(True)  #prawo
-    for i in range(ilosc_krokow):
+    for i in range(step_number):
         step_left_right()
 
-def obrot_gora(ilosc_krokow):
-    print("Obrót w góra o " + str(ilosc_krokow*(1/step_resolution)*1.8))
+def rotate_up(step_number):
+    print("Obrót w góra o " + str(step_number*(1/step_resolution)*1.8))
     DIR_EL_GPIO.write(False) #gora
-    for i in range(ilosc_krokow):
+    for i in range(step_number):
         step_up_down()
 
-def obrot_dol(ilosc_krokow):
-    print("Obrót w dół o " + str(ilosc_krokow*(1/step_resolution)*1.8))
+def rotate_down(step_number):
+    print("Obrót w dół o " + str(step_number*(1/step_resolution)*1.8))
     DIR_EL_GPIO.write(True) #dol
-    for i in range(ilosc_krokow):
+    for i in range(step_number):
         step_up_down()
 
 ######## TK_INTER_KLAWIATURA ###############
