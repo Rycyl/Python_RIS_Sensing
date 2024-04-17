@@ -49,47 +49,19 @@ def check_pattern_from_label(pattern):
 
 
 def pattern_bin_to_hex(bits):
+    hex_map = {
+        '0000': '0', '0001': '1', '0010': '2', '0011': '3',
+        '0100': '4', '0101': '5', '0110': '6', '0111': '7',
+        '1000': '8', '1001': '9', '1010': 'A', '1011': 'B',
+        '1100': 'C', '1101': 'D', '1110': 'E', '1111': 'F'
+    }
     ret = "0x"
     a = ""
-    i = 0
     for b in bits:
-        #print(i, len(a))
-        i+=1
-        a+=str(b)
-        #print("ret:  ", ret, "    a:", a)
-        if (len(a)<4):
+        a += str(b)
+        if len(a) < 4:
             continue
-        if a == "0000":
-            ret += "0"
-        elif a == "0001":
-            ret += "1"
-        elif a == "0010":
-            ret += "2"
-        elif a == "0011":
-            ret += "3"
-        elif a == "0100":
-            ret += "4"
-        elif a == "0101":
-            ret += "5"
-        elif a == "0110":
-            ret += "6"
-        elif a == "0111":
-            ret += "7"
-        elif a == "1000":
-            ret += "8"
-        elif a == "1001":
-            ret += "9"
-        elif a == "1010":
-            ret += "A"
-        elif a == "1011":
-            ret += "B"
-        elif a == "1100":
-            ret += "C"
-        elif a == "1101":
-            ret += "D"
-        elif a == "1110":
-            ret += "E"
-        elif a == "1111":
-            ret += "F"
-        a=""
+        ret += hex_map[a]
+        a = ""
     return ret
+   
