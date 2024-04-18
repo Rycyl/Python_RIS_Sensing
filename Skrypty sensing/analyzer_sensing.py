@@ -54,7 +54,7 @@ def trace_get():
     sleep(int(MEASURE_TIME))  # Wait for preset record time
     analyzer.write('DISPlay:TRACe1:MODE VIEW')
     analyzer.query_opc()
-    #sleep(0.1) # Wait for data
+    sleep(0.1) # Wait for data
     # Get y data (amplitude for each point)
     trace_data = analyzer.query('Trace:DATA? TRACe1') 
     csv_trace_data = trace_data.split(",")  
@@ -86,7 +86,7 @@ def trace_get_return():
     sleep(int(MEASURE_TIME))  # Wait for preset record time
     analyzer.write('DISPlay:TRACe1:MODE VIEW')
     analyzer.query_opc()
-    #sleep(0.1) # Wait for data
+    sleep(0.1) # Wait for data
     # Get y data (amplitude for each point)
     trace_data = analyzer.query('Trace:DATA? TRACe1') 
     csv_trace_data = trace_data.split(",")  

@@ -57,7 +57,7 @@ def pattern_loop(freq):
             file.write(pattern["DESC"])  # Write information about pattern information
             file.write(";")
             file.close()  # CLose the file
-        #time.sleep(0.1)
+        time.sleep(0.1)
         # RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
         analyzer_sensing.trace_get()
 
@@ -67,12 +67,11 @@ def pattern_iterative_state_optimization(freq):
     current_pattern.setall(0)
     current_pattern = current_pattern.tolist()
     RIS_usb.set_pattern(def_pattern.pattern_bin_to_hex(current_pattern))
-    #time.sleep(0.1)
+    time.sleep(0.05)
     #RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
     current_amp = analyzer_sensing.trace_get_return()
     print(current_amp)
     for i in range(len(current_pattern)):
-        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
         #print(i)
         analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
         current_pattern[i]=1
@@ -80,6 +79,7 @@ def pattern_iterative_state_optimization(freq):
         #print(len(current_pattern))
         #print(def_pattern.pattern_bin_to_hex(current_pattern))
         RIS_usb.set_pattern(def_pattern.pattern_bin_to_hex(current_pattern))
+        time.sleep(0.1)
         new_amp = analyzer_sensing.trace_get_return()
         #print(type(new_amp))
         print("I", i, "    N: ",new_amp, "    C: ", current_amp)
