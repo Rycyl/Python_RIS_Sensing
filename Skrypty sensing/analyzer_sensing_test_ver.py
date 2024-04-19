@@ -3,7 +3,7 @@ from time import sleep
 import json
 
 try:
-    with open ("config.json") as config_f:
+    with open ("config_sensing.json") as config_f:
         config = json.load(config_f)
         IP_ADDRESS_ANALYZER = config["IP_ADDRESS_ANALYZER"]
         PORT_ANALYZER = config["PORT"]
@@ -78,8 +78,8 @@ def trace_get():
         file.write(f'{max_amp:.2f}')  # Write adequate amplitude information
         file.write("\n")
         file.close()  # CLose the file
-        
-        
+    
+    
 def trace_get_return():
     """Initialize continuous measurement, stop it after the desired time, query trace data"""
     analyzer.write_str_with_opc('INITiate:CONTinuous ON')  
@@ -98,20 +98,24 @@ def trace_get_return():
     # Now write values into file
     max_amp = -150
     x = 0  # Set counter to 0 as list starts with 0
+    amp_mean = 0
     while x < int(trace_len):  # Perform loop until all sweep points are covered
         amp = float(csv_trace_data[x])
-        if amp > max_amp:
-            max_amp = amp
-            max_x = x
+        amp_mean += amp
         x = x+1
-    """ with open(TRACE_FILE, 'a+') as file:
+    
+    amp_mean = amp_mean/x 
+    """   
+    with open(TRACE_FILE, 'a+') as file:
         file.write(f'{(start_freq + max_x * step_size):.1f}')  # Write adequate frequency information
         file.write(";")
         file.write(f'{max_amp:.2f}')  # Write adequate amplitude information
         file.write("\n")
-        file.close()  # CLose the file """
-    return max_amp
-    
+        file.close()  # CLose the file
+    """
+    return amp_mean
+
+
 if __name__ == "__main__":
     com_prep()
     com_check()

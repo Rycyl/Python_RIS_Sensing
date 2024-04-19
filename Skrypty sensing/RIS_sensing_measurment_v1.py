@@ -6,7 +6,6 @@ import numpy as np
 from RsSmw import *
 import time
 from bitarray import bitarray
-import binascii
 import def_pattern
 try:
     with open ("config_sensing.json") as config_f:
@@ -66,6 +65,7 @@ def pattern_iterative_state_optimization(freq):
     current_pattern = bitarray(256)
     current_pattern.setall(0)
     current_pattern = current_pattern.tolist()
+    index_of_on_elemets = []
     RIS_usb.set_pattern(def_pattern.pattern_bin_to_hex(current_pattern))
     time.sleep(0.05)
     #RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
@@ -82,21 +82,29 @@ def pattern_iterative_state_optimization(freq):
         time.sleep(0.1)
         new_amp = analyzer_sensing.trace_get_return()
         #print(type(new_amp))
-        print("I", i, "    N: ",new_amp, "    C: ", current_amp)
+        #print("I", i, "    N: ",new_amp, "    C: ", current_amp)
         #RIS_usb.read_pattern()
         if (new_amp < current_amp):
             current_pattern[i]=0
         else:
             current_amp = new_amp
-            with open(trace_file, 'a+') as file:
+            index_of_on_elemets.append(i)
+            current_pattern[i]=0
+
+    for j in index_of_on_elemets:
+        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+        current_pattern[j]=1
+        RIS_usb.set_pattern(def_pattern.pattern_bin_to_hex(current_pattern))
+        time.sleep(0.1)
+        amp = analyzer_sensing.trace_get_return()
+        with open(trace_file, 'a+') as file:
               file.write(str(def_pattern.pattern_bin_to_hex(current_pattern)))
               file.write(";")
-              file.write(str(current_amp))
+              file.write(str(amp))
               file.write("\n")
-              file.close()
+              file.close()    
 
-        #print(def_pattern.pattern_bin_to_hex(current_pattern))
-        #time.sleep(0.1)
+    
 
 
 def freq_loop(freq_data):
