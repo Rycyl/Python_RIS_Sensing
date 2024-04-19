@@ -66,6 +66,7 @@ def trace_get():
     # Now write values into file
     max_amp = -150
     x = 0  # Set counter to 0 as list starts with 0
+    print(int(trace_len))
     while x < int(trace_len):  # Perform loop until all sweep points are covered
         amp = float(csv_trace_data[x])
         if amp > max_amp:
