@@ -17,7 +17,7 @@ try:
         azimuth_step=config["AZIMUTH_STEP"]
         azimuth_no_angles = config["AZIMUTH_NO_ANGLES"]
         elevation_step=config["ELEVATION_STEP"]
-        elevation_start_steps = config["ELVATION_START_STEPS"]  
+        elevation_start_steps = config["ELEVATION_START_STEPS"]  
         step_resolution = config["STEP_RESOLUTION"]
         elevation_no_angles = config["ELEVATION_NO_ANGLES"]
         span=config["SPAN"]
@@ -70,8 +70,8 @@ def freq_loop(freq_data : list, angle : str):
         generator.meas_prep(True, generator_mode, generator_amplitude, freq) # True means that generator is set up an generate something.
         pattern_loop(freq, angle)
         
-def angle_loop(freq_data : list, azimuth_steps_form_start : int, elevation_steps_from_start : int) -> bool:
-    for i in range(azimuth_no_of_angles+1):
+def angle_loop(freq_data : list, azimuth_steps_form_start : int, elevation_steps_from_start : int, elevation_no_angles : int) -> bool:
+    for i in range(azimuth_no_angles+1):
         azimuth_angle = count_angle(azimuth_steps_form_start)
         print("Aktualny kąt azymutu: ", azimuth_angle)
         for i in range(elevation_no_angles+1):
@@ -81,7 +81,7 @@ def angle_loop(freq_data : list, azimuth_steps_form_start : int, elevation_steps
             remote_head.rotate_up(elevation_step)
             elevation_steps_from_start+=elevation_step
         remote_head.rotate_down(2*elevation_start_steps) # back to starting postion
-        elevation_no_angles = -elevation_start_position
+        elevation_no_angles = -elevation_start_steps
         remote_head.rotate_right(azimuth_step) # move few steps to the right (descroption in config file)
         azimuth_steps_form_start += azimuth_step
     return True
@@ -93,12 +93,12 @@ if __name__=="__main__":
         analyzer.com_check()
         generator.com_check()
         RIS_usb.reset_RIS()
-        remote_head.az360()
-        remote_head.rotate_down(elevation_start_position)
-        elevation_steps_from_start = -elevation_start_position
+        #remote_head.az360()
+        remote_head.rotate_down(elevation_start_steps)
+        elevation_steps_from_start = -elevation_start_steps
         azimuth_steps_form_start = 0 # counts how many steps remote head did. Could be used to count actual measurement angle.
         freq_data = prepare_freq()
-        measure_ended = angle_loop(freq_data, azimuth_steps_form_start, elevation_steps_from_start)
+        measure_ended = angle_loop(freq_data, azimuth_steps_form_start, elevation_steps_from_start, elevation_no_angles)
         analyzer.meas_close()
         generator.meas_close()
         exit()
