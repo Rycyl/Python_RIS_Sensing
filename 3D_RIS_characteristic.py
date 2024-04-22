@@ -36,7 +36,7 @@ except FileNotFoundError:
     exit()
     
 try:
-    with open("RIS_patterns_copy_for_tests.json") as json_patterns:
+    with open("RIS_patterns.json") as json_patterns:
         patterns_obj = json.load(json_patterns)
         patterns_data = patterns_obj["PATTERNS"]
 except FileNotFoundError:
