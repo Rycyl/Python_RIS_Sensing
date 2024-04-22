@@ -36,7 +36,7 @@ except FileNotFoundError:
     exit()
     
 try:
-    with open("RIS_patterns.json") as json_patterns:
+    with open("RIS_patterns_copy_for_tests.json") as json_patterns:
         patterns_obj = json.load(json_patterns)
         patterns_data = patterns_obj["PATTERNS"]
 except FileNotFoundError:
@@ -65,10 +65,10 @@ def pattern_loop(freq : int, azimuth_angle : str, elevation_angle : str):
         # RIS_usb.read_pattern() #Information about pattern set on RIS.
         analyzer.trace_get()
 
-def freq_loop(freq_data : list, angle : str):
+def freq_loop(freq_data : list, azimuth_angle : str, elevation_angle : str):
      for freq in freq_data:
         generator.meas_prep(True, generator_mode, generator_amplitude, freq) # True means that generator is set up an generate something.
-        pattern_loop(freq, angle)
+        pattern_loop(freq, azimuth_angle, elevation_angle)
         
 def angle_loop(freq_data : list, azimuth_steps_form_start : int, elevation_steps_from_start : int, elevation_no_angles : int) -> bool:
     for i in range(azimuth_no_angles+1):

@@ -208,7 +208,7 @@ def klawisze():
 if __name__ == "__main__":
     resolution(step_resolution)
     while True:
-        print("MENU: \n 1.Pokaz obrotu lewo-prawo \n 2.Sterowanie klawiatura \n 3.Kalibracja obrotu j\n 0.Wyjście")
+        print("MENU: \n 1.Sterowanie SSH \n 2.Sterowanie klawiatura-ROCK \n 3.Kalibracja obrotu j\n 0.Wyjście")
         menu_val=input("Wybierz numer: ")
         try:
             menu_val=int(menu_val)
@@ -216,7 +216,23 @@ if __name__ == "__main__":
             print('Wpisz poprawną liczbę opcji. Spróbuj ponownie.')
 
         if menu_val==1:
-            print("Tu będzie pokaz.")
+            steps_number_ssh=int(input("Podaj ilość kroków: "))
+            while True:
+                
+                menu_kal_val=input("Wybierz kierunek awsd : ")
+                if menu_kal_val=='a':
+                    rotate_left(steps_number_ssh)
+                elif menu_kal_val=='d':
+                    rotate_right(steps_number_ssh)
+                elif menu_kal_val=='w':
+                    rotate_up(steps_number_ssh)
+                elif menu_kal_val=='s':
+                    rotate_down(steps_number_ssh)
+                elif menu_kal_val=='0':
+                    break
+                else:
+                    print("łe, zaś cos sie stało")
+
             
         elif menu_val==2:
             klawisze()
