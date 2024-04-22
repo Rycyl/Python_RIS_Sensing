@@ -17,7 +17,7 @@ try:
         azimuth_step=config["AZIMUTH_STEP"]
         azimuth_no_angles = config["AZIMUTH_NO_ANGLES"]
         elevation_step=config["ELEVATION_STEP"]
-        elevation_start_steps = config["ELEVATION_START_STEPS"]  
+        elevation_start_position = config["ELEVATION_START_STEPS"]  
         step_resolution = config["STEP_RESOLUTION"]
         elevation_no_angles = config["ELEVATION_NO_ANGLES"]
         span=config["SPAN"]
@@ -62,7 +62,6 @@ def pattern_loop(freq : int, azimuth_angle : str, elevation_angle : str):
             file.write(azimuth_angle+";"+elevation_angle+";"+pattern["ID"]+";")  # Write information about pattern and angle
             file.close()  # Close the file
         time.sleep(0.1)
-        # RIS_usb.read_pattern() #Information about pattern set on RIS.
         analyzer.trace_get()
 
 def freq_loop(freq_data : list, azimuth_angle : str, elevation_angle : str):
@@ -73,15 +72,17 @@ def freq_loop(freq_data : list, azimuth_angle : str, elevation_angle : str):
 def angle_loop(freq_data : list, azimuth_steps_form_start : int, elevation_steps_from_start : int, elevation_no_angles : int) -> bool:
     for i in range(azimuth_no_angles+1):
         azimuth_angle = count_angle(azimuth_steps_form_start)
-        print("Aktualny kąt azymutu: ", azimuth_angle)
+        print(f"######################[AZYMUT]: - {azimuth_angle} ############################")
         for i in range(elevation_no_angles+1):
             elevation_angle = count_angle(elevation_steps_from_start)
-            print("Aktualny kąt elewacji: ", elevation_angle)
+            print("[Aktualny kąt elewacji]: ", elevation_angle)
+            print("[Ilość kroków od początku]: ", elevation_steps_from_start)
             freq_loop(freq_data, azimuth_angle, elevation_angle)
             remote_head.rotate_up(elevation_step)
             elevation_steps_from_start+=elevation_step
-        remote_head.rotate_down(2*elevation_start_steps) # back to starting postion
-        elevation_no_angles = -elevation_start_steps
+        time.sleep(1)
+        remote_head.rotate_down((2*elevation_steps_from_start) - elevation_step) # back to elevation start postion
+        elevation_steps_from_start = -elevation_start_position
         remote_head.rotate_right(azimuth_step) # move few steps to the right (descroption in config file)
         azimuth_steps_form_start += azimuth_step
     return True
@@ -94,8 +95,8 @@ if __name__=="__main__":
         generator.com_check()
         RIS_usb.reset_RIS()
         #remote_head.az360()
-        remote_head.rotate_down(elevation_start_steps)
-        elevation_steps_from_start = -elevation_start_steps
+        remote_head.rotate_down(elevation_start_position)
+        elevation_steps_from_start = -elevation_start_position
         azimuth_steps_form_start = 0 # counts how many steps remote head did. Could be used to count actual measurement angle.
         freq_data = prepare_freq()
         measure_ended = angle_loop(freq_data, azimuth_steps_form_start, elevation_steps_from_start, elevation_no_angles)

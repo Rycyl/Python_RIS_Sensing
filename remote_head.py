@@ -121,25 +121,25 @@ def step_left_right():
     time.sleep(azimuth_step_time)
 
 def rotate_left(step_number):
-    print("Obrót w lewo o " + str(step_number*(1/step_resolution)*1.8))
+    print("[Obrót w lewo o]: " + str(step_number*(1/step_resolution)*1.8))
     DIR_AZ_GPIO.write(False)  #lewo
     for i in range(step_number):
         step_left_right()
 
 def rotate_right(step_number):
-    print("Obrót w prawo o " + str(step_number*(1/step_resolution)*1.8))
+    print("[Obrót w prawo o]: " + str(step_number*(1/step_resolution)*1.8))
     DIR_AZ_GPIO.write(True)  #prawo
     for i in range(step_number):
         step_left_right()
 
-def rotate_up(step_number):
-    print("Obrót w góra o " + str(step_number*(1/step_resolution)*1.8))
+def rotate_down(step_number):
+    print("[Obrót w dół o]: " + str(step_number*(1/step_resolution)*1.8))
     DIR_EL_GPIO.write(False) #gora
     for i in range(step_number):
         step_up_down()
 
-def rotate_down(step_number):
-    print("Obrót w dół o " + str(step_number*(1/step_resolution)*1.8))
+def rotate_up(step_number):
+    print("[Obrót w górę o]: " + str(step_number*(1/step_resolution)*1.8))
     DIR_EL_GPIO.write(True) #dol
     for i in range(step_number):
         step_up_down()

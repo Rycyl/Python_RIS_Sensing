@@ -31,9 +31,9 @@ def meas_prep(set : True, mode, amplitude : int, freq : int):
     generator.source.frequency.set_mode(mode)
     generator.source.power.level.immediate.set_amplitude(amplitude)
     generator.source.frequency.fixed.set_value(freq)
-    print(f'Channel 1 PEP level: {generator.source.power.get_pep()} dBm')
+    #print(f'Channel 1 PEP level: {generator.source.power.get_pep()} dBm')
     response = generator.utilities.query_str('*IDN?')
-    print(f'Direct SCPI response on *IDN?: {response}')
+    print(f'[GENERATOR HELLO]: {response}')
 
 def meas_close():
     generator.close()

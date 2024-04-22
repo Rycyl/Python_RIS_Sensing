@@ -36,7 +36,7 @@ def meas_close():
 
 def com_check():
     idn_response = analyzer.query_str('*IDN?')
-    print('Hello, I am ' + idn_response)
+    print('[ANALYZER_HELLO]:' + idn_response)
     
    
 def meas_prep(freq : int, span : int, mode : str, revlevel : int, rbw : str):
