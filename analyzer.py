@@ -50,7 +50,7 @@ def meas_prep(freq : int, span : int, mode : str, revlevel : int, rbw : str):
 
 def trace_get():
     """Initialize continuous measurement, stop it after the desired time, query trace data"""
-    analyzer.write_str_with_opc('INITiate:CONTinuous ON')  
+    analyzer.write_str_with_opc('INITiate')  
     sleep(int(MEASURE_TIME))  # Wait for preset record time
     analyzer.write('DISPlay:TRACe1:MODE VIEW')
     analyzer.query_opc()

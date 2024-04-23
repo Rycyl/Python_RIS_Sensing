@@ -8,9 +8,9 @@ import json
 try:
     with open ("config.json") as config_f:
        config = json.load(config_f)
-       step_resolution = config["STEP_RESOLUTION"]
        azimuth_step_time = config["AZIMUTH_STEP_TIME"]
        elevation_step_time = config["ELEVATION_STEP_TIME"]
+       step_resolution = config["STEP_RESOLUTION"]
 except FileNotFoundError:
     print("Brak pliku konfiguracyjnego.")
     exit()

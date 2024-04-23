@@ -20,6 +20,7 @@ try:
         elevation_start_position = config["ELEVATION_START_STEPS"]  
         step_resolution = config["STEP_RESOLUTION"]
         elevation_no_angles = config["ELEVATION_NO_ANGLES"]
+        step_resolution = config["STEP_RESOLUTION"]
         span=config["SPAN"]
         analyzer_mode=config["ANALYZER_MODE"]
         revlevel=config["REVLEVEL"]
@@ -75,13 +76,18 @@ def angle_loop(freq_data : list, azimuth_steps_form_start : int, elevation_steps
         print(f"######################[AZYMUT]: - {azimuth_angle} ############################")
         for i in range(elevation_no_angles+1):
             elevation_angle = count_angle(elevation_steps_from_start)
+            if elevation_angle == '0.0': # skip 0 - mesurments were made before
+                print("ZERO")
+            else:
+                freq_loop(freq_data, azimuth_angle, elevation_angle)
             print("[Aktualny kąt elewacji]: ", elevation_angle)
             print("[Ilość kroków od początku]: ", elevation_steps_from_start)
-            freq_loop(freq_data, azimuth_angle, elevation_angle)
             remote_head.rotate_up(elevation_step)
+            time.sleep(1) # wait for remote_head stabilization
             elevation_steps_from_start+=elevation_step
         time.sleep(1)
         remote_head.rotate_down((2*elevation_steps_from_start) - elevation_step) # back to elevation start postion
+        time.sleep(1)
         elevation_steps_from_start = -elevation_start_position
         remote_head.rotate_right(azimuth_step) # move few steps to the right (descroption in config file)
         azimuth_steps_form_start += azimuth_step
@@ -95,6 +101,7 @@ if __name__=="__main__":
         generator.com_check()
         RIS_usb.reset_RIS()
         #remote_head.az360()
+        remote_head.resolution(step_resolution)
         remote_head.rotate_down(elevation_start_position)
         elevation_steps_from_start = -elevation_start_position
         azimuth_steps_form_start = 0 # counts how many steps remote head did. Could be used to count actual measurement angle.
