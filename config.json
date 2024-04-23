@@ -12,7 +12,7 @@
     "STEP_COMMENT" : "Do wartości poniżej (kroki silnika) 1-krok 1.8stopnia, 2-0.9, 4-0.45, 8-0.225, 16-0.1125",
     "STEP_RESOLUTION" : 2,
     "AZIMUTH_STEP_TIME" : 0.05,
-    "AZIMUTH_STEP": 1,
+    "AZIMUTH_STEP": 2,
     "AZIMUTH_NO_ANGLES" : 100,
     "ELEVATION_START_STEPS" : 30,
     "ELEVATION_STEP_TIME" : 0.05,

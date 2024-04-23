@@ -37,7 +37,7 @@ except FileNotFoundError:
     exit()
     
 try:
-    with open("RIS_patterns.json") as json_patterns:
+    with open("RIS_patterns_copy_for_tests.json") as json_patterns:
         patterns_obj = json.load(json_patterns)
         patterns_data = patterns_obj["PATTERNS"]
 except FileNotFoundError:
@@ -78,16 +78,17 @@ def angle_loop(freq_data : list, azimuth_steps_form_start : int, elevation_steps
             elevation_angle = count_angle(elevation_steps_from_start)
             if elevation_angle == '0.0': # skip 0 - mesurments were made before
                 print("ZERO")
+                time.sleep(1.5)
             else:
                 freq_loop(freq_data, azimuth_angle, elevation_angle)
             print("[Aktualny kąt elewacji]: ", elevation_angle)
             print("[Ilość kroków od początku]: ", elevation_steps_from_start)
             remote_head.rotate_up(elevation_step)
-            time.sleep(1) # wait for remote_head stabilization
+            time.sleep(1.5) # wait for remote_head stabilization
             elevation_steps_from_start+=elevation_step
-        time.sleep(1)
+        time.sleep(1.5)
         remote_head.rotate_down((2*elevation_steps_from_start) - elevation_step) # back to elevation start postion
-        time.sleep(1)
+        time.sleep(1.5)
         elevation_steps_from_start = -elevation_start_position
         remote_head.rotate_right(azimuth_step) # move few steps to the right (descroption in config file)
         azimuth_steps_form_start += azimuth_step
