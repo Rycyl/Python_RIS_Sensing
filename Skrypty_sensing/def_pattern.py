@@ -65,3 +65,12 @@ def pattern_bin_to_hex(bits):
         a = ""
     return ret
    
+def turntohex(decimal):
+    hex_string = hex(decimal)
+    # Remove the '0x' prefix
+    hex_string = hex_string[2:]
+    # Add leading zeros to ensure the string length is 64 characters
+    hex_string = '0' * (64 - len(hex_string)) + hex_string
+    # Add the '0x' prefix back
+    hex_string = '0x' + hex_string
+    return hex_string

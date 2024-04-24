@@ -104,7 +104,31 @@ def pattern_iterative_state_optimization(freq):
               file.write("\n")
               file.close()    
 
-    
+
+def on_off_measurement(freq):
+    analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+    all_off = 0
+    on_element = 0x8000000000000000000000000000000000000000000000000000000000000000
+    for i in range (256):
+        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+        RIS_usb.set_pattern(def_pattern.turntohex(all_off))
+        time.sleep(0.1)
+        off_amp = analyzer_sensing.trace_get_return()
+        RIS_usb.set_pattern(def_pattern.turntohex(on_element))
+        time.sleep(0.1)
+        on_amp = analyzer_sensing.trace_get_return()
+        with open(trace_file, 'a+') as file:
+            file.write("Element NO:"+str(i))
+            file.write(";")
+            file.write("OFF AMP:"+str(off_amp))
+            file.write(";")
+            file.write("ON AMP:"+str(on_amp))
+            file.write("\n")
+            file.close()
+        on_element = on_element >> 1
+            
+
+        
 
 
 def freq_loop(freq_data):
