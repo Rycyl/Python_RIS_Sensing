@@ -6,6 +6,7 @@ import numpy as np
 from RsSmw import *
 import time
 import def_pattern
+import random
 try:
     with open ("config_sensing.json") as config_f:
         config = json.load(config_f)
@@ -103,31 +104,44 @@ def pattern_iterative_state_optimization(freq):
               file.write("\n")
               file.close()    
 
+#powielony 
+def load_patterns_from_json(filepath):
+    try:
+        with open(filepath, 'r') as file:
+            data = json.load(file)
+            return data['PATTERNS']
+    except FileNotFoundError:
+        print("JSON file not found.")
+        return None
+    except json.JSONDecodeError:
+        print("Error decoding JSON.")
+        return None
 
-def on_off_measurement(freq):
-    analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
-    all_off = 0
-    on_element = 0x8000000000000000000000000000000000000000000000000000000000000000
-    for i in range (256):
-        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
-        RIS_usb.set_pattern(def_pattern.turntohex(all_off))
-        time.sleep(0.1)
-        off_amp = analyzer_sensing.trace_get_return()
-        RIS_usb.set_pattern(def_pattern.turntohex(on_element))
-        time.sleep(0.1)
-        on_amp = analyzer_sensing.trace_get_return()
-        with open(trace_file, 'a+') as file:
-            file.write("Element NO:"+str(i))
-            file.write(";")
-            file.write("OFF AMP:"+str(off_amp))
-            file.write(";")
-            file.write("ON AMP:"+str(on_amp))
-            file.write("\n")
-            file.close()
-        on_element = on_element >> 1
-            
+def apply_and_modify_patterns(patterns, trace_file):
+    random_pattern = random.getrandbits(256)
+    for pattern in patterns:
+        original_hex_pattern = int(pattern['HEX'], 16)
+        RIS_usb.set_pattern(pattern['HEX'])
+        original_amp = analyzer_sensing.trace_get_return()
 
+        combined_pattern = original_hex_pattern | ~random_pattern
         
+        combined_hex = f"0x{combined_pattern:064X}"
+        RIS_usb.set_pattern(combined_hex)
+        combined_amp = analyzer_sensing.trace_get_return()
+        
+        log_pattern_measurement(pattern['ID'], pattern['HEX'], original_amp, combined_hex, combined_amp, trace_file)
+
+def log_pattern_measurement(id, original_hex, original_amp, combined_hex, combined_amp, trace_file):
+    with open(trace_file, 'a+') as file:
+        file.write
+        (
+            f"Pattern ID: {id};
+            Original HEX: {original_hex};
+            Original AMP: {original_amp};
+            Combined HEX: {combined_hex};
+            Combined AMP: {combined_amp}\n"
+        )
 
 
 def freq_loop(freq_data):
@@ -144,9 +158,18 @@ if __name__=="__main__":
         RIS_usb.reset_RIS()
         freq_data = prepare_freq()
         freq_loop(freq_data)
+
+        if patterns_data:
+            apply_and_modify_patterns(patterns_data, trace_file)
+         
         analyzer_sensing.meas_close()
-        generator.meas_close()
+        generator.meas_close()   
         exit()
     except KeyboardInterrupt:
-        print("[KEY]Keyboard interrupt.")
+        print("[KEY] Keyboard interrupt.")
+    except Exception as e:
+        print(f"[ERROR] An error occurred: {e}")
+    finally:
         exit()
+        
+
