@@ -52,7 +52,7 @@ def apply_and_measure_specific_pattern(pattern, trace_file, freq):
     modified_pattern = original_hex_pattern
     for i in range(1, 17):
         hex_zeros = '0' * (4 * i)
-        hex_as = 'A' * (64 - 4 * i)
+        hex_as = '5' * (64 - 4 * i)
         modified_hex = '0x' + hex_as + hex_zeros
         modified_pattern = int(modified_hex, 16)
         
@@ -72,7 +72,7 @@ def log_pattern_measurement(id, original_hex, original_amp, modified_hex, modifi
 def main():
     freq_data = prepare_freq(config['START_FREQ'], config['END_FREQ'], config['STEP_FREQ'])
     
-    pattern_to_measure = next((p for p in patterns_data if p["ID"] == "9"), None)#[1010]
+    pattern_to_measure = next((p for p in patterns_data if p["ID"] == "10"), None) #[0101]
     if pattern_to_measure:
         for freq in freq_data:
             apply_and_measure_specific_pattern(pattern_to_measure, config["TRACE_FILE"], freq)
