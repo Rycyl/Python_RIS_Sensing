@@ -113,6 +113,7 @@ def on_off_measurement(freq):
         RIS_usb.set_pattern(def_pattern.turntohex(all_off))
         time.sleep(0.1)
         off_amp = analyzer_sensing.trace_get_return()
+        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
         RIS_usb.set_pattern(def_pattern.turntohex(on_element))
         time.sleep(0.1)
         on_amp = analyzer_sensing.trace_get_return()
