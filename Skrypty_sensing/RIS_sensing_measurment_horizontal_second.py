@@ -77,7 +77,7 @@ def main():
         for freq in freq_data:
             apply_and_measure_specific_pattern(pattern_to_measure, config["TRACE_FILE"], freq)
     else:
-        print("Specific pattern with ID '9' not found.")
+        print("Specific pattern with ID '10' not found.")
 
 if __name__ == "__main__":
     main()
