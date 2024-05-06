@@ -1,14 +1,14 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from PIL import Image
+import io
 
 def plot_multiple_patterns_from_csv(file_path, patterns):
-    df = pd.read_csv(file_path, sep=';', names=['Configuration', 'Frequency', 'Power'])
+    df = pd.read_csv(file_path, sep=',', names=['Configuration', 'Frequency', 'Power','ID'])
 
-    # Convert Frequency from Hz to GHz for easier handling and filter the data
     df['Frequency'] = df['Frequency'] / 1e9
     df = df[(df['Frequency'] >= 5.0) & (df['Frequency'] <= 5.9)]
     
-    # Ensure the DataFrame is sorted by 'Frequency' to connect points in ascending frequency order
     df = df.sort_values(by='Frequency')
     
     power_min = df['Power'].min() // 2 * 2  
@@ -38,8 +38,19 @@ def plot_multiple_patterns_from_csv(file_path, patterns):
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 5}, ncol=1, handletextpad=2, labelspacing=1.5, borderpad=1, frameon=True)
     plt.grid(True)
     plt.show()
+    
+        # Save to a BytesIO object
+    buf = io.BytesIO()
+    plt.savefig(buf, format='jpeg')
+    buf.seek(0)
+        
+        # Create a PIL image from the bytes buffer
+    image = Image.open(buf)
+    image.save(f"{output_folder}/plot_{pattern.replace(' ', '_')}.jpg")
+    plt.close()
+        
 
-# Adjusted for demonstration; replace with your actual file path and patterns
-file_path = open(r'C:\Users\marsieradzka\Desktop\ris\Python_RIS\wyniki\18_03_24_03\19_03_reflection_20cm_3_5cm_17cm.csv')
+file_path = open(r'C:\Users\marsieradzka\Desktop\ris\Python_RIS_Sensing-3\wyniki\pierwsza_seria\18_03_24_03\19_03_reflection_20cm_3_5cm_17cm.csv')
 patterns = ["Right side on","Upper half on","Lower half on","Vertical strips [1010]", "Vertical strips [0101]","Horizontal strips [1010]"]#,"Horizontal strips [0101]","Chessboard [1010/0101]","Chessboard [0101/1010]","Thick vertical strips [1100]","Thick vertical strips [0011]","Thicker vertical strips [11110000]","Thicker vertical strips [00001111]","Thick horizontal strips [1100]","Thick horizontal strips [0011]","Chessboard [11001100/00110011]", "Chest","Dartboard","Random 1","Random 2","Random 3","Random 4"]
+output_folder = r'C:\Users\marsieradzka\Desktop\ris\Python_RIS_Sensing-3\wizualizacja_danych\marta_wykresy\2D_wykres'
 plot_multiple_patterns_from_csv(file_path, patterns)#"All elements turn on","Only first element turn on","Only last element turn on","Left side on",
