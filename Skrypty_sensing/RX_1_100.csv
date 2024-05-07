@@ -1,0 +1,27 @@
+All elements turn off;5500000000.0;-64.98
+All elements turn on;5500000000.0;-63.55
+Only first element turn on;5500000000.0;-63.57
+Only last element turn on;5500000000.0;-64.95
+Left side on;5500000000.0;-62.91
+Right side on;5500000000.0;-62.91
+Upper half on;5500000000.0;-63.05
+Lower half on;5500000000.0;-63.05
+Vertical strips [1010];5500000000.0;-66.52
+Vertical strips [0101];5500000000.0;-66.53
+Horizontal strips [1010];5500000000.0;-63.13
+Horizontal strips [0101];5500000000.0;-63.12
+Chessboard [1010/0101];5500000000.0;-63.34
+Chessboard [0101/1010];5500000000.0;-63.34
+Thick vertical strips [1100];5500000000.0;-63.39
+Thick vertical strips [0011];5500000000.0;-64.57
+Thicker vertical strips [11110000];5500000000.0;-64.94
+Thicker vertical strips [00001111];5500000000.0;-64.96
+Thick horizontal strips [1100];5500000000.0;-64.58
+Thick horizontal strips [0011];5500000000.0;-64.58
+Chessboard [11001100/00110011];5500000000.0;-65.82
+Chest;5500000000.0;-64.86
+Dartboard;5500000000.0;-64.86
+Random 1;5500000000.0;-64.72
+Random 2;5500000000.0;-64.72
+Random 3;5500000000.0;-64.13
+Random 4;5500000000.0;-64.12

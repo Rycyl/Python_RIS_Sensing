@@ -59,11 +59,25 @@ def pattern_loop(freq):
         # RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
         analyzer_sensing.trace_get()
 
+def clear_run (freq):
+    pattern = patterns_data[0]
+    for i in patterns_data:
+        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+        RIS_usb.set_pattern(pattern["HEX"])
+        with open(trace_file, 'a+') as file:
+            file.write(pattern["DESC"])  # Write information about pattern information
+            file.write(";")
+            file.close()  # CLose the file
+        time.sleep(0.1)
+        # RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
+        analyzer_sensing.trace_get()
+
 def freq_loop(freq_data):
      for freq in freq_data:
         generator.meas_prep(True, generator_mode, generator_amplitude, freq) 
         # True means that generator is set up an generate something.
         pattern_loop(freq)
+        #clear_run(freq)
 
 if __name__=="__main__":
     try:
