@@ -41,9 +41,9 @@ def prepare_freq() -> list:
 
 def ref_run_max(freq, lenght):
     for i in range(lenght):
-        analyzer_sensing.meas_prep(True, generator_mode, generator_amplitude, freq)
+        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
         time.sleep(0.1)
-        amp = analyzer_sensing.trace_get_return
+        amp = analyzer_sensing.trace_get_return()
         with open(trace_file, 'a+') as file:
             file.write(str(i))
             file.write(";")
@@ -53,9 +53,9 @@ def ref_run_max(freq, lenght):
 
 def ref_run_mean(freq, lenght):
     for i in range(lenght):
-        analyzer_sensing.meas_prep(True, generator_mode, generator_amplitude, freq)
+        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
         time.sleep(0.1)
-        amp = analyzer_sensing.trace_get_return_mean
+        amp = analyzer_sensing.trace_get_return_mean()
         with open(trace_file, 'a+') as file:
             file.write(str(i))
             file.write(";")
@@ -65,9 +65,9 @@ def ref_run_mean(freq, lenght):
 
 def ref_run_vec(freq, lenght):
     for i in range(lenght):
-        analyzer_sensing.meas_prep(True, generator_mode, generator_amplitude, freq)
+        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
         time.sleep(0.1)
-        amp = analyzer_sensing.trace_get_return
+        amp = analyzer_sensing.trace_get_return_vect()
         with open(trace_file, 'a+') as file:
             file.write(str(i))
             file.write(";")
