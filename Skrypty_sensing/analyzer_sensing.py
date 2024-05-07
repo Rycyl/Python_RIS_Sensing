@@ -112,7 +112,7 @@ def trace_get_return():
         file.close()  # CLose the file """
     return max_amp
 
-def trace_get_return_avr():
+def trace_get_return_mean():
     """Initialize continuous measurement, stop it after the desired time, query trace data"""
     analyzer.write_str_with_opc('INITiate:CONTinuous ON')  
     sleep(int(MEASURE_TIME))  # Wait for preset record time
@@ -138,6 +138,26 @@ def trace_get_return_avr():
     
     amp_mean = amp_mean/x 
     return amp_mean
+
+def trace_get_return_vect():
+    """Initialize continuous measurement, stop it after the desired time, query trace data"""
+    analyzer.write_str_with_opc('INITiate:CONTinuous ON')  
+    sleep(int(MEASURE_TIME))  # Wait for preset record time
+    analyzer.write('DISPlay:TRACe1:MODE VIEW')
+    analyzer.query_opc()
+    sleep(0.1) # Wait for data
+    # Get y data (amplitude for each point)
+    trace_data = analyzer.query('Trace:DATA? TRACe1') 
+    csv_trace_data = trace_data.split(",")  
+    trace_len = len(csv_trace_data)  
+    x = 0  # Set counter to 0 as list starts with 0
+    amp_vect = []
+    while x < int(trace_len):  # Perform loop until all sweep points are covered
+        amp = float(csv_trace_data[x])
+        amp_vect.append(amp)
+        x+=1
+
+    return amp_vect
 
 
     
