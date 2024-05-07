@@ -71,6 +71,7 @@ if __name__=="__main__":
         analyzer_sensing.com_check()
         generator.com_check()
         RIS_usb.reset_RIS()
+        time.sleep(20)
         freq_data = prepare_freq()
         freq_loop(freq_data)
         analyzer_sensing.meas_close()
