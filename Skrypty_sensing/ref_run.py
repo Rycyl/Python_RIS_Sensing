@@ -82,8 +82,8 @@ def freq_loop(freq_data):
         generator.meas_prep(True, generator_mode, generator_amplitude, freq) 
         # True means that generator is set up an generate something.
         ref_run_max(freq, 30)
-        ref_run_mean(freq, 30)
-        ref_run_vec(freq, 30)
+        #ref_run_mean(freq, 30)
+        #ref_run_vec(freq, 30)
         
 
 if __name__=="__main__":
