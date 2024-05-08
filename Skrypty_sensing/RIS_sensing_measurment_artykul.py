@@ -57,8 +57,8 @@ def pattern_loop(freq):
             file.close()  # CLose the file
         time.sleep(0.1)
         # RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
-        #analyzer_sensing.trace_get()
-        analyzer_sensing.trace_get_vect()
+        analyzer_sensing.trace_get()
+        #analyzer_sensing.trace_get_vect()
 
 def clear_run (freq):
     pattern = patterns_data[0]
