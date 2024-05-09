@@ -72,13 +72,28 @@ def clear_run (freq):
         time.sleep(0.1)
         # RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
         analyzer_sensing.trace_get()
+    
+def vector_mes(freq, mestime, pattern_1, pattern_2):
+    analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+    analyzer_sensing.trace_get_vect(mestime)
+    RIS_usb.set_pattern(pattern_1)
+    analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+    time.sleep(0.1)
+    analyzer_sensing.trace_get_vect(mestime)
+    RIS_usb.set_pattern(pattern_2)
+    analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+    time.sleep(0.1)
+    analyzer_sensing.trace_get_vect(mestime)
+    
 
 def freq_loop(freq_data):
      for freq in freq_data:
-        generator.meas_prep(True, generator_mode, generator_amplitude, freq) 
+        #generator.meas_prep(True, generator_mode, generator_amplitude, freq) 
         # True means that generator is set up an generate something.
-        pattern_loop(freq)
+        #pattern_loop(freq)
         #clear_run(freq)
+        vector_mes(freq, 20, "turaj patern slaby", 'tutaj patern mocny')
+        
 
 if __name__=="__main__":
     try:
