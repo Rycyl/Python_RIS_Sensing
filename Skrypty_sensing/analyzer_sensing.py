@@ -90,23 +90,24 @@ def trace_get_vect(mes_time):
     trace_data = analyzer.query('Trace:DATA? TRACe1') 
     csv_trace_data = trace_data.split(",")  
     trace_len = len(csv_trace_data)
-    with open(TRACE_FILE, 'a+') as file:
-        file.write(str(trace_len))
-        file.write(";")
-        file.write(str(csv_trace_data))
-        file.write("\n")
-        file.close()
-    # ---------------------------------------------------------
-    # Alternatywna wersja z rozdzielaniem komurek danych
-    # ---------------------------------------------------------
     # with open(TRACE_FILE, 'a+') as file:
     #     file.write(str(trace_len))
     #     file.write(";")
-    #     for i in range(trace_len):
-    #         file.write(str(csv_trace_data[i]))
-    #         file.write(",")
+    #     file.write(str(csv_trace_data))
     #     file.write("\n")
     #     file.close()
+    # ---------------------------------------------------------
+    # Alternatywna wersja z rozdzielaniem komurek danych
+    # ---------------------------------------------------------
+    with open(TRACE_FILE, 'a+') as file:
+        file.write(str(trace_len))
+        file.write(";")
+        for i in range(trace_len):
+            datum = float(csv_trace_data[i]) 
+            file.write(str(datum))
+            file.write(",")
+        file.write("\n")
+        file.close()
     # ---------------------------------------------------------
     # Stara wersja funkcji
     # ---------------------------------------------------------

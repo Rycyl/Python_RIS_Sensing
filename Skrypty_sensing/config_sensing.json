@@ -1,6 +1,6 @@
 {
-    "IP_ADDRESS_ANALYZER" : "192.168.1.20",
-    "IP_ADDRESS_GENERATOR" : "192.168.1.30",
+    "IP_ADDRESS_ANALYZER" : "192.168.8.20",
+    "IP_ADDRESS_GENERATOR" : "192.168.8.30",
     "PORT" : 5025,
     "CONNECTION_TYPE" : "SOCKET",
     "TRACE_FILE": "Trace_file.csv",
@@ -20,7 +20,7 @@
     "ANALYZER_MODE" : "MAXHold",
     "REVLEVEL" : -30,
     "RBW" : "500 Hz",
-    "GENERATOR_AMPLITUDE" : -10,
+    "GENERATOR_AMPLITUDE" : -50,
     "GENERATOR_MODE" : "CW"
    
 }

@@ -5,7 +5,7 @@ import json
 import numpy as np
 from RsSmw import *
 import time
-import def_pattern
+
 try:
     with open ("config_sensing.json") as config_f:
         config = json.load(config_f)
@@ -53,7 +53,7 @@ def pattern_loop(freq):
         RIS_usb.set_pattern(pattern["HEX"])
         with open(trace_file, 'a+') as file:
             file.write(pattern["DESC"])  # Write information about pattern information
-            file.write(";")
+            file.write(",")
             file.close()  # CLose the file
         time.sleep(0.1)
         # RIS_usb.read_pattern() #Inofrmation about pattern set on RIS.
@@ -76,11 +76,12 @@ def clear_run (freq):
 def vector_mes(freq, mestime, pattern_1, pattern_2):
     analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
     analyzer_sensing.trace_get_vect(mestime)
-    RIS_usb.set_pattern(pattern_1)
+    RIS_usb.set_pattern(pattern_1["HEX"])
     analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+    generator.meas_prep(True, generator_mode, generator_amplitude, freq)
     time.sleep(0.1)
     analyzer_sensing.trace_get_vect(mestime)
-    RIS_usb.set_pattern(pattern_2)
+    RIS_usb.set_pattern(pattern_2["HEX"])
     analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
     time.sleep(0.1)
     analyzer_sensing.trace_get_vect(mestime)
@@ -92,21 +93,57 @@ def freq_loop(freq_data):
         # True means that generator is set up an generate something.
         #pattern_loop(freq)
         #clear_run(freq)
-        vector_mes(freq, 20, "turaj patern slaby", 'tutaj patern mocny')
+        vector_mes(freq, 20, patterns_data[0], patterns_data[18])
         
-
+'''
 if __name__=="__main__":
     try:
-        analyzer_sensing.com_prep()
-        analyzer_sensing.com_check()
-        generator.com_check()
-        RIS_usb.reset_RIS()
-        time.sleep(20)
-        freq_data = prepare_freq()
-        freq_loop(freq_data)
+
+        #time.sleep(20)
+        for y in range (1,13):
+            for x in range(1,6):
+                analyzer_sensing.com_prep()
+                analyzer_sensing.com_check()
+                generator.com_check()
+                RIS_usb.reset_RIS()
+                freq_data = prepare_freq()
+                with open(trace_file, 'a+') as file:
+                    file.write("pomiar " + str(x*y))
+                    file.write("\n")
+                    file.close
+                freq_loop(freq_data)
+                generator.meas_close()
+                time.sleep(5)
+            time.sleep(60)    
         analyzer_sensing.meas_close()
         generator.meas_close()
         exit()
     except KeyboardInterrupt:
         print("[KEY]Keyboard interrupt.")
         exit()
+
+
+#RX1 pwr TX lev = -40dBm
+'''
+
+time.sleep(20)
+i=1
+for y in range (1,10):
+    for x in range(1,6):
+                analyzer_sensing.com_prep()
+                analyzer_sensing.com_check()
+                generator.com_check()
+                RIS_usb.reset_RIS()
+                freq_data = prepare_freq()
+                with open(trace_file, 'a+') as file:
+                    file.write("pomiar " + str(i) + ",")
+                    file.write(str(time.ctime(time.time())))
+                    file.write("\n")
+                    file.close
+                i+=1
+                freq_loop(freq_data)
+                generator.meas_prep(True, generator_mode, -125.0, freq_data[0])
+                time.sleep(10)
+    time.sleep(50)    
+analyzer_sensing.meas_close()
+generator.meas_close()
