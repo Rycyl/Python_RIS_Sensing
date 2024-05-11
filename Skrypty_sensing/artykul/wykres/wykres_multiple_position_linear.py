@@ -6,10 +6,9 @@ from matplotlib.patches import Patch
 
 def plot_all_patterns_one_line_chart(file_paths, patterns, output_folder, how_far_from_box):
     
-    colors = ['dodgerblue', 'orange', 'green', 'red']  # Line colors for each file path
+    colors = ['dodgerblue', 'orange', 'green', 'red']
     plt.figure(figsize=(len(patterns) * 2, 8))
 
-    # Plot data for each pattern across all file paths
     for i, path in enumerate(file_paths):
         power_values = []
         for pattern in patterns:
