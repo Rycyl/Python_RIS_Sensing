@@ -25,7 +25,7 @@ def plot_all_patterns_one_line_chart(file_paths, patterns, output_folder, how_fa
     plt.ylabel('Power (dBm)')
     plt.title(f'Power Levels Across All Patterns and Paths for distance {how_far_from_box}')
     plt.xticks(rotation=45, ha="right")
-    plt.ylim([-90, -60])
+    plt.ylim([-60, -90])
     plt.legend(title="Path")
     plt.grid(True, which='both', linestyle='--', linewidth=0.5)
     plt.gca().invert_yaxis()
@@ -37,14 +37,13 @@ def plot_all_patterns_one_line_chart(file_paths, patterns, output_folder, how_fa
 
     print(f"Image saved to {output_path}")
 
-
 file_paths = [
-    r'C:\Users\marsieradzka\Desktop\ris\Python_RIS_Sensing\Skrypty_sensing\artykul\wyniki\TXkier_RXkier\RX_1_184.csv',
-    r'C:\Users\marsieradzka\Desktop\ris\Python_RIS_Sensing\Skrypty_sensing\artykul\wyniki\TXkier_RXkier\RX_2_184.csv',
-    r'C:\Users\marsieradzka\Desktop\ris\Python_RIS_Sensing\Skrypty_sensing\artykul\wyniki\TXkier_RXkier\RX_3_184.csv',
-    r'C:\Users\marsieradzka\Desktop\ris\Python_RIS_Sensing\Skrypty_sensing\artykul\wyniki\TXkier_RXkier\RX_4_184.csv',
+    r'C:\Users\marsieradzka\Desktop\ris\Python_RIS_Sensing\Skrypty_sensing\artykul\wyniki\TXdookol_RXdookol\1_dookolna_184.csv',
+    r'C:\Users\marsieradzka\Desktop\ris\Python_RIS_Sensing\Skrypty_sensing\artykul\wyniki\TXdookol_RXdookol\2_dookolna_184.csv',
+    r'C:\Users\marsieradzka\Desktop\ris\Python_RIS_Sensing\Skrypty_sensing\artykul\wyniki\TXdookol_RXdookol\3_dookolna_184.csv',
+    r'C:\Users\marsieradzka\Desktop\ris\Python_RIS_Sensing\Skrypty_sensing\artykul\wyniki\TXdookol_RXdookol\4_dookolna_184.csv',
 ]
 how_far_from_box = 184
 patterns = ["All elements turn off","All elements turn on","Only first element turn on","Only last element turn on","Left side on","Right side on","Upper half on","Lower half on","Vertical strips [1010]", "Vertical strips [0101]","Horizontal strips [1010]","Horizontal strips [0101]","Chessboard [1010/0101]","Chessboard [0101/1010]","Thick vertical strips [1100]","Thick vertical strips [0011]","Thicker vertical strips [11110000]","Thicker vertical strips [00001111]","Thick horizontal strips [1100]","Thick horizontal strips [0011]","Chessboard [11001100/00110011]", "Chest","Dartboard","Random 1","Random 2","Random 3","Random 4"]
-output_folder = r'C:\Users\marsieradzka\Desktop\ris\Python_RIS_Sensing\Skrypty_sensing\artykul\wykres\TXkier_RXkier'
+output_folder = r'C:\Users\marsieradzka\Desktop\ris\Python_RIS_Sensing\Skrypty_sensing\artykul\wykres\TXdookol_RXdookol'
 plot_all_patterns_one_line_chart(file_paths, patterns, output_folder, how_far_from_box)
