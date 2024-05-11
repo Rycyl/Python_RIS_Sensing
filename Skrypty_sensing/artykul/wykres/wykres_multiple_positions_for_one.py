@@ -11,7 +11,7 @@ def plot_bar_for_configurations(file_paths, patterns, output_folder, how_far_fro
     for pattern in patterns:
         power_values = []
         labels = []
-        first_id = None  # Variable to store the first ID found for the pattern
+        first_id = None  
 
         for i, path in enumerate(file_paths, start=1):
             df = pd.read_csv(path, sep=';', header=None)
@@ -20,12 +20,12 @@ def plot_bar_for_configurations(file_paths, patterns, output_folder, how_far_fro
 
             if not config_data.empty:
                 if first_id is None:
-                    first_id = config_data.iloc[0]['ID']  # Capture the first ID
+                    first_id = config_data.iloc[0]['ID']  
                 power = config_data.iloc[0]['Power'].round(2)
                 power_values.append(power)
                 labels.append(f"Path {i} ({power} dBm)")
             else:
-                power_values.append(0)  # Assume zero power if no data
+                power_values.append(0)  
                 labels.append(f"Path {i} (N/A)")
 
         plt.figure(figsize=(10, 6))
