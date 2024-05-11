@@ -7,7 +7,7 @@ import io
 
 def plot_bar_chart_from_csv(file_path, patterns, output_path):
 
-    df = pd.read_csv(file_path, sep=';', names=['Configuration', 'Frequency', 'Power'])
+    df = pd.read_csv(file_path, sep=';', names=['Configuration', 'Frequency', 'Power','id'])
 
     df['Config_with_Power'] = " (" + df['Power'].round(2).astype(str) + " dBm)     " + df['Configuration']
 
