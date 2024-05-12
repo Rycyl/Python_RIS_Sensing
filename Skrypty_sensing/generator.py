@@ -22,6 +22,8 @@ except FileNotFoundError:
     exit()
 
 def com_check():
+    generator.visa_timeout = 500000  
+    generator.opc_timeout = 3000 
     generator.utilities.instrument_status_checking = True
     generator.repcap_hwInstance_set(repcap.HwInstance.InstA)
 

@@ -126,14 +126,13 @@ if __name__=="__main__":
 #RX1 pwr TX lev = -40dBm
 '''
 
-time.sleep(20)
+#time.sleep(20)
 i=1
-for y in range (1,10):
-    for x in range(1,6):
-                analyzer_sensing.com_prep()
-                analyzer_sensing.com_check()
-                generator.com_check()
-                RIS_usb.reset_RIS()
+RIS_usb.reset_RIS()
+analyzer_sensing.com_prep()
+analyzer_sensing.com_check()
+generator.com_check()
+while (True):
                 freq_data = prepare_freq()
                 with open(trace_file, 'a+') as file:
                     file.write("pomiar " + str(i) + ",")
@@ -142,8 +141,7 @@ for y in range (1,10):
                     file.close
                 i+=1
                 freq_loop(freq_data)
-                generator.meas_prep(True, generator_mode, -125.0, freq_data[0])
-                time.sleep(10)
-    time.sleep(50)    
+                generator.meas_prep(True, generator_mode, -135.0, freq_data[0])
+                time.sleep(10)    
 analyzer_sensing.meas_close()
 generator.meas_close()
