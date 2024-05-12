@@ -1,27 +1,27 @@
-All elements turn off;5500000000.0;-69.93
-All elements turn on;5500000000.0;-69.91
-Only first element turn on;5500000000.0;-69.91
-Only last element turn on;5500000000.0;-69.90
-Left side on;5500000000.0;-69.90
-Right side on;5500000000.0;-69.94
-Upper half on;5500000000.0;-70.41
-Lower half on;5500000000.0;-70.42
-Vertical strips [1010];5500000000.0;-70.41
-Vertical strips [0101];5500000000.0;-70.42
-Horizontal strips [1010];5500000000.0;-70.52
-Horizontal strips [0101];5500000000.0;-70.85
-Chessboard [1010/0101];5500000000.0;-70.84
-Chessboard [0101/1010];5500000000.0;-70.83
-Thick vertical strips [1100];5500000000.0;-70.56
-Thick vertical strips [0011];5500000000.0;-70.55
-Thicker vertical strips [11110000];5500000000.0;-70.29
-Thicker vertical strips [00001111];5500000000.0;-70.30
-Thick horizontal strips [1100];5500000000.0;-70.46
-Thick horizontal strips [0011];5500000000.0;-70.47
-Chessboard [11001100/00110011];5500000000.0;-70.52
-Chest;5500000000.0;-70.60
-Dartboard;5500000000.0;-70.60
-Random 1;5500000000.0;-70.70
-Random 2;5500000000.0;-70.70
-Random 3;5500000000.0;-70.42
-Random 4;5500000000.0;-70.41
+All elements turn off;5500000000.0;-69.93;1
+All elements turn on;5500000000.0;-69.91;2
+Only first element turn on;5500000000.0;-69.91;3
+Only last element turn on;5500000000.0;-69.90;4
+Left side on;5500000000.0;-69.90;5
+Right side on;5500000000.0;-69.94;6
+Upper half on;5500000000.0;-70.41;7
+Lower half on;5500000000.0;-70.42;8
+Vertical strips [1010];5500000000.0;-70.41;9
+Vertical strips [0101];5500000000.0;-70.42;10
+Horizontal strips [1010];5500000000.0;-70.52;11
+Horizontal strips [0101];5500000000.0;-70.85;12
+Chessboard [1010/0101];5500000000.0;-70.84;13
+Chessboard [0101/1010];5500000000.0;-70.83;14
+Thick vertical strips [1100];5500000000.0;-70.56;15
+Thick vertical strips [0011];5500000000.0;-70.55;16
+Thicker vertical strips [11110000];5500000000.0;-70.29;17
+Thicker vertical strips [00001111];5500000000.0;-70.30;18
+Thick horizontal strips [1100];5500000000.0;-70.46;19
+Thick horizontal strips [0011];5500000000.0;-70.47;20
+Chessboard [11001100/00110011];5500000000.0;-70.52;21
+Chest;5500000000.0;-70.60;22
+Dartboard;5500000000.0;-70.60;23
+Random 1;5500000000.0;-70.70;24
+Random 2;5500000000.0;-70.70;25
+Random 3;5500000000.0;-70.42;26
+Random 4;5500000000.0;-70.41;27

@@ -6,7 +6,7 @@ import numpy as np
 
 
 def plot_multiple_patterns_from_csv(file_path, patterns,output_folder):
-    df = pd.read_csv(file_path, sep=';', names=['Configuration', 'Frequency', 'Power'])
+    df = pd.read_csv(file_path, sep=';', names=['Configuration', 'Frequency', 'Power','id'])
 
     df['Frequency'] = df['Frequency'] / 1e9
     df = df[(df['Frequency'] >= 5.0) & (df['Frequency'] <= 5.9)]
