@@ -101,7 +101,7 @@ def trace_get_vect(mes_time):
     # ---------------------------------------------------------
     with open(TRACE_FILE, 'a+') as file:
         file.write(str(trace_len))
-        file.write(";")
+        file.write(",")
         for i in range(trace_len):
             datum = float(csv_trace_data[i]) 
             file.write(str(datum))
