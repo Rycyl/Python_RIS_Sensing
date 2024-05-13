@@ -126,7 +126,7 @@ if __name__=="__main__":
 #RX1 pwr TX lev = -40dBm
 '''
 
-#time.sleep(20)
+time.sleep(20)
 i=1
 RIS_usb.reset_RIS()
 analyzer_sensing.com_prep()
