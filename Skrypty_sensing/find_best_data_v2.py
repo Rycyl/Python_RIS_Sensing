@@ -1,5 +1,6 @@
 import csv
 import numpy as np
+import matplotlib.pyplot as plt
 
 def read_data_from_file(input_csv_file):
     datasets = {}
@@ -48,14 +49,17 @@ def create_data(rows):
         "avg_pat2_power": avg_pat2_power
     }
     return ret_data
-    
-def write_best(input_csv_file, output_csv_file,copy_file, num_datasets=10):
+
+def process_data(input_csv_file, num_datasets = 10):
     datasets = read_data_from_file(input_csv_file)
-    #print(datasets)
     datasets_list = list(datasets.items())
     datasets_list.sort(key=lambda x: x[1][1]["avg_pat2_power"] - x[1][1]["avg_pat1_power"], reverse=True)
-    #print(datasets_list[:num_datasets])
     top_datasets = datasets_list[:num_datasets]
+    return top_datasets
+
+
+def write_best(input_csv_file, output_csv_file,copy_file, num_datasets=10):
+    top_datasets = process_data(input_csv_file, num_datasets)
     with open(output_csv_file, 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Pomiar No", "Date", "Avg Noise Level", "Avg Pat1 Power", "Avg Pat2 Power"])
@@ -85,11 +89,35 @@ def write_best(input_csv_file, output_csv_file,copy_file, num_datasets=10):
             writer.writerow(pat2_power)
     file.close()
 
+def plot_the_best(input_csv_file, num_datasets=10):
+    top_datasets = process_data(input_csv_file, num_datasets)
+    for dataset in top_datasets:
+        plt.figure()
+        joined_data = []
+        noise = dataset[1][1]["noise_level"]
+        pat1 = dataset[1][1]["pat1_power"]
+        pat2 = dataset[1][1]["pat2_power"]
+        joined_data.extend(noise)
+        joined_data.extend(pat1)
+        joined_data.extend(pat2)
+        t_axis = np.linspace(0, 60, len(joined_data))
+        plt.plot(t_axis, joined_data)
+        plt.title(f"Pomiar No: {dataset[0]}")
+        plt.xlabel("Time")
+        plt.ylabel("Power [dBm]")
+        plt.grid()
+
+
+
+        
+
 
 if __name__ == "__main__":
-    file_name = "Pomiar_noc_sobota-52"
+    file_name = "Pomiar_noc_sobota-52"#"Trace_file_Niedziela-Poniedzialek" 
     input_file = file_name + ".csv"
     output_file = file_name + "_best.csv"
     copy_file = file_name + "_full_vals.csv"
-    write_best(input_file, output_file, copy_file, 10)
+    #write_best(input_file, output_file, copy_file, 10)
+    plot_the_best(input_file, 10)
+    plt.show()
                 
