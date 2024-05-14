@@ -49,12 +49,12 @@ def create_data(rows):
     }
     return ret_data
     
-def write_best(input_csv_file, output_csv_file, num_datasets=10):
+def write_best(input_csv_file, output_csv_file,copy_file, num_datasets=10):
     datasets = read_data_from_file(input_csv_file)
     #print(datasets)
     datasets_list = list(datasets.items())
     datasets_list.sort(key=lambda x: x[1][1]["avg_pat2_power"] - x[1][1]["avg_pat1_power"], reverse=True)
-    print(datasets_list[:num_datasets])
+    #print(datasets_list[:num_datasets])
     top_datasets = datasets_list[:num_datasets]
     with open(output_csv_file, 'w', newline='') as file:
         writer = csv.writer(file)
@@ -67,10 +67,29 @@ def write_best(input_csv_file, output_csv_file, num_datasets=10):
             avg_pat2_power = dataset[1][1]["avg_pat2_power"]
             writer.writerow([pomiar_no, date, avg_noise_level, avg_pat1_power, avg_pat2_power])
     file.close()
-    
+    with open(copy_file, 'w', newline='') as file:
+        writer = csv.writer(file)
+        #writer.writerow(["Pomiar No", "Date"])
+        for dataset in top_datasets:
+            pomiar_no = dataset[0]
+            date = dataset[1][0]
+            writer.writerow([pomiar_no, date])
+            noise_level = dataset[1][1]["noise_level"]
+            pat1_power = dataset[1][1]["pat1_power"]
+            pat2_power = dataset[1][1]["pat2_power"]
+            file.write("Noise Level, ")
+            writer.writerow(noise_level)
+            file.write("Pattern 1 Power, ")
+            writer.writerow(pat1_power)
+            file.write("Pattern 2 Power, ")
+            writer.writerow(pat2_power)
+    file.close()
+
+
 if __name__ == "__main__":
     file_name = "Pomiar_noc_sobota-52"
     input_file = file_name + ".csv"
     output_file = file_name + "_best.csv"
-    write_best(input_file, output_file)
+    copy_file = file_name + "_full_vals.csv"
+    write_best(input_file, output_file, copy_file, 10)
                 
