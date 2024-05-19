@@ -1,6 +1,7 @@
 from RsInstrument import *
 from time import sleep
 import json
+import csv
 
 try:
     with open ("config_sensing.json") as config_f:
@@ -39,18 +40,43 @@ def com_check():
     print('Hello, I am ' + idn_response)
     
    
-def meas_prep(freq : int, span : int, mode : str, revlevel : int, rbw : str):
+def meas_prep(freq : int, swt : int, span : int, mode : str, revlevel : int, rbw : str, swepnt : int, swtcnt : int = 1):
     analyzer.write_str_with_opc(f'FREQuency:CENTer {freq}')  
     analyzer.write_str_with_opc(f'FREQuency:SPAN {span}')  
     analyzer.write_str_with_opc(f'BAND {rbw}')  
     analyzer.write_str_with_opc(f'DISPlay:TRACe1:MODE {mode}')  
     analyzer.write_str_with_opc(f'DISPlay:WINDow:TRACe:Y:SCALe:RLEVel {revlevel}')
+    analyzer.write_str_with_opc('DET RMS')
+    analyzer.write_str_with_opc(f'SWE:COUNT {swtcnt}')
+    analyzer.write_str_with_opc(f'SWEep:TIME {swt}')
+    analyzer.write_str_with_opc(f'SWEep:POINts {swepnt}')
+    analyzer.write_str_with_opc('INITiate:CONTinuous OFF')
+    mst = analyzer.query_float('SWEep:DUR?')
+    print('Measurement prepared. freq:', freq, 'span:', span, 'mode:', mode, 'revlevel:', revlevel, 'rbw:', rbw, 'swepnt:', swepnt, 'swtcnt:', swtcnt)
+    print(f'Measurement time: {mst} s')
     
-
+def trace_get_vect_fx():
+    #Initialize continuous measurement, stop it after the desired time, query trace data
+    analyzer.write_str_with_opc('INIT;*WAI')
+    # Get y data (amplitude for each point)
+    trace_data = analyzer.query_str_list_with_opc('Trace:DATA? TRACe1') 
+    #csv_trace_data = trace_data.split(",")  
+    trace_len = len(trace_data)
+    with open(TRACE_FILE, 'a+') as file:
+        file.write(str(trace_len))
+        file.write(",")
+        writer = csv.writer(file)
+        writer.writerow(trace_data)
+        # for i in range(trace_len):
+        #     datum = float(csv_trace_data[i]) 
+        #     file.write(str(datum))
+        #     file.write(",")
+        # file.write("\n")
+        file.close()    
 
 def trace_get():
     """Initialize continuous measurement, stop it after the desired time, query trace data"""
-    analyzer.write_str_with_opc('INITiate:CONTinuous ON')  
+    analyzer.write_str_with_opc('INITiate:CONTinuous OFF')  
     sleep(int(MEASURE_TIME))  # Wait for preset record time
     analyzer.write('DISPlay:TRACe1:MODE VIEW')
     analyzer.query_opc()
@@ -108,27 +134,8 @@ def trace_get_vect(mes_time):
             file.write(",")
         file.write("\n")
         file.close()
-    # ---------------------------------------------------------
-    # Stara wersja funkcji
-    # ---------------------------------------------------------
-    # # Reconstruct x data (frequency for each point) as it can not be directly read from the analyzer
-    # start_freq = analyzer.query_float('FREQuency:STARt?')
-    # span = analyzer.query_float('FREQuency:SPAN?')
-    # step_size = span / (trace_len-1)
-    # # Now write values into file
-    # max_amp = -150
-    # x = 0  # Set counter to 0 as list starts with 0
-    # amp_vec = []
-    # while x < int(trace_len):  # Perform loop until all sweep points are covered
-    #     amp = float(csv_trace_data[x])
-    #     amp_vec.append(amp)
-    #     x += 1
-        
-    # with open(TRACE_FILE, 'a+') as file:
-    #     file.write(str(amp_vec))  # Write adequate amplitude information
-    #     file.write("\n")
-    #     file.close()  # CLose the file
-        
+
+    
         
 def trace_get_return():
     """Initialize continuous measurement, stop it after the desired time, query trace data"""

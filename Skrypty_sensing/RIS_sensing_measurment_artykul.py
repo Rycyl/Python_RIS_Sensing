@@ -20,6 +20,7 @@ try:
         analyzer_mode=config["ANALYZER_MODE"]
         revlevel=config["REVLEVEL"]
         rbw=config["RBW"]
+        swepnt = config["SWEEP_POINTS"]
         generator_amplitude=config["GENERATOR_AMPLITUDE"]
         # More modes will be add later.
         if config["GENERATOR_MODE"] == "CW":
@@ -74,7 +75,7 @@ def clear_run (freq):
         analyzer_sensing.trace_get()
     
 def vector_mes(freq, mestime, pattern_1, pattern_2):
-    analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+    analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, revlevel, rbw, swepnt)
     analyzer_sensing.trace_get_vect(mestime)
     RIS_usb.set_pattern(pattern_1["HEX"])
     analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
