@@ -22,6 +22,7 @@ try:
         rbw=config["RBW"]
         swepnt = config["SWEEP_POINTS"]
         generator_amplitude=config["GENERATOR_AMPLITUDE"]
+        detector = config["DETECTOR"]
         # More modes will be add later.
         if config["GENERATOR_MODE"] == "CW":
             generator_mode = enums.FreqMode.CW
@@ -50,7 +51,7 @@ def prepare_freq() -> list:
 
 def pattern_loop(freq, mestime):
     for pattern in patterns_data:
-        analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, revlevel, rbw, swepnt)
+        analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
         RIS_usb.set_pattern(pattern["HEX"])
         with open(trace_file, 'a+') as file:
             file.write(pattern["DESC"])  # Write information about pattern information
@@ -64,7 +65,7 @@ def pattern_loop(freq, mestime):
 def clear_run (freq, mestime):
     pattern = patterns_data[0]
     for i in patterns_data:
-        analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, revlevel, rbw, swepnt)
+        analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
         RIS_usb.set_pattern(pattern["HEX"])
         with open(trace_file, 'a+') as file:
             file.write(pattern["DESC"])  # Write information about pattern information
@@ -75,15 +76,15 @@ def clear_run (freq, mestime):
         analyzer_sensing.trace_get()
     
 def vector_mes(freq, mestime, pattern_1, pattern_2):
-    analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, revlevel, rbw, swepnt)
+    analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
     analyzer_sensing.trace_get_vect_fx()
     RIS_usb.set_pattern(pattern_1["HEX"])
-    analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, revlevel, rbw, swepnt)
+    analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
     generator.meas_prep(True, generator_mode, generator_amplitude, freq)
     #time.sleep(0.1)
     analyzer_sensing.trace_get_vect_fx()
     RIS_usb.set_pattern(pattern_2["HEX"])
-    analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, revlevel, rbw, swepnt)
+    analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
     #time.sleep(0.1)
     analyzer_sensing.trace_get_vect_fx()
     

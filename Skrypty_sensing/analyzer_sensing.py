@@ -1,4 +1,5 @@
 from RsInstrument import *
+import time
 from time import sleep
 import json
 import csv
@@ -11,6 +12,7 @@ try:
         CONNECTION_TYPE = config["CONNECTION_TYPE"]
         TRACE_FILE = config["TRACE_FILE"] 
         MEASURE_TIME = config["MEASURE_TIME"]
+        DETECTOR = config["DETECTOR"]
         resource = f'TCPIP::{IP_ADDRESS_ANALYZER}::{PORT_ANALYZER}::{CONNECTION_TYPE}'  # Resource string for the device
         try:
             analyzer = RsInstrument(resource, True, True, "SelectVisa='socket'")   
@@ -40,13 +42,14 @@ def com_check():
     print('Hello, I am ' + idn_response)
     
    
-def meas_prep(freq : int, swt : int, span : int, mode : str, revlevel : int, rbw : str, swepnt : int, swtcnt : int = 1):
+def meas_prep(freq : int, swt : int, span : int, mode : str, detector : str, revlevel : int, rbw : str, swepnt : int, swtcnt : int = 1):
+    analyzer.write_str_with_opc('*RST')
     analyzer.write_str_with_opc(f'FREQuency:CENTer {freq}')  
     analyzer.write_str_with_opc(f'FREQuency:SPAN {span}')  
     analyzer.write_str_with_opc(f'BAND {rbw}')  
     analyzer.write_str_with_opc(f'DISPlay:TRACe1:MODE {mode}')  
     analyzer.write_str_with_opc(f'DISPlay:WINDow:TRACe:Y:SCALe:RLEVel {revlevel}')
-    analyzer.write_str_with_opc('DET RMS')
+    analyzer.write_str_with_opc(f'DET {detector}')
     analyzer.write_str_with_opc(f'SWE:COUNT {swtcnt}')
     analyzer.write_str_with_opc(f'SWEep:TIME {swt}')
     analyzer.write_str_with_opc(f'SWEep:POINts {swepnt}')
@@ -73,6 +76,25 @@ def trace_get_vect_fx():
         #     file.write(",")
         # file.write("\n")
         file.close()    
+
+def trace_get_vect_fx_alt(mestime):
+    power_values = []
+    analyzer.write_str_with_opc('SWE:TIME 100ms')
+    analyzer.write_str_with_opc('INIT:CONT ON')
+    start_time = time.time()
+    while time.time() - start_time < mestime:
+        analyzer.write_str_with_opc('INIT; *WAI')
+        trace_data = analyzer.query_str_with_opc('TRAC:DATA? TRACE1')
+        power_values.append(map(float, trace_data.split(',')))
+    analyzer.write_str_with_opc('INIT:CONT OFF')
+    len = len(power_values)
+    with open(TRACE_FILE, 'a+') as file:
+        writer = csv.writer(file)
+        file.write(str(len))
+        writer.writerows(power_values)
+        file.close()
+
+
 
 def trace_get():
     """Initialize continuous measurement, stop it after the desired time, query trace data"""

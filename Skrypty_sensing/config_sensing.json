@@ -19,9 +19,9 @@
     "SPAN" : 0,
     "ANALYZER_MODE" : "MAXHold",
     "REVLEVEL" : -30,
-    "RBW" : "5 Hz",
+    "RBW" : "500 Hz",
     "GENERATOR_AMPLITUDE" : -45,
     "GENERATOR_MODE" : "CW",
-    "SWEEP_POINTS" : 5000
-   
+    "SWEEP_POINTS" : 5000,
+    "DETECTOR" : "RMS"
 }
