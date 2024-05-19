@@ -48,9 +48,9 @@ def prepare_freq() -> list:
         freq_data = [start_freq]
     return freq_data
 
-def pattern_loop(freq):
+def pattern_loop(freq, mestime):
     for pattern in patterns_data:
-        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+        analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, revlevel, rbw, swepnt)
         RIS_usb.set_pattern(pattern["HEX"])
         with open(trace_file, 'a+') as file:
             file.write(pattern["DESC"])  # Write information about pattern information
@@ -61,10 +61,10 @@ def pattern_loop(freq):
         analyzer_sensing.trace_get()
         #analyzer_sensing.trace_get_vect()
 
-def clear_run (freq):
+def clear_run (freq, mestime):
     pattern = patterns_data[0]
     for i in patterns_data:
-        analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+        analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, revlevel, rbw, swepnt)
         RIS_usb.set_pattern(pattern["HEX"])
         with open(trace_file, 'a+') as file:
             file.write(pattern["DESC"])  # Write information about pattern information
@@ -78,13 +78,13 @@ def vector_mes(freq, mestime, pattern_1, pattern_2):
     analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, revlevel, rbw, swepnt)
     analyzer_sensing.trace_get_vect_fx()
     RIS_usb.set_pattern(pattern_1["HEX"])
-    analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
+    analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, revlevel, rbw, swepnt)
     generator.meas_prep(True, generator_mode, generator_amplitude, freq)
-    time.sleep(0.1)
+    #time.sleep(0.1)
     analyzer_sensing.trace_get_vect_fx()
     RIS_usb.set_pattern(pattern_2["HEX"])
-    analyzer_sensing.meas_prep(freq, span, analyzer_mode, revlevel, rbw)
-    time.sleep(0.1)
+    analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, revlevel, rbw, swepnt)
+    #time.sleep(0.1)
     analyzer_sensing.trace_get_vect_fx()
     
 
@@ -96,6 +96,28 @@ def freq_loop(freq_data):
         #clear_run(freq)
         vector_mes(freq, 20, patterns_data[0], patterns_data[18])
         
+
+
+time.sleep(20)
+i=1
+RIS_usb.reset_RIS()
+analyzer_sensing.com_prep()
+analyzer_sensing.com_check()
+generator.com_check()
+while (True):
+                freq_data = prepare_freq()
+                with open(trace_file, 'a+') as file:
+                    file.write("pomiar " + str(i) + ",")
+                    file.write(str(time.ctime(time.time())))
+                    file.write("\n")
+                    file.close
+                i+=1
+                freq_loop(freq_data)
+                generator.meas_prep(True, generator_mode, -135.0, freq_data[0])
+                time.sleep(10)    
+analyzer_sensing.meas_close()
+generator.meas_close()
+
 '''
 if __name__=="__main__":
     try:
@@ -126,23 +148,3 @@ if __name__=="__main__":
 
 #RX1 pwr TX lev = -40dBm
 '''
-
-time.sleep(20)
-i=1
-RIS_usb.reset_RIS()
-analyzer_sensing.com_prep()
-analyzer_sensing.com_check()
-generator.com_check()
-while (True):
-                freq_data = prepare_freq()
-                with open(trace_file, 'a+') as file:
-                    file.write("pomiar " + str(i) + ",")
-                    file.write(str(time.ctime(time.time())))
-                    file.write("\n")
-                    file.close
-                i+=1
-                freq_loop(freq_data)
-                generator.meas_prep(True, generator_mode, -135.0, freq_data[0])
-                time.sleep(10)    
-analyzer_sensing.meas_close()
-generator.meas_close()
