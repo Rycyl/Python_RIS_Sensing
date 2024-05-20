@@ -17,11 +17,11 @@
     "RIS_PORT_COMMENT": "COM7 - Windows, /dev/tty.usbserial-D382L3CH - MacOS, linux-/dev/ttyUSB0",
     "RIS_PORT" : "/dev/ttyUSB0", 
     "SPAN" : 0,
-    "ANALYZER_MODE" : "Clrw",
+    "ANALYZER_MODE":"WRITe",
     "REVLEVEL" : -30,
     "RBW" : "500 Hz",
     "GENERATOR_AMPLITUDE" : -45,
     "GENERATOR_MODE" : "CW",
-    "SWEEP_POINTS" : 5000,
-    "DETECTOR" : "RMS"
+    "SWEEP_POINTS" : 1000,
+    "DETECTOR" : "SAMP"
 }

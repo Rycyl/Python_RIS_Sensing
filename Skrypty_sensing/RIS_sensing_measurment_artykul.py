@@ -77,16 +77,16 @@ def clear_run (freq, mestime):
     
 def vector_mes(freq, mestime, pattern_1, pattern_2):
     analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
-    analyzer_sensing.trace_get_vect_fx_alt(mestime)
+    analyzer_sensing.trace_get_vect_fx()
     RIS_usb.set_pattern(pattern_1["HEX"])
     analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
     generator.meas_prep(True, generator_mode, generator_amplitude, freq)
     time.sleep(0.1)
-    analyzer_sensing.trace_get_vect_fx_alt(mestime)
+    analyzer_sensing.trace_get_vect_fx()
     RIS_usb.set_pattern(pattern_2["HEX"])
     analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
     time.sleep(0.1)
-    analyzer_sensing.trace_get_vect_fx_alt(mestime)
+    analyzer_sensing.trace_get_vect_fx()
     
 
 def freq_loop(freq_data):
@@ -95,11 +95,11 @@ def freq_loop(freq_data):
         # True means that generator is set up an generate something.
         #pattern_loop(freq)
         #clear_run(freq)
-        vector_mes(freq, 20, patterns_data[0], patterns_data[18])
+        vector_mes(freq, 5, patterns_data[0], patterns_data[18])
         
 
 
-time.sleep(20)
+#time.sleep(20)
 i=1
 RIS_usb.reset_RIS()
 analyzer_sensing.com_prep()

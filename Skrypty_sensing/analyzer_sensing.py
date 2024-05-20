@@ -28,7 +28,7 @@ except FileNotFoundError:
 def com_prep():
     print(f'VISA Manufacturer: {analyzer.visa_manufacturer}')  
     analyzer.visa_timeout = 500000  
-    analyzer.opc_timeout = 3000  
+    analyzer.opc_timeout = 300000  
     analyzer.instrument_status_checking = True  
     analyzer.clear_status()  
   
