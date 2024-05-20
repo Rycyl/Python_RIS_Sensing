@@ -83,6 +83,7 @@ def trace_get_vect_fx_alt(mestime):
     analyzer.write_str_with_opc('INIT:CONT ON')
     start_time = time.time()
     while time.time() - start_time < mestime:
+        print(time.time() - start_time)
         analyzer.write_str_with_opc('INIT; *WAI')
         trace_data = analyzer.query_str_with_opc('TRAC:DATA? TRACE1')
         power_values.append(map(float, trace_data.split(',')))
@@ -98,7 +99,7 @@ def trace_get_vect_fx_alt(mestime):
 
 def trace_get():
     """Initialize continuous measurement, stop it after the desired time, query trace data"""
-    analyzer.write_str_with_opc('INITiate:CONTinuous OFF')  
+    analyzer.write_str_with_opc('INITiate')  
     sleep(int(MEASURE_TIME))  # Wait for preset record time
     analyzer.write('DISPlay:TRACe1:MODE VIEW')
     analyzer.query_opc()

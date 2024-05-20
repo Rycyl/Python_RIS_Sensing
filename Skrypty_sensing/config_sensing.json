@@ -17,7 +17,7 @@
     "RIS_PORT_COMMENT": "COM7 - Windows, /dev/tty.usbserial-D382L3CH - MacOS, linux-/dev/ttyUSB0",
     "RIS_PORT" : "/dev/ttyUSB0", 
     "SPAN" : 0,
-    "ANALYZER_MODE" : "MAXHold",
+    "ANALYZER_MODE" : "Clrw",
     "REVLEVEL" : -30,
     "RBW" : "500 Hz",
     "GENERATOR_AMPLITUDE" : -45,

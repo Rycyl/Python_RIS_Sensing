@@ -77,16 +77,16 @@ def clear_run (freq, mestime):
     
 def vector_mes(freq, mestime, pattern_1, pattern_2):
     analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
-    analyzer_sensing.trace_get_vect_fx()
+    analyzer_sensing.trace_get_vect_fx_alt(mestime)
     RIS_usb.set_pattern(pattern_1["HEX"])
     analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
     generator.meas_prep(True, generator_mode, generator_amplitude, freq)
-    #time.sleep(0.1)
-    analyzer_sensing.trace_get_vect_fx()
+    time.sleep(0.1)
+    analyzer_sensing.trace_get_vect_fx_alt(mestime)
     RIS_usb.set_pattern(pattern_2["HEX"])
     analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
-    #time.sleep(0.1)
-    analyzer_sensing.trace_get_vect_fx()
+    time.sleep(0.1)
+    analyzer_sensing.trace_get_vect_fx_alt(mestime)
     
 
 def freq_loop(freq_data):
