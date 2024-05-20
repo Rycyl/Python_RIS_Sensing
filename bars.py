@@ -21,17 +21,14 @@ def sort_dict(data):
 
 def plot_bars(data, title, xlabel, ylabel, save_path):
     data = sort_dict(data)
-    values = data.values()
-    values = list(values)
-    top_values = max(values) + 2
-    bottom_values = min(values)
-    #values = [value - bottom_values for value in values]
-    #print(values)
-    plt.figure(figsize=(10, 6))
-    plt.bar(data.keys(), np.abs(values), bottom= -74, color = 'dodgerblue')#bottom_values, color='dodgerblue')
-    plt.ylim(-73, -58)
-    #plt.ylim(bottom_values, top_values)
-    #plt.gca().invert_yaxis()
+    val = data.values()
+    val = list(val)
+    values = [float(v) for v in val]
+    x_vals = data.keys()
+    base_value = -73
+    y = [value - base_value for value in values ]
+    plt.figure(figsize=(12, 8))
+    plt.bar(x_vals, y, bottom = base_value)
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -44,23 +41,27 @@ def plot_bars(data, title, xlabel, ylabel, save_path):
 def get_file_path(file_name):
     current_file_path = os.path.abspath(__file__)
     current_dir_path = os.path.dirname(current_file_path)
-    parent_dir_path = os.path.dirname(current_dir_path)
-    file_path = os.path.join(parent_dir_path, file_name)
+    #parent_dir_path = os.path.dirname(current_dir_path)
+    #file_path = os.path.join(parent_dir_path, file_name)
+    file_path = os.path.join(current_dir_path, file_name)
+    print("--------------------------")
+    print(file_path)
+    print("--------------------------")
     return file_path
 
 if __name__ == '__main__':
-    sub_dir = 'RPYTHON_RIS_SENSING/'
-    file_name = 'Trace_file_bez_elewacja.csv'
+    #sub_dir = 'RPYTHON_RIS_SENSING/'
+    file_name = 'Trace_file_z_elewacja3.csv'
     fn = file_name.split('.')[0]
-    dat = sub_dir + file_name
-    file_path = get_file_path(dat)
-    data = read_from_csv("/home/kiril/Documents/GitHub/Python_RIS_Sensing/Trace_file_z_elewacja.csv")
+    #dat = sub_dir + file_name
+    #file_path = get_file_path(file_name)
+    data = read_from_csv(file_name)
     title = 'Moc odebrana w zależności od wybranego wzorca'
     xlabel = 'Wzorzec'
     ylabel = 'Moc [dBm]'
-    sub_dir_save = 'RPYTHON_RIS_SENSING/'
-    save_path = get_file_path('wykres/' + sub_dir_save + fn + '.png')
-    plot_bars(data, title, xlabel, ylabel, "/home/kiril/Documents/GitHub/Python_RIS_Sensing/Trace_file_z_elewacja.png")
+    #sub_dir_save = 'RPYTHON_RIS_SENSING/'
+    #save_path = get_file_path(fn + '.png')
+    plot_bars(data, fn, xlabel, ylabel, fn+ '.png')
     #żeby to automatycznie przechodziło przez wszystkie pliki w folderze
     #trzeba by zrobić funkcję która w pętli po plikach wywołuje funkcję plot_bars
     
