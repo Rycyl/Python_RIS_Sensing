@@ -57,6 +57,8 @@ def meas_prep(freq : int, swt : int, span : int, mode : str, detector : str, rev
     mst = analyzer.query_float('SWEep:DUR?')
     print('Measurement prepared. freq:', freq, 'span:', span, 'mode:', mode, 'revlevel:', revlevel, 'rbw:', rbw, 'swepnt:', swepnt, 'swtcnt:', swtcnt)
     print(f'Measurement time: {mst} s')
+
+
     
 def trace_get_vect_fx():
     #Initialize continuous measurement, stop it after the desired time, query trace data

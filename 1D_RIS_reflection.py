@@ -55,6 +55,7 @@ def freq_loop(freq_data):
 
 if __name__=="__main__":
     try:
+        time.sleep(20)
         analyzer.com_prep()
         analyzer.com_check()
         generator.com_check()

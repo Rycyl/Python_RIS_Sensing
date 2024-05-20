@@ -76,14 +76,26 @@ def clear_run (freq, mestime):
         analyzer_sensing.trace_get()
     
 def vector_mes(freq, mestime, pattern_1, pattern_2):
+    with open(trace_file, 'a+') as file:
+        file.write("noise") 
+        file.write(',')
+        file.close()  # CLose the file
     analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
     analyzer_sensing.trace_get_vect_fx()
     RIS_usb.set_pattern(pattern_1["HEX"])
+    with open(trace_file, 'a+') as file:
+        file.write(pattern_1["DESC"]) 
+        file.write(',')
+        file.close()  # CLose the file
     analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
     generator.meas_prep(True, generator_mode, generator_amplitude, freq)
     time.sleep(0.1)
     analyzer_sensing.trace_get_vect_fx()
     RIS_usb.set_pattern(pattern_2["HEX"])
+    with open(trace_file, 'a+') as file:
+        file.write(pattern_2["DESC"]) 
+        file.write(',')
+        file.close()  # CLose the file
     analyzer_sensing.meas_prep(freq, mestime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
     time.sleep(0.1)
     analyzer_sensing.trace_get_vect_fx()
@@ -95,7 +107,7 @@ def freq_loop(freq_data):
         # True means that generator is set up an generate something.
         #pattern_loop(freq)
         #clear_run(freq)
-        vector_mes(freq, 5, patterns_data[0], patterns_data[18])
+        vector_mes(freq, 20, patterns_data[16], patterns_data[5])
         
 
 
@@ -106,6 +118,7 @@ analyzer_sensing.com_prep()
 analyzer_sensing.com_check()
 generator.com_check()
 while (True):
+                print("POMIAR I=", i)
                 freq_data = prepare_freq()
                 with open(trace_file, 'a+') as file:
                     file.write("pomiar " + str(i) + ",")
