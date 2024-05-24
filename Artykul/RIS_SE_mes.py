@@ -39,21 +39,17 @@ except FileNotFoundError:
     
 def find_best_pattern(bsweptime = sweptime, banalyzer_mode = analyzer_mode, bdetector = detector, bswepnt = swepnt, bgenerator_amplitude = generator_amplitude):
     generator.meas_prep(True, generator_mode, bgenerator_amplitude, freq)
-    power = {}
+    # power = {}
+    power = []
     analyzer_sensing.meas_prep(freq, bsweptime, span, banalyzer_mode, bdetector, revlevel, rbw, bswepnt)
     for pattern in patterns_data:
         RIS_usb.set_pattern(pattern["HEX"])
         p = analyzer_sensing.trace_get()
-        power[pattern["ID"]] = p
-    s_power = dict(sorted(power.items(), key=lambda item: item[1], reverse=True))
-    #print(s_power)
-    #best_pattern = dict(list(s_power.items())[0:1])
-    B_n_W_pattern = dict(list(s_power.items())[::len(s_power)-1])
-    keys_iter = iter(B_n_W_pattern)
-    best_id = int(next(keys_iter))
-    worst_id = int(next(keys_iter))
-    best_pattern = patterns_data[best_id-1]
-    worst_pattern = patterns_data[worst_id-1]
+        power.append(p)
+    best_index = power.index(max(power))
+    worst_index = power.index(min(power))
+    best_pattern = patterns_data[best_index]
+    worst_pattern = patterns_data[worst_index]
     return best_pattern, worst_pattern
 
 def time_mesurment(best_pattern, worst_pattern):
