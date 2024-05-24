@@ -62,24 +62,26 @@ def time_mesurment(best_pattern, worst_pattern):
         file.write(',')
         file.close()  # CLose the file
     analyzer_sensing.meas_prep(freq, sweptime, span, analyzer_mode, detector, revlevel, rbw, swepnt) #tu można wsadzić funkcję która zrobi poziom szumu zamiast poprostu szum ale no
-    analyzer_sensing.trace_get_vect_fx()
+    noise_avre = analyzer_sensing.trace_get_vect_fx()
     RIS_usb.set_pattern(worst_pattern["HEX"])
     with open(trace_file, 'a+') as file:
         file.write(worst_pattern["DESC"]) 
         file.write(',')
         file.close()  # CLose the file
-    analyzer_sensing.meas_prep(freq, sweptime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
+    #analyzer_sensing.meas_prep(freq, sweptime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
     generator.meas_prep(True, generator_mode, generator_amplitude, freq)
     time.sleep(0.1)
-    analyzer_sensing.trace_get_vect_fx()
+    pat_1_avre = analyzer_sensing.trace_get_vect_fx()
     RIS_usb.set_pattern(best_pattern["HEX"])
     with open(trace_file, 'a+') as file:
         file.write(best_pattern["DESC"]) 
         file.write(',')
         file.close()  # CLose the file
-    analyzer_sensing.meas_prep(freq, sweptime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
-    analyzer_sensing.trace_get_vect_fx()
-    
+    #analyzer_sensing.meas_prep(freq, sweptime, span, analyzer_mode, detector, revlevel, rbw, swepnt)
+    pat_2_avre = analyzer_sensing.trace_get_vect_fx()
+    noise_to_pat_1 = (noise_avre - pat_1_avre)*(-1)
+    pat_2_to_pat_1 = (pat_2_avre - pat_1_avre)*(-1)
+    return noise_to_pat_1, pat_2_to_pat_1
     
 if __name__ == "__main__":
     #time.sleep(20)
@@ -87,9 +89,34 @@ if __name__ == "__main__":
     generator.com_check()
     analyzer_sensing.com_prep()
     analyzer_sensing.com_check()
+    flag_1, flag_2 = 0
+    out_of_range_flag = 0
     best_pattern, worst_pattern = find_best_pattern(bsweptime = 50E-3, banalyzer_mode= "WRITe", bdetector= "SAMP", bgenerator_amplitude= -10 )
-    #print(best_pattern, worst_pattern)
     generator.meas_prep(True, generator_mode, -135.0, freq)
-    time_mesurment(best_pattern, worst_pattern)
+    while(True):
+        n_t_p1, p2_t_p1 = time_mesurment(best_pattern, worst_pattern)
+        if(n_t_p1 > 3):
+            generator_amplitude -= 1
+        elif(n_t_p1 < 1):
+            generator_amplitude += 1
+        if(p2_t_p1 < 10):
+            if(flag_1):
+                flag_2 = 1
+                out_of_range_flag += 1
+            else:
+                flag_1 = 1
+        else:
+            flag_1, flag_2, out_of_range_flag = 0
+        if(flag_1 and flag_2):
+            time.sleep(5)
+            best_pattern, worst_pattern = find_best_pattern(bsweptime = 50E-3, banalyzer_mode= "WRITe", bdetector= "SAMP", bgenerator_amplitude= -10 )
+        if(out_of_range_flag > 10):
+            print("Can't find the best pattern. Exiting.")
+            #break
+            time.sleep(30)
+
+    #print(best_pattern, worst_pattern)
+    # generator.meas_prep(True, generator_mode, -135.0, freq)
+    # time_mesurment(best_pattern, worst_pattern)
     analyzer_sensing.meas_close()
     generator.meas_close()

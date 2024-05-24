@@ -78,7 +78,8 @@ def trace_get_vect_fx():
         #     file.write(str(datum))
         #     file.write(",")
         # file.write("\n")
-        file.close()    
+        file.close() 
+    return np.mean(trace_data)   
 
 
 
