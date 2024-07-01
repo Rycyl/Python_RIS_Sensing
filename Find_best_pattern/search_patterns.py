@@ -63,14 +63,42 @@ def find_best_pattern_codebook(bsweptime = sweptime, banalyzer_mode = analyzer_m
 
 
 
-def find_best_pattern_element_wise(mode = 1, bsweptime = sweptime, banalyzer_mode = analyzer_mode, bdetector = detector, bswepnt = swepnt, bgenerator_amplitude = generator_amplitude):
+def find_best_pattern_element_wise(mask = '0b1', bsweptime = sweptime, banalyzer_mode = analyzer_mode, bdetector = detector, bswepnt = swepnt, bgenerator_amplitude = generator_amplitude):
+    ### MASKA MUSI BYĆ BINARNA!!! ###
     ### todo change to make modes work - for now all are type 1#### !!!!!!!!!!!!!!!!
     '''
-        mode: 1 - po jednym elemencie
-        mode: 2 - pionowe pary
-        mode: 3 - poziome pary
-        mode: 4 - kwadraty
+        maska - jakim mini patternem przesuwamy sie po RIS
     '''
+    ### Obliczenia dlugosci maski ###
+    mask_len = len(mask) - 2
+
+    mask_y_size = 1 #default shortest mask
+    mask_x_size = mask_len % 16
+
+    while(true):
+        i = 2
+        if ( mask_len % (16 * i) ):
+            mask_y_size += 1
+        else:
+            break
+        i += 1
+        continue
+    '''
+    if (mask_y_size > 0):
+        mask_y_size = (len(mask) - 2) % y_row*2
+        if (mask_y_size > 0):
+            mask_y_size = (len(mask) - 2) % y_row*3
+            if (mask_y_size > 0):
+                mask_y_size = (len(mask) - 2) % y_row*4
+            else:
+                mask_y_size = 3
+        else:
+            mask_y_size = 2
+    else:
+        mask_y_size = 1
+    '''
+
+
     with open(trace_file, 'a+') as file:
                 file.write("ELEMENT WISE MODE" + mode + '\n')
     ### MEASURE PREPARE ###
@@ -85,15 +113,17 @@ def find_best_pattern_element_wise(mode = 1, bsweptime = sweptime, banalyzer_mod
     current_amp = analyzer_sensing.trace_get()
     print("current amp:: ", current_amp)
     ### func definition ###
-    if (mode == 1):
-        for i in range(0,257):
-            if (i != 0):
-                current_pattern.overwrite('0b1',i-1)
+    
+    y = 0
+    while(y<16):
+        x = 0
+        while(x<16):
+            current_element = 16*y + x
+            current_pattern.overwrite(mask, current_element)
+            RIS_usb.set_pattern('0x'+current_pattern.hex)
             p = analyzer_sensing.trace_get()
-            if (p>=pow_max):
-                pow_max=p
             power_pattern.append([[p],[current_pattern.hex]])
-            print("pattern:: ", "0x",current_pattern.hex, " = ", power_pattern[i][1])
+            print("pattern:: ", "0x",current_pattern.hex, " = ", power_pattern[current_element][1])
             with open(trace_file, 'a+') as file:
                 file.write("pomiar " + str(i) + ",")
                 file.write(str(time.ctime(time.time())) + ",") 
@@ -103,73 +133,15 @@ def find_best_pattern_element_wise(mode = 1, bsweptime = sweptime, banalyzer_mod
                 file.write("0x" + current_pattern.hex)
                 file.write('\n')
                 file.close()  # CLose the file
-            
-            if (i != 0):
-                current_pattern.overwrite('0b0',i-1)
-    elif(mode == 2):
-        for i in range(0,257):
-            if (i != 0):
-                current_pattern.overwrite('0b1',i-1)
-            p = analyzer_sensing.trace_get()
-            if (p>=pow_max):
+            if (p>pow_max):
                 pow_max=p
-            power_pattern.append([[p],[current_pattern.hex]])
-            print("pattern:: ", "0x",current_pattern.hex, " = ", power_pattern[i][1])
-            with open(trace_file, 'a+') as file:
-                file.write("pomiar " + str(i) + ",")
-                file.write(str(time.ctime(time.time())) + ",") 
-                file.write("Rec_PWR,")
-                file.write(str(p) + ",")
-                file.write("Pattern,")
-                file.write("0x" + current_pattern.hex)
-                file.write('\n')
-                file.close()  # CLose the file
-            
-            if (i != 0):
-                current_pattern.overwrite('0b0',i-1)
-    elif(mode == 3):
-        for i in range(0,257):
-            if (i != 0):
-                current_pattern.overwrite('0b1',i-1)
-            p = analyzer_sensing.trace_get()
-            if (p>=pow_max):
-                pow_max=p
-            power_pattern.append([[p],[current_pattern.hex]])
-            print("pattern:: ", "0x",current_pattern.hex, " = ", power_pattern[i][1])
-            with open(trace_file, 'a+') as file:
-                file.write("pomiar " + str(i) + ",")
-                file.write(str(time.ctime(time.time())) + ",") 
-                file.write("Rec_PWR,")
-                file.write(str(p) + ",")
-                file.write("Pattern,")
-                file.write("0x" + current_pattern.hex)
-                file.write('\n')
-                file.close()  # CLose the file
-            
-            if (i != 0):
-                current_pattern.overwrite('0b0',i-1)
-    elif(mode == 4):
-        for i in range(0,257):
-            if (i != 0):
-                current_pattern.overwrite('0b1',i-1)
-            p = analyzer_sensing.trace_get()
-            if (p>=pow_max):
-                pow_max=p
-            power_pattern.append([[p],[current_pattern.hex]])
-            print("pattern:: ", "0x",current_pattern.hex, " = ", power_pattern[i][1])
-            with open(trace_file, 'a+') as file:
-                file.write("pomiar " + str(i) + ",")
-                file.write(str(time.ctime(time.time())) + ",") 
-                file.write("Rec_PWR,")
-                file.write(str(p) + ",")
-                file.write("Pattern,")
-                file.write("0x" + current_pattern.hex)
-                file.write('\n')
-                file.close()  # CLose the file
-            
-            if (i != 0):
-                current_pattern.overwrite('0b0',i-1)
+            else:
+                current_pattern.overwrite(mask, current_element)
+            x += mask_x_size #iterate
+            continue
 
+        y += mask_y_size #iterate
+        continue
 
     best = -220.0
     best_pattern = 0
