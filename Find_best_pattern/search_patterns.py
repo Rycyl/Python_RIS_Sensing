@@ -48,6 +48,7 @@ def find_best_pattern_codebook(bsweptime = sweptime, banalyzer_mode = analyzer_m
     for pattern in patterns_data:
         RIS_usb.set_pattern(pattern["HEX"])
         p = analyzer_sensing.trace_get()
+        
         power.append(p)
     for i in range(0, len(power)):
         print("pattern id:: ", i, " = ",power[i])
@@ -65,6 +66,8 @@ def find_best_pattern_codebook(bsweptime = sweptime, banalyzer_mode = analyzer_m
 
 def find_best_pattern_element_wise(mask = '0b1', bsweptime = sweptime, banalyzer_mode = analyzer_mode, bdetector = detector, bswepnt = swepnt, bgenerator_amplitude = generator_amplitude):
     ### MASKA MUSI BYĆ BINARNA!!! ###
+    ### MASKI O DŁUGOSCI X != dzielnik 16 nie działają poprawnie ###
+    ### MASKI O DLUGOSI Y!= 1 nie działają poprawnie ### (prawdopodobnie rozwiazanie to XOR z poprzednim patternem przed zerowaniem)
     ### todo change to make modes work - for now all are type 1#### !!!!!!!!!!!!!!!!
     '''
         maska - jakim mini patternem przesuwamy sie po RIS
@@ -74,33 +77,25 @@ def find_best_pattern_element_wise(mask = '0b1', bsweptime = sweptime, banalyzer
 
     mask_y_size = 1 #default shortest mask
     mask_x_size = mask_len % 16
-
-    while(true):
-        i = 2
-        if ( mask_len % (16 * i) ):
+    i = 1
+    while(1):
+        if ( mask_len // (16 * i) ):
+            print("mask_len // (16 * i):: ", mask_len // (16 * i))
             mask_y_size += 1
         else:
             break
         i += 1
         continue
-    '''
-    if (mask_y_size > 0):
-        mask_y_size = (len(mask) - 2) % y_row*2
-        if (mask_y_size > 0):
-            mask_y_size = (len(mask) - 2) % y_row*3
-            if (mask_y_size > 0):
-                mask_y_size = (len(mask) - 2) % y_row*4
-            else:
-                mask_y_size = 3
-        else:
-            mask_y_size = 2
-    else:
-        mask_y_size = 1
-    '''
+    print("mask_y_size:: ", mask_y_size)
+    print("mask_x_size:: ", mask_x_size)
 
+    inverted_maska = '0b'
+    for i in range(2, mask_len+2):
+                        inverted_maska += '0'
+    print("light off mask:: ", inverted_maska)
 
     with open(trace_file, 'a+') as file:
-                file.write("ELEMENT WISE MODE" + mode + '\n')
+                file.write("ELEMENT WISE MASK = " + mask + '\n')
     ### MEASURE PREPARE ###
     generator.meas_prep(True, generator_mode, bgenerator_amplitude, freq)
     # power = {}
@@ -109,9 +104,8 @@ def find_best_pattern_element_wise(mask = '0b1', bsweptime = sweptime, banalyzer
     ###BitArray to hold patterns
     current_pattern = BitArray(length=256)
     RIS_usb.set_pattern('0x'+current_pattern.hex)
-    pow_max = -200.0
-    current_amp = analyzer_sensing.trace_get()
-    print("current amp:: ", current_amp)
+    pow_max = analyzer_sensing.trace_get()
+    print("current amp:: ", pow_max)
     ### func definition ###
     
     y = 0
@@ -123,7 +117,7 @@ def find_best_pattern_element_wise(mask = '0b1', bsweptime = sweptime, banalyzer
             RIS_usb.set_pattern('0x'+current_pattern.hex)
             p = analyzer_sensing.trace_get()
             power_pattern.append([[p],[current_pattern.hex]])
-            print("pattern:: ", "0x",current_pattern.hex, " = ", power_pattern[current_element][1])
+            print("pattern:: ", "0x",current_pattern.hex, " = ", p)
             with open(trace_file, 'a+') as file:
                 file.write("pomiar " + str(i) + ",")
                 file.write(str(time.ctime(time.time())) + ",") 
@@ -136,17 +130,20 @@ def find_best_pattern_element_wise(mask = '0b1', bsweptime = sweptime, banalyzer
             if (p>pow_max):
                 pow_max=p
             else:
-                current_pattern.overwrite(mask, current_element)
+                current_pattern.overwrite(inverted_maska, current_element)
             x += mask_x_size #iterate
             continue
 
         y += mask_y_size #iterate
         continue
 
-    best = -220.0
-    best_pattern = 0
-    for i in range(0,length(power_pattern)):
-        if (power_pattern[i][0]>best):
-            best_pattern = power_pattern[i][1]
-            best = power_pattern[i][0]
-    return best_pattern
+    print("max power:: ", pow_max)
+
+    best_pow = -220.0
+    best_pattern = None
+    for p, pattern in power_pattern:
+        if p[0] > best_pow:
+            best_pattern = pattern[0]
+            best_pow = p[0]
+
+    return best_pattern, best_pow

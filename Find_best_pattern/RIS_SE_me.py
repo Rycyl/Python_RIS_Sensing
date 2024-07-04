@@ -89,7 +89,7 @@ def time_mesurment(best_pattern, worst_pattern):
     return pat1_to_noise, pat_2_to_pat_1
     
 if __name__ == "__main__":
-    time.sleep(20)
+    ##time.sleep(20)
     RIS_usb.reset_RIS()
     generator.com_check()
     analyzer_sensing.com_prep()
