@@ -1,6 +1,7 @@
 import requests
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from RIS import RIS
 
 app = FastAPI()
 
@@ -9,7 +10,8 @@ async def data_receive(request: Request):
     data = await request.json()
     print(data)
     return {"data": data}
-    #return {"data": "Hello World"}
+
+
 
 if __name__ == "__main__":
     import uvicorn
