@@ -1,9 +1,10 @@
 import serial
 import time
-import sys
-import os
+#import sys
+#import os
 import numpy as np
-import json
+#import json
+#from enum import Enum
 
 
 class RIS:
@@ -13,7 +14,10 @@ class RIS:
         self.ser.flushOutput()
         self.id = id
         self.timeout = timeout
-    
+        
+    def __repr__(self):
+        return f"RIS zostal podlaczony do portu {self.ser.port} z id = {self.id}"
+
     def set_pattern(self, pattern):
         self.ser.flushInput()
         self.ser.flushOutput()
@@ -35,7 +39,7 @@ class RIS:
         start_time = time.time()
         while True:
             response = self.ser.readline().decode('utf-8').strip()
-            print(response)
+            #print(response)
             split_response = response.split("\n")
             for response in split_response:
                 if response == "#READY!":
@@ -57,3 +61,7 @@ class RIS:
                 return "TIMEOUT"
 
     #Reszta do dorobiena jak będzie czas / potrzeba
+
+
+
+        
