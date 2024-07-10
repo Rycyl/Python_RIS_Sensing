@@ -1,7 +1,6 @@
 import requests
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from RIS import RIS
 from Controller import Controller
 import os
 from enum import Enum
@@ -40,7 +39,7 @@ async def connect_RIS(id: int, port: str):
 @app.post("/set_pattern")
 async def set_pattern(id: int, pattern: str):
     if Con.set_pattern(id, pattern):
-        return JSONResponse(content={f"status": "Pattern {pattern} set successfully"})
+        return JSONResponse(content={"status": f"Pattern {pattern} set successfully"})
     else:
         return JSONResponse(content={"status": "ERROR"})
 
@@ -52,7 +51,12 @@ async def current_pattern(id: int):
 async def veryf_pattern(id: int):
     return JSONResponse(content={"veryf_pattern": Con.veryfy_pattern(id)})
     
-
+@app.get("/reset")
+async def reset(id: int):
+    if Con.reset(id):
+        return JSONResponse(content={"status": "RIS reset successfully"})
+    else:
+        return JSONResponse(content={"status": "ERROR"})
 
 if __name__ == "__main__":
     import uvicorn
