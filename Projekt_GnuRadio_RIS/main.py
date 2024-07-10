@@ -35,15 +35,24 @@ async def data_receive(request: Request):
 
 @app.get("/connect_RIS")
 async def connect_RIS(id: int, port: str):
-    RIS_list["RIS_No_{id}"] = Con.init_ris(port, id)
-    return RIS_list["RIS_No_{id}"]
+    return JSONResponse(content={"status": Con.init_ris(port, id)})
 
 @app.post("/set_pattern")
 async def set_pattern(id: int, pattern: str):
-    if Con.set_pattern(RIS_list["RIS_No_{id}"], pattern):
-        return JSONResponse(content={"status": "OK"})
+    if Con.set_pattern(id, pattern):
+        return JSONResponse(content={f"status": "Pattern {pattern} set successfully"})
     else:
         return JSONResponse(content={"status": "ERROR"})
+
+@app.get("/current_pattern")
+async def current_pattern(id: int):
+    return JSONResponse(content={"current_pattern": Con.c_pattern(id)})
+
+@app.get("/veryf_pattern")
+async def veryf_pattern(id: int):
+    return JSONResponse(content={"veryf_pattern": Con.veryfy_pattern(id)})
+    
+
 
 if __name__ == "__main__":
     import uvicorn

@@ -14,6 +14,7 @@ class RIS:
         self.ser.flushOutput()
         self.id = id
         self.timeout = timeout
+        self.c_pattern = "0x0000000000000000000000000000000000000000000000000000000000000000"
         
     def __repr__(self):
         return f"RIS zostal podlaczony do portu {self.ser.port} z id = {self.id}"
@@ -27,6 +28,7 @@ class RIS:
             response = self.ser.readline().decode('utf-8').strip()
             print(response)
             if response == "#OK":
+                self.c_pattern = pattern
                 return True
             if time.time() - start_time > self.timeout:
                 return False
@@ -43,6 +45,7 @@ class RIS:
             split_response = response.split("\n")
             for response in split_response:
                 if response == "#READY!":
+                    self.c_pattern = "0x0000000000000000000000000000000000000000000000000000000000000000"
                     return True
             if time.time() - start_time > self.timeout:
                 return False

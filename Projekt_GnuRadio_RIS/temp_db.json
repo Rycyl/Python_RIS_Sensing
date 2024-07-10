@@ -1,310 +1,150 @@
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 0, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 11, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637419702, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 13, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637340232, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 14, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374191845, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 15, 2, 192, 1]}
-{"source": "Rx", "power": 19.999986373262534, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 16, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374160784, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 18, 2, 192, 1]}
-{"source": "Rx", "power": 19.999986374158194, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 19, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637513928, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 20, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637419702, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 21, 2, 192, 1]}
-{"source": "Rx", "power": 19.99998637412713, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 22, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374168547, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 23, 2, 192, 1]}
-{"source": "Rx", "power": 19.999986374637086, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 24, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637364047, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 26, 2, 192, 1]}
-{"source": "Rx", "power": 19.999986374116776, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 27, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637422291, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 28, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374207378, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 29, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986373125335, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 30, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374150428, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 31, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637416596, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 32, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374137485, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 34, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637418408, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 35, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637384756, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 36, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374134895, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 37, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637416596, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 38, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374150428, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 39, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374176313, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 40, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637414266, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 42, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637408312, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 43, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637410642, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 44, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374137485, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 45, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374173723, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 46, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637414007, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 48, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637421514, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 49, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374199608, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 50, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374160784, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 51, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374191845, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 52, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374176313, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 53, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374119363, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 54, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637416596, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 56, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374176313, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 13, 57, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374194435, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 7, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637315381, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 8, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637362494, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 9, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374618967, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 11, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374134895, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 12, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374199608, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 13, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637412454, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 14, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374155604, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 15, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637418149, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 16, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637388639, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 18, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374101244, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 19, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637418667, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 20, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637375437, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 21, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374111597, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 22, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374204788, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 23, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374145248, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 24, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374155604, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 25, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374111597, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 26, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374150428, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 27, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637505644, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 28, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374093478, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 29, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374116776, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 30, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374207378, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 32, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374191845, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 33, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637334796, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 34, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986373037324, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 35, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637418667, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 36, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637399511, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 38, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637412454, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 39, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374171137, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 40, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374189255, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 41, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374978786, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 42, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374178903, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 43, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637451801, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 45, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374137485, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 46, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374204788, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 47, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637422032, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 48, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986373425614, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 49, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637416596, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 50, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637416337, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 51, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374147838, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 52, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374178903, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 53, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374189255, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 54, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637419702, "pattern": "0x0000000000000000000000000000000000000000000000000000000000000000", "timestamp": [2024, 7, 10, 14, 14, 56, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374168547, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 14, 57, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637418149, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 14, 58, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374098654, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 14, 59, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637416596, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 0, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637416337, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 1, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374264328, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 2, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374173723, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 4, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986375035736, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 5, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374103834, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 6, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637414007, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 7, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637416337, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 8, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637422032, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 9, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374191845, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 11, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986373076155, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 12, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637418408, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 13, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986373912275, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 14, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374158194, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 15, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.999986374176313, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 16, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.999986374176313, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 17, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637412972, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 19, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637409089, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 20, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Rx", "power": 19.99998637414007, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 21, 2, 192, 1]}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637416337, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 22, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Tx", "status": "Is working", "Transmiting at": 5200000000.0, "Sample Rate": 128000.0, "Modulation": "BPSK"}
-{"source": "Rx", "power": 19.99998637419702, "pattern": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "timestamp": [2024, 7, 10, 14, 15, 23, 2, 192, 1]}
-{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0}
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 0, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:39"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637421773, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:40"},
+{"source": "Rx", "power": 19.99998637340232, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:41"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374132305, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:42"},
+{"source": "Rx", "power": 19.999986374178903, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:43"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374194435, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:45"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374116776, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:46"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374137485, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:47"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374098654, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:49"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374145248, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:50"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374145248, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:51"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374173723, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:53"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637412713, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:54"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374132305, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:55"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374093478, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:56"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986375009847, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:57"},
+{"source": "Rx", "power": 19.99998637406759, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:58"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374160784, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:13:59"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374145248, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:14:01"},
+{"source": "Rx", "power": 19.999986374145248, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:14:02"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374160784, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:14:03"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986373089097, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:14:04"},
+{"source": "Rx", "power": 19.999986374147838, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:14:05"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637419702, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:14:06"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374194435, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:14:07"},
+{"source": "Rx", "power": 19.999986374160784, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:14:09"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374153018, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:14:10"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637416596, "RIS_No_1_pattern": "0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00", "timestamp": "2024-07-10 15:14:11"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637418667, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:12"},
+{"source": "Rx", "power": 19.999986374150428, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:13"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374173723, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:14"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637418667, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:15"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374305745, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:17"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374132305, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:18"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374153018, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:19"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374150428, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:20"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986373376434, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:21"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374132305, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:22"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374191845, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:23"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637324441, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:24"},
+{"source": "Rx", "power": 19.999986374173723, "RIS_No_1_pattern": "0x00007FFE40025FFA500A57EA542A55AA55AA542A57EA500A5FFA40027FFE0000", "timestamp": "2024-07-10 15:14:26"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374168547, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:27"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374204788, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:28"},
+{"source": "Rx", "power": 19.999986374189255, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:29"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374176313, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:30"},
+{"source": "Rx", "power": 19.999986374134895, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:32"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374158194, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:33"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374209968, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:34"},
+{"source": "Rx", "power": 19.99998637422291, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:35"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374093478, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:36"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374176313, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:38"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637416337, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:39"},
+{"source": "Rx", "power": 19.999986374153018, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:40"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374209968, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:41"},
+{"source": "Rx", "power": 19.999986374173723, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:42"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374168547, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:43"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374805346, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:44"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374155604, "RIS_No_1_pattern": "0x5555555555555555555555555555555555555555555555555555555555555555", "timestamp": "2024-07-10 15:14:46"},
+{"source": "Rx", "power": 19.999986374709568, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:14:48"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986375097862, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:14:49"},
+{"source": "Rx", "power": 19.99998637406759, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:14:50"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374145248, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:14:51"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637414007, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:14:53"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374176313, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:14:54"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374176313, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:14:55"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637412972, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:14:56"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374173723, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:14:58"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637412713, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:14:59"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637406759, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:15:00"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374137485, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:15:01"},
+{"source": "Rx", "power": 19.99998637412972, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:15:02"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374202198, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:15:04"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374207378, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:15:05"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.99998637414266, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:15:06"},
+{"source": "Rx", "status": "Is working", "Reciving at": 5200000000.0, "Sample Rate": 1000000.0},
+{"source": "Rx", "power": 19.999986374171137, "RIS_No_1_pattern": "0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "timestamp": "2024-07-10 15:15:07"},
