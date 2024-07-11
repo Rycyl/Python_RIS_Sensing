@@ -112,10 +112,10 @@ def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, bana
 
     
     y = 0
-    i = 0
+    i = 1
     while(y<16):
         x = 0
-        j = 0
+        j = 1
         while(x<16):
             current_element = 16*y + x
             current_pattern.overwrite(mask, current_element)
