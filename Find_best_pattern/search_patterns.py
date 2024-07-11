@@ -7,6 +7,7 @@ from RsSmw import *
 import time
 import def_pattern
 from bitstring import Bits, BitArray, BitStream, pack
+from copy import copy, deepcopy
 
 try:
     with open ("config_sensing.json") as config_f:
@@ -101,7 +102,7 @@ def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, bana
     analyzer_sensing.meas_prep(freq, bsweptime, span, banalyzer_mode, bdetector, revlevel, rbw, bswepnt)
 
     current_pattern = BitArray(length=256) ## all zeros
-    previous_mask = BitArray(length=256) ##all ones
+    previous_pattern = BitArray(length=256) ##all ones
 
     RIS.set_pattern('0x'+current_pattern.hex)
     pow_max = analyzer_sensing.trace_get()
@@ -134,9 +135,9 @@ def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, bana
                 file.close()  # CLose the file
             if (p>pow_max):
                 pow_max=p
-                previous_pattern = current_pattern
+                previous_pattern = copy(current_pattern)
             else:
-                current_pattern &= previous_pattern
+                current_pattern = copy(previous_pattern)
             x += mask_x_size #iterate
             j += 1
             if (j > x_iters):

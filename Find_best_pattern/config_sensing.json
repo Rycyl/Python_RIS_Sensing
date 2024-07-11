@@ -25,5 +25,5 @@
     "GENERATOR_MODE" : "CW",
     "SWEEP_POINTS" : 1000,
     "DETECTOR" : "SAMP",
-    "SWEEP_TIME" : 5e-3
+    "SWEEP_TIME" : 50e-3
 }
