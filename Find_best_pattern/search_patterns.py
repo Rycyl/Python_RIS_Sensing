@@ -1,6 +1,6 @@
 import analyzer_sensing
 import generator
-import RIS_usb
+from RIS import RIS
 import json
 import numpy as np
 from RsSmw import *
@@ -40,13 +40,13 @@ except FileNotFoundError:
     exit()
     
 
-def find_best_pattern_codebook(bsweptime = sweptime, banalyzer_mode = analyzer_mode, bdetector = detector, bswepnt = swepnt, bgenerator_amplitude = generator_amplitude):
+def find_best_pattern_codebook(RIS, bsweptime = sweptime, banalyzer_mode = analyzer_mode, bdetector = detector, bswepnt = swepnt, bgenerator_amplitude = generator_amplitude):
     generator.meas_prep(True, generator_mode, bgenerator_amplitude, freq)
     # power = {}
     power = []
     analyzer_sensing.meas_prep(freq, bsweptime, span, banalyzer_mode, bdetector, revlevel, rbw, bswepnt)
     for pattern in patterns_data:
-        RIS_usb.set_pattern(pattern["HEX"])
+        RIS.set_pattern(pattern["HEX"])
         p = analyzer_sensing.trace_get()
         
         power.append(p)
@@ -64,7 +64,7 @@ def find_best_pattern_codebook(bsweptime = sweptime, banalyzer_mode = analyzer_m
 
 
 
-def find_best_pattern_element_wise(mask = '0b1', bsweptime = sweptime, banalyzer_mode = analyzer_mode, bdetector = detector, bswepnt = swepnt, bgenerator_amplitude = generator_amplitude):
+def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, banalyzer_mode = analyzer_mode, bdetector = detector, bswepnt = swepnt, bgenerator_amplitude = generator_amplitude):
     ### MASKA MUSI BYĆ BINARNA!!! ###
     ### MASKI O DŁUGOSCI X != dzielnik 16 nie działają poprawnie ###
     ### MASKI O DLUGOSI Y!= 1 nie działają poprawnie ### (prawdopodobnie rozwiazanie to XOR z poprzednim patternem przed zerowaniem)
@@ -103,7 +103,7 @@ def find_best_pattern_element_wise(mask = '0b1', bsweptime = sweptime, banalyzer
     current_pattern = BitArray(length=256) ## all zeros
     previous_mask = BitArray(length=256) ##all ones
 
-    RIS_usb.set_pattern('0x'+current_pattern.hex)
+    RIS.set_pattern('0x'+current_pattern.hex)
     pow_max = analyzer_sensing.trace_get()
     print("current amp:: ", pow_max)
     ### func definition ###
@@ -119,7 +119,7 @@ def find_best_pattern_element_wise(mask = '0b1', bsweptime = sweptime, banalyzer
             current_element = 16*y + x
             current_pattern.overwrite(mask, current_element)
             current_pattern |= previous_pattern
-            RIS_usb.set_pattern('0x'+current_pattern.hex)
+            RIS.set_pattern('0x'+current_pattern.hex)
             p = analyzer_sensing.trace_get()
             power_pattern.append([[p],[current_pattern.hex]])
             print("pattern:: ", "0x",current_pattern.hex, " = ", p)
