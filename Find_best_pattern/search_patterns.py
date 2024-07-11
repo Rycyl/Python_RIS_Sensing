@@ -74,7 +74,6 @@ def find_best_pattern_element_wise(mask = '0b1', bsweptime = sweptime, banalyzer
     '''
     ### Obliczenia dlugosci maski ###
     mask_len = len(mask) - 2
-
     mask_y_size = 1 #default shortest mask
     mask_x_size = mask_len % 16
     i = 1
@@ -88,32 +87,38 @@ def find_best_pattern_element_wise(mask = '0b1', bsweptime = sweptime, banalyzer
         continue
     print("mask_y_size:: ", mask_y_size)
     print("mask_x_size:: ", mask_x_size)
+    x_iters = 16 // mask_x_size
+    y_iters = 16 // mask_y_size
+    
 
-    inverted_maska = '0b'
-    for i in range(2, mask_len+2):
-                        inverted_maska += '0'
-    print("light off mask:: ", inverted_maska)
-
+    ###FILE MESURE START HEADER###
     with open(trace_file, 'a+') as file:
                 file.write("ELEMENT WISE MASK = " + mask + '\n')
+
     ### MEASURE PREPARE ###
     generator.meas_prep(True, generator_mode, bgenerator_amplitude, freq)
-    # power = {}
-    power_pattern = []
+    power_pattern = [] ###lista do zbierania wyników
     analyzer_sensing.meas_prep(freq, bsweptime, span, banalyzer_mode, bdetector, revlevel, rbw, bswepnt)
-    ###BitArray to hold patterns
-    current_pattern = BitArray(length=256)
+
+    current_pattern = BitArray(length=256) ## all zeros
+    previous_mask = BitArray(length=256) ##all ones
+
     RIS_usb.set_pattern('0x'+current_pattern.hex)
     pow_max = analyzer_sensing.trace_get()
     print("current amp:: ", pow_max)
     ### func definition ###
     
+
+    
     y = 0
+    i = 0
     while(y<16):
         x = 0
+        j = 0
         while(x<16):
             current_element = 16*y + x
             current_pattern.overwrite(mask, current_element)
+            current_pattern |= previous_pattern
             RIS_usb.set_pattern('0x'+current_pattern.hex)
             p = analyzer_sensing.trace_get()
             power_pattern.append([[p],[current_pattern.hex]])
@@ -129,13 +134,20 @@ def find_best_pattern_element_wise(mask = '0b1', bsweptime = sweptime, banalyzer
                 file.close()  # CLose the file
             if (p>pow_max):
                 pow_max=p
+                previous_pattern = current_pattern
             else:
-                current_pattern.overwrite(inverted_maska, current_element)
+                current_pattern &= previous_pattern
             x += mask_x_size #iterate
-            continue
+            j += 1
+            if (j > x_iters):
+                break
+            continue # NEXT X
 
         y += mask_y_size #iterate
-        continue
+        i += 1
+        if(i > y_iters):
+            break
+        continue # NEXT Y
 
     print("max power:: ", pow_max)
 
