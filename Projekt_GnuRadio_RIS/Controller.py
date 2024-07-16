@@ -3,6 +3,9 @@ import os
 import numpy as np
 from RIS import RIS
 import json
+import serial.tools.list_ports
+from enum import Enum
+
 
 
 class Controller:
@@ -12,11 +15,16 @@ class Controller:
         self.b_gain = b_gain
         self.sample_rate = sample_rate
         self.RIS_list = {}
+        self.port_list = Enum("Ports", self.find_port())
 
-    def init_ris(self, port, id):
+    def init_ris(self, port_obj, id):
+        if port_obj is None:
+            return "No port selected"
+        port = port_obj.value
         ris = RIS(port, id)
         ris.reset()
         self.RIS_list[f"RIS_No_{id}"] = ris
+        self.port_list = Enum("Ports", self.find_port())
         return repr(ris)
     
     def set_pattern(self, id, pattern):
@@ -72,7 +80,24 @@ class Controller:
     def send_transmision_params(self):
         return {"c_freq": self.c_freq, "gain": self.b_gain, "sample_rate": self.sample_rate}
     
+    
+    def is_port_free(self, port, ris):
+        if port == ris.port:
+            return False
+        else:
+            return True
 
+
+    def find_port(self):
+        ports = {}
+        for i in serial.tools.list_ports.comports():
+            if i.description == "Open Source RIS - Open Source RIS":
+                if not any(ris.port == i.device for ris in self.RIS_list.values()):
+                    ports[i.device] = i.device
+        return ports
+
+
+        
 
 #dodać funkcje do sterowania parametrami przesyłu między Tx i Rx
 

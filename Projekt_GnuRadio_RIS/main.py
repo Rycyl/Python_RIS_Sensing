@@ -1,21 +1,14 @@
 import requests
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Path, Body
 from fastapi.responses import JSONResponse
 from Controller import Controller
-import os
-from enum import Enum
+from RIS_patern_dictionary import RIS_pattern_dictionary
 
-# Pre definowane porty - do zrobienia jak bedzie czas / potrzeba
-# def get_ports():
-#     if os.name == 'posix':
-#         ports = [f"/dev/ttyUSB{i}" for i in range(10)]
-#     else:
-#         ports = [f"COM{i}" for i in range(10)]
 
-RIS_list = {}
 
 Con = Controller()
 
+port_list = Con.port_list
 app = FastAPI()
 
 @app.post("/raport")
@@ -33,7 +26,8 @@ async def data_receive(request: Request):
     return data
 
 @app.get("/connect_RIS")
-async def connect_RIS(id: int, port: str):
+async def connect_RIS(id: int, port: port_list = None):
+    #print(port.value)
     return JSONResponse(content={"status": Con.init_ris(port, id)})
 
 @app.post("/set_pattern")
@@ -42,6 +36,16 @@ async def set_pattern(id: int, pattern: str):
         return JSONResponse(content={"status": f"Pattern {pattern} set successfully"})
     else:
         return JSONResponse(content={"status": "ERROR"})
+    
+@app.post("/set_pattern_from_dict/{id}/{patern}")
+async def set_pattern_from_dict(id: int = Path(..., title="RIS id", description="Chose RIS id"),
+        patern: str = Path(..., title="Pattern name", description="Chose pattern from pattern dictionary", enum=list(RIS_pattern_dictionary.__members__.keys()))):
+    pattern_hex = RIS_pattern_dictionary[patern]
+    if Con.set_pattern(id, pattern_hex):
+        return JSONResponse(content={"status": f"Pattern {pattern_hex} set successfully"})
+    else:
+        return JSONResponse(content={"status": "ERROR"})
+
 
 @app.get("/current_pattern")
 async def current_pattern(id: int):

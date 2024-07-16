@@ -9,6 +9,7 @@ import numpy as np
 
 class RIS:
     def __init__(self, port, id = 0, timeout = 10, baudrate = 115200):
+        self.port = port
         self.ser = serial.Serial(port, baudrate = baudrate, timeout = timeout)
         self.ser.flushInput()
         self.ser.flushOutput()
