@@ -58,6 +58,16 @@ async def reset(id: int):
     else:
         return JSONResponse(content={"status": "ERROR"})
 
+@app.post("/set_transmision_parameters")
+async def set_transmision_paramiters(feq: float, gain: float, samp_rate: int):
+    return JSONResponse(content={"status": Con.set_tran_param(feq, gain, samp_rate)})
+
+@app.get("/send_parameters")
+async def send_parameters():
+    return JSONResponse(content=Con.send_transmision_params())
+    
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

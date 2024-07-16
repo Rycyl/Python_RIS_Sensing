@@ -1,0 +1,3 @@
+średni czas odpowiedzi od set pattern do uzyskania wyniku z obliczeniem średniego poziomu mocy w zadanym czasie (sweep time, tutaj 50ms, 1000 próbek) wyniósł = 0.183s
+średni czas odpowiedzi od set pattern do uzyskania wyniku z obliczeniem średniego poziomu mocy w zadanym czasie (sweep time, tutaj 50ms, 20000 próbek) wyniósł = 0.260s
+średni czas odpowiedzi od set pattern do uzyskania wyniku z obliczeniem średniego poziomu mocy w zadanym czasie (sweep time, tutaj 50ms, 10000 próbek) wyniósł = 0.188s

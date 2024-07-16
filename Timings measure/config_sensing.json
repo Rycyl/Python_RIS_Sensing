@@ -23,7 +23,7 @@
     "RBW" : "500 Hz",
     "GENERATOR_AMPLITUDE" : -10,
     "GENERATOR_MODE" : "CW",
-    "SWEEP_POINTS" : 1000,
+    "SWEEP_POINTS" :10000,
     "DETECTOR" : "SAMP",
     "SWEEP_TIME" : 50e-3
 }
