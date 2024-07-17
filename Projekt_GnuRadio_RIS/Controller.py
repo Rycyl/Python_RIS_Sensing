@@ -17,6 +17,11 @@ class Controller:
         self.RIS_list = {}
         self.port_list = Enum("Ports", self.find_port())
 
+    # def init_db(self):
+    #     if not os.path.exists(self.db_path):
+    #         with open(self.db_path, "w") as db:
+                
+
     def init_ris(self, port_obj, id):
         if port_obj is None:
             return "No port selected"
@@ -30,7 +35,7 @@ class Controller:
     def set_pattern(self, id, pattern):
         ris = self.RIS_list[f"RIS_No_{id}"]
         with open(self.db_path, "a") as db:
-            json.dump({"pattent_change": f"RIS_NO_{id}","timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), f"RIS_No_{id}_pattern": pattern}, db)
+            json.dump({"pattern_change": f"RIS_NO_{id}","timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), f"RIS_No_{id}_pattern": pattern}, db)
             db.write("\n")
         return ris.set_pattern(pattern)
     
