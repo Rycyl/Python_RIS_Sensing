@@ -6,10 +6,10 @@ import serial.tools.list_ports
 from RIS import RIS
 from enum import Enum
 
-from RIS_patern_dictionary import RIS_pattern_dictionary
-from RIS_patern_dictionary import RIS_pattern_names
 
-pattern = RIS_pattern_names.All_elements_turn_off.value
-print(pattern)
+ris = RIS(port="/dev/ttyUSB0")
 
-print(RIS_pattern_dictionary(pattern))
+for i in serial.tools.list_ports.comports():
+    print(i)
+    if ris.port == i.device:
+        print("port is busy")

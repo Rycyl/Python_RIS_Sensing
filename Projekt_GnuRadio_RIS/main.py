@@ -8,7 +8,7 @@ from RIS_patern_dictionary import RIS_pattern_dictionary
 
 Con = Controller()
 
-port_list = Con.port_list
+#port_list = Con.port_list
 app = FastAPI()
 
 @app.post("/raport")
@@ -26,8 +26,7 @@ async def data_receive(request: Request):
     return data
 
 @app.get("/connect_RIS")
-async def connect_RIS(id: int, port: port_list = None):
-    #print(port.value)
+async def connect_RIS(id: int, port: Con.port_list = None): # type: ignore
     return JSONResponse(content={"status": Con.init_ris(port, id)})
 
 @app.post("/set_pattern")
@@ -69,6 +68,11 @@ async def set_transmision_paramiters(feq: float, gain: float, samp_rate: int):
 @app.get("/send_parameters")
 async def send_parameters():
     return JSONResponse(content=Con.send_transmision_params())
+
+@app.get("/write_db_to_file")
+async def write_db_to_file(data_set_name: Con.data_set_name = None): # type: ignore
+    return JSONResponse(content={"status": Con.write_db_to_file(data_set_name.value)})
+    
     
 
 
