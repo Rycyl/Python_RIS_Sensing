@@ -9,7 +9,4 @@ from enum import Enum
 
 ris = RIS(port="/dev/ttyUSB0")
 
-for i in serial.tools.list_ports.comports():
-    print(i)
-    if ris.port == i.device:
-        print("port is busy")
+print(ris.id)

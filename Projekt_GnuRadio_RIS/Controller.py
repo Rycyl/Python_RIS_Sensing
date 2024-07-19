@@ -19,7 +19,9 @@ class Controller:
         self.conn = sqlite3.connect(db_path)
         self.curs = self.conn.cursor()
         self.init_db()
+        self.clear_db("transmision_params")
         self.param_id = 0
+        self.set_tran_param(c_freq, b_gain, sample_rate)
         self.data_set_name = Enum("Data_sets", {"logs":"logs", "power_readings":"power_readings", "transmision_params":"transmision_params"})
 
     def init_db(self):
@@ -29,9 +31,9 @@ class Controller:
         self.conn.commit()
         return True
 
-    def add_ris_to_db(self, id):
-        self.curs.execute(f'''ALTER TABLE power_readings ADD COLUMN RIS_{id}_pattern TEXT''')
-        self.conn.commit()
+    # def add_ris_to_db(self, id):
+    #     self.curs.execute(f'''ALTER TABLE power_readings ADD COLUMN RIS_{id}_pattern TEXT''')
+    #     self.conn.commit()
 
     def init_ris(self, port_obj, id):
         if port_obj is None:
@@ -41,7 +43,7 @@ class Controller:
         ris.reset()
         self.RIS_list[f"RIS_No_{id}"] = ris
         self.port_list = Enum("Ports", self.find_port())
-        self.add_ris_to_db(id)
+        #self.add_ris_to_db(id)
         return repr(ris)
     
     def set_pattern(self, id, pattern):
@@ -67,14 +69,22 @@ class Controller:
         return ris.read_pattern()
 
     def save_power_reading(self, power_reading):
-        self.curs.execute('''INSERT INTO power_readings (params_id, source, power, timestamp, source_timestamp) VALUES (?, ?, ?, ?, ?)''', (self.param_id ,power_reading["source"], power_reading["power"], time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), power_reading["source_timestamp"]))
-        if not self.RIS_list:
-            #RIS_connected = "No"
-            self.curs.execute('''INSERT INTO power_readings (RIS_connected) VALUES (?)''', ("No",))
-        else:
-            self.curs.execute('''INSERT INTO power_readings (RIS_connected) VALUES (?)''', ("Yes",))
+        self.curs.execute('''INSERT INTO power_readings (params_id, source, power, timestamp, source_timestamp, RIS_connected) VALUES (?, ?, ?, ?, ?, ?)''', (self.param_id ,power_reading["source"], power_reading["power"], time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), power_reading["source_timestamp"], "Yes" if self.RIS_list else "No"))
+        last_row_id = self.curs.lastrowid
+        if self.RIS_list:
             for ris in self.RIS_list:
-                self.curs.execute(f'''INSERT INTO power_readings (RIS_{ris.id}_pattern) VALUES (?)''', (ris.c_pattern))
+                coulumn_name = f"RIS_{self.RIS_list[ris].id}_pattern"
+                if self.column_dosenot_exist("power_readings", coulumn_name):
+                    self.curs.execute(f'''ALTER TABLE power_readings ADD COLUMN {coulumn_name} TEXT''')
+                self.curs.execute(f'''UPDATE power_readings SET {coulumn_name} = ? WHERE rowid = ?''', (self.RIS_list[ris].c_pattern, last_row_id))
+        self.conn.commit()
+        RIS_patterns = {}
+        for ris in self.RIS_list:
+            RIS_patterns[f"RIS_{self.RIS_list[ris].id}_pattern"] = self.RIS_list[ris].c_pattern
+        if not RIS_patterns:
+            RIS_patterns = "No RIS connected"
+        pow_red_mes = f"power: {power_reading['power']}, RIS connected: {RIS_patterns}"
+        self.curs.execute('''INSERT INTO logs (source, Message, timestamp, source_timestamp) VALUES (?, ?, ?, ?)''', (power_reading["source"], pow_red_mes, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), power_reading["source_timestamp"])) 
         self.conn.commit()
             #RIS_connected = "Yes"
 
@@ -138,16 +148,42 @@ class Controller:
     def write_db_to_file(self, data_set_name):
         self.curs.execute(f"SELECT * FROM {data_set_name}")
         data = self.curs.fetchall()
+        self.curs.execute(f"PRAGMA table_info({data_set_name})")
+        columns = [col[1] for col in self.curs.fetchall()]
         with open(f"{data_set_name}.csv", 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
-            csvwriter.writerows(data)
-        return True
+            csvwriter.writerow(columns)
+            for row in data:
+                csvwriter.writerow(['' if value is None else value for value in row])
+        # self.curs.execute(f"SELECT * FROM {data_set_name}")
+        # data = self.curs.fetchall()
+        # with open(f"{data_set_name}.csv", 'w', newline='') as csvfile:
+        #     csvwriter = csv.writer(csvfile)
+        #     csvwriter.writerows(data)
+        # return True
 
     def clear_db(self, data_set_name):
         self.curs.execute(f"DELETE FROM {data_set_name}")
         self.conn.commit()
         return True
 
-
+    def column_dosenot_exist(self, table_name, column_name):
+        self.curs.execute(f"SELECT * FROM {table_name}")
+        columns = [description[0] for description in self.curs.description]
+        if column_name not in columns:
+            return True
+        else:
+            return False
 
 #Con = Controller()
+        # self.curs.execute('''INSERT INTO power_readings (params_id, source, power, timestamp, source_timestamp) VALUES (?, ?, ?, ?, ?)''', (self.param_id ,power_reading["source"], power_reading["power"], time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), power_reading["source_timestamp"]))
+        # if not self.RIS_list:
+        #     #RIS_connected = "No"
+        #     self.curs.execute('''INSERT INTO power_readings (RIS_connected) VALUES (?)''', ("No",))
+        # else:
+        #     self.curs.execute('''INSERT INTO power_readings (RIS_connected) VALUES (?)''', ("Yes",))
+        #     for ris in self.RIS_list:
+        #         if self.column_dosenot_exist("power_readings", f"RIS_{self.RIS_list[ris].id}_pattern"):
+        #             self.curs.execute(f'''ALTER TABLE power_readings ADD COLUMN RIS_{self.RIS_list[ris].id}_pattern TEXT''')
+        #         self.curs.execute(f'''INSERT INTO power_readings (RIS_{self.RIS_list[ris].id}_pattern) VALUES (?)''', (self.RIS_list[ris].c_pattern,))
+        # self.conn.commit()
