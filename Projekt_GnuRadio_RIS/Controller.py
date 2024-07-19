@@ -24,7 +24,7 @@ class Controller:
 
     def init_db(self):
         self.curs.execute('''CREATE TABLE IF NOT EXISTS logs (source TEXT, Message TEXT, timestamp TEXT, source_timestamp TEXT) ''')
-        self.curs.execute('''CREATE TABLE IF NOT EXISTS power_readings (params_id INTEGER PRIMARY KEY, source TEXT, power FLOAT, timestamp TEXT, source_timestamp TEXT, RIS_connected TEXT)''')
+        self.curs.execute('''CREATE TABLE IF NOT EXISTS power_readings (params_id INTEGER, source TEXT, power FLOAT, timestamp TEXT, source_timestamp TEXT, RIS_connected TEXT)''')
         self.curs.execute('''CREATE TABLE IF NOT EXISTS transmision_params (id INTEGER PRIMARY KEY, c_freq FLOAT, b_gain FLOAT, sample_rate FLOAT, timestamp TEXT)''') 
         self.conn.commit()
         return True
@@ -70,9 +70,9 @@ class Controller:
         self.curs.execute('''INSERT INTO power_readings (params_id, source, power, timestamp, source_timestamp) VALUES (?, ?, ?, ?, ?)''', (self.param_id ,power_reading["source"], power_reading["power"], time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), power_reading["source_timestamp"]))
         if not self.RIS_list:
             #RIS_connected = "No"
-            self.curs.execute('''INSERT INTO power_readings (RIS_connected) VALUES (?)''', ("No"))
+            self.curs.execute('''INSERT INTO power_readings (RIS_connected) VALUES (?)''', ("No",))
         else:
-            self.curs.execute('''INSERT INTO power_readings (RIS_connected) VALUES (?)''', ("Yes"))
+            self.curs.execute('''INSERT INTO power_readings (RIS_connected) VALUES (?)''', ("Yes",))
             for ris in self.RIS_list:
                 self.curs.execute(f'''INSERT INTO power_readings (RIS_{ris.id}_pattern) VALUES (?)''', (ris.c_pattern))
         self.conn.commit()
