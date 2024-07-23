@@ -116,9 +116,27 @@ class Controller:
         self.c_freq = freq
         self.b_gain = gain
         self.sample_rate = samp_rate
-        self.param_id += 1
-        self.curs.execute('''INSERT INTO transmision_params (id, c_freq, b_gain, sample_rate, timestamp) VALUES (?, ?, ?, ?, ?)''', (self.param_id ,freq, gain, samp_rate, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
-        self.curs.execute(''' INSERT INTO logs (source, Message, timestamp, source_timestamp) VALUES (?, ?, ?, ?)''', ("Controller", f"Transmision parameters changed to: freq = {freq}, gain = {gain}, sample_rate = {samp_rate}", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "N/A"))
+        # self.param_id += 1
+        # self.curs.execute('''INSERT INTO transmision_params (id, c_freq, b_gain, sample_rate, timestamp) VALUES (?, ?, ?, ?, ?)''', (self.param_id ,freq, gain, samp_rate, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
+        self.curs.execute('''  
+                          SELECT id FROM transmision_params 
+                          WHERE c_freq = ? AND b_gain = ? AND sample_rate = ? 
+                          ''', (freq, gain, samp_rate))
+        res = self.curs.fetchone()
+        if res is None:
+            self.curs.execute('''
+                              INSERT INTO transmision_params (id, c_freq, b_gain, sample_rate, timestamp) 
+                              VALUES (?, ?, ?, ?, ?)''', 
+                              (self.param_id ,freq, gain, samp_rate, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+                              )
+            self.param_id = self.curs.lastrowid
+        else:
+            self.param_id = res[0]
+        
+        self.curs.execute(''' 
+                          INSERT INTO logs (source, Message, timestamp, source_timestamp) VALUES (?, ?, ?, ?)''', 
+                          ("Controller", f"Transmision parameters changed to: freq = {freq}, gain = {gain}, sample_rate = {samp_rate}", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "N/A")
+                          )
         self.conn.commit()
         # with open(self.db_path, "a") as db:
         #     json.dump({"status": "transmision_paramiters_change", "c_freq": freq, "gain": gain, "sample_rate": samp_rate,"timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}, db)
