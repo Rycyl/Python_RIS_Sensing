@@ -10,7 +10,7 @@ from time import time, ctime, sleep
 config = Config()
 
 if __name__ == "__main__":
-    
+    sweeptime_l = 0.001
     RIS = RIS(port='/dev/ttyUSB0')
     RIS.reset()
     generator.com_check()
