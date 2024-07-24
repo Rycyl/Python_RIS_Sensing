@@ -120,6 +120,7 @@ def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, bana
             current_element = 16*y + x
             current_pattern.overwrite(mask, current_element)
             current_pattern |= previous_pattern
+            pow_max = analyzer_sensing.trace_get()
             RIS.set_pattern('0x'+current_pattern.hex)
             p = analyzer_sensing.trace_get()
             power_pattern.append([[p],[current_pattern.hex]])
@@ -134,7 +135,6 @@ def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, bana
                 file.write('\n')
                 file.close()  # CLose the file
             if (p>pow_max):
-                pow_max=p
                 previous_pattern = copy(current_pattern)
             else:
                 current_pattern = copy(previous_pattern)
