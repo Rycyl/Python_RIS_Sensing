@@ -27,7 +27,7 @@ class Controller:
     def init_db(self):
         self.curs.execute('''CREATE TABLE IF NOT EXISTS logs (source TEXT, Message TEXT, timestamp TEXT, source_timestamp TEXT) ''')
         self.curs.execute('''CREATE TABLE IF NOT EXISTS power_readings (params_id INTEGER, source TEXT, power FLOAT, timestamp TEXT, source_timestamp TEXT, RIS_connected TEXT)''')
-        self.curs.execute('''CREATE TABLE IF NOT EXISTS transmision_params (id INTEGER PRIMARY KEY, c_freq FLOAT, b_gain FLOAT, sample_rate FLOAT, timestamp TEXT)''')
+        self.curs.execute('''CREATE TABLE IF NOT EXISTS transmision_params (id INTEGER PRIMARY KEY AUTOINCREMENT, c_freq FLOAT, b_gain FLOAT, sample_rate FLOAT, timestamp TEXT)''')
         self.curs.execute('''CREATE TABLE IF NOT EXISTS pattern_teast_results (params_id INTEGER, source TEXT, power FLOAT, timestamp TEXT, source_timestamp TEXT, RIS_connected TEXT)''') 
         self.conn.commit()
         return True
@@ -126,9 +126,9 @@ class Controller:
         res = self.curs.fetchone()
         if res is None:
             self.curs.execute('''
-                              INSERT INTO transmision_params (id, c_freq, b_gain, sample_rate, timestamp) 
-                              VALUES (?, ?, ?, ?, ?)''', 
-                              (self.param_id ,freq, gain, samp_rate, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+                              INSERT INTO transmision_params (c_freq, b_gain, sample_rate, timestamp) 
+                              VALUES (?, ?, ?, ?)''', 
+                              (freq, gain, samp_rate, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
                               )
             self.param_id = self.curs.lastrowid
         else:
