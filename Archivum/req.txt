@@ -1,6 +1,0 @@
-matplotlib
-RsInstrument
-RsSmw
-pyserial
-numpy
-periphery
