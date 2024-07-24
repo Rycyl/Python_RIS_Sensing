@@ -27,7 +27,8 @@ class Controller:
     def init_db(self):
         self.curs.execute('''CREATE TABLE IF NOT EXISTS logs (source TEXT, Message TEXT, timestamp TEXT, source_timestamp TEXT) ''')
         self.curs.execute('''CREATE TABLE IF NOT EXISTS power_readings (params_id INTEGER, source TEXT, power FLOAT, timestamp TEXT, source_timestamp TEXT, RIS_connected TEXT)''')
-        self.curs.execute('''CREATE TABLE IF NOT EXISTS transmision_params (id INTEGER PRIMARY KEY, c_freq FLOAT, b_gain FLOAT, sample_rate FLOAT, timestamp TEXT)''') 
+        self.curs.execute('''CREATE TABLE IF NOT EXISTS transmision_params (id INTEGER PRIMARY KEY, c_freq FLOAT, b_gain FLOAT, sample_rate FLOAT, timestamp TEXT)''')
+        self.curs.execute('''CREATE TABLE IF NOT EXISTS pattern_teast_results (params_id INTEGER, source TEXT, power FLOAT, timestamp TEXT, source_timestamp TEXT, RIS_connected TEXT)''') 
         self.conn.commit()
         return True
 
@@ -192,6 +193,13 @@ class Controller:
             return True
         else:
             return False
+        
+    def pattern_test_run(self, pattern, no_of_measurements, freq, gain, sample_rate):
+        self.set_tran_param(freq, gain, sample_rate)
+        #time.sleep(0.01) #nie wiaiada czy jest sens czekać
+        #albo odczytywać z bazy danych ilość pomiarów i czekać aż no_of_measurements == ilość nowych pomiarów (osobny wątek ? asynchronicznie ?)
+        #albo dodać licznik przy zapisywaniu pomiarów (może być problem z decyzją kiedy zerować licznik)
+        return True
 
 #Con = Controller()
         # self.curs.execute('''INSERT INTO power_readings (params_id, source, power, timestamp, source_timestamp) VALUES (?, ?, ?, ?, ?)''', (self.param_id ,power_reading["source"], power_reading["power"], time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), power_reading["source_timestamp"]))
