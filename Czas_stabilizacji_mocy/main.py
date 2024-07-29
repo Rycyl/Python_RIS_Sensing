@@ -79,18 +79,18 @@ if __name__ == "__main__":
     
     # Uruchom nowy wątek
     n=0
-    file2 = open("Ris_przelacz_w_czasie_tracea.csv", 'a+')
+    file2 = open("Ris_przelacz_w_czasie_tracea_different_pats_long_time.csv", 'a+')
     sleep(20)
-    while(n<20):
+    while(n<10):
         RIS.set_pattern("0x0000000000000000000000000000000000000000000000000000000000000000")
         thread = threading.Thread(target=get_trace)
         thread.start() # w czasie pomiaru w wątku przełączamy RISA co 0.25s
         sleep(0.25)
-        RIS.set_pattern("0xFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000")
+        RIS.set_pattern("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000000000000000000000000000")
         sleep(0.25)
-        RIS.set_pattern("0x8000000000000000000000000000000000000000000000000000000000000000")
+        RIS.set_pattern("0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
         sleep(0.25)
-        RIS.set_pattern("0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF")
+        RIS.set_pattern("0x5A3C2E1D0F9B7A5C3E1D0F9B7A5C3E1D0F9B7A5C3E1D0F9B7A5C3E1D0F9B7AB3")
         
         # Poczekaj na zakończenie wątku
         thread.join()
@@ -99,6 +99,7 @@ if __name__ == "__main__":
         file2.write((str(POWER_REC))[1:-1])
         file2.write('\n')
         n+=1
+    file2.write('\n')
     file2.close()
     analyzer_sensing.meas_close()
     generator.meas_close()
