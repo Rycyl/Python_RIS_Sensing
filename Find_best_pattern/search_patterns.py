@@ -134,7 +134,7 @@ def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, bana
                 file.write("0x" + current_pattern.hex)
                 file.write('\n')
                 file.close()  # CLose the file
-            if (p>pow_max):
+            if(p<pow_max): # maks mocy::: if (p>pow_max):
                 previous_pattern = copy(current_pattern)
             else:
                 current_pattern = copy(previous_pattern)

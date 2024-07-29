@@ -17,7 +17,7 @@ if __name__ == "__main__":
     while(i<brekpoint):
         i+=1
         print("Iteration: ", i)
-        print(search_patterns.find_best_pattern_element_wise(RIS, mask='0b110000000000000011'))
+        print(search_patterns.find_best_pattern_element_wise(RIS, mask='0b1'))
 
     analyzer_sensing.meas_close()
     generator.meas_close()
