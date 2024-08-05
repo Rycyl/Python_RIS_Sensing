@@ -14,93 +14,78 @@ def get_trace():
     global POWER_REC
     POWER_REC = analyzer_sensing.trace_get()
 
+def single_power_measurement(pattern):
+    RIS.set_pattern(pattern)
+    power = analyzer_sensing.trace_get_mean()
+    return power
+
 config = Config()
 
 if __name__ == "__main__":
-    sweeptime_l = 0.001
+    #------------------------------------
+    # Zmienne konfiguracyjne
+    swt = 1
+    points = 12500
+    iters = 10
+    trace_file = 'long_vs_normal_trace.csv'
+    #------------------------------------
+
     RIS = RIS(port='/dev/ttyUSB0')
     RIS.reset()
     generator.com_check()
     analyzer_sensing.com_prep()
     analyzer_sensing.com_check()
     generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
-
-    i = 0
-    ##prepare trace file
-    current_pattern = BitArray(length=256) ## all zeros
-    element_on1 = randint(0, 255)
-    element_on2 = randint(0, 255)
-    element_on3 = randint(0, 255)
-    """
-    file = open(config.trace_file, 'a+')
-    file.write((str(ctime(time()))) + ',')
-    file.write("SWT(ms), in 1st row, Iters, in 1st col, \n")#HEADER
-    file.write("patterns:, all off," + str(element_on1) + " el on," + str(element_on2) + " el on," + str(element_on3) + " el on, \n" )
-    file.write(" ,1,1,1,1,2,2,2,2,4,4,4,4,8,8,8,8,16,16,16,16,32,32,32,32,64,64,64,64,128,128,128,128,256,256,256,256,512,512,512,512,1024,1024,1024,1024,")
-    file.write('\n')
-
-    analyzer_sensing.meas_prep(config.freq, sweeptime_l, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt)
-    iters = 100
-    sleep(20)
-    while(i < iters): # 100 pomiarów na jednym sweeptime
-        sweeptime_l = 0.001
-        file.write(str(i) + ",")
-        print("Iteration: ", i)
-        while(sweeptime_l < 0.6):
-            analyzer_sensing.meas_prep(config.freq, sweeptime_l, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt)
-            RIS.set_pattern('0x' + current_pattern.hex)
-            p1 = analyzer_sensing.trace_get_mean()
-
-            current_pattern.overwrite('0b1', element_on1)
-            RIS.set_pattern('0x' + current_pattern.hex)
-            p2 = analyzer_sensing.trace_get_mean()
-            current_pattern.overwrite('0b0', element_on1)
-
-            current_pattern.overwrite('0b1', element_on2)
-            RIS.set_pattern('0x' + current_pattern.hex)
-            p3 = analyzer_sensing.trace_get_mean()
-            current_pattern.overwrite('0b0', element_on2)
-
-            current_pattern.overwrite('0b1', element_on3)
-            RIS.set_pattern('0x' + current_pattern.hex)
-            p4 = analyzer_sensing.trace_get_mean()
-            current_pattern.overwrite('0b0', element_on3)
-
-            file.write(str(p1) + "," + str(p2) + "," + str(p3) + "," + str(p4) + ",")
-            sweeptime_l *= 2
-
-        i += 1
-        file.write('\n')
-    file.close()
-    """
-    ##### DRUGI POMIAR
-    analyzer_sensing.meas_prep(config.freq, 1, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, 12500)
-    RIS.reset()
-    
-    # Uruchom nowy wątek
-    n=0
-    file2 = open("Ris_przelacz_w_czasie_tracea_different_pats_long_time.csv", 'a+')
-    sleep(20)
-    while(n<10):
-        RIS.set_pattern("0x0000000000000000000000000000000000000000000000000000000000000000")
-        thread = threading.Thread(target=get_trace)
-        thread.start() # w czasie pomiaru w wątku przełączamy RISA co 0.25s
-        sleep(0.25)
-        RIS.set_pattern("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000000000000000000000000000")
-        sleep(0.25)
-        RIS.set_pattern("0x00000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
-        sleep(0.25)
-        RIS.set_pattern("0x5A3C2E1D0F9B7A5C3E1D0F9B7A5C3E1D0F9B7A5C3E1D0F9B7A5C3E1D0F9B7AB3")
-        
-        # Poczekaj na zakończenie wątku
+    analyzer_sensing.meas_prep(config.freq, swt, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, points) 
+    #test funkcji do odczytania mocy z długiego trace vs normalny pomiar
+    file = open(trace_file, 'a+')
+    #sleep(20)
+    thread = threading.Thread(target=get_trace)
+    n = 0
+    centr_of_pat_trace = (points/4)/2
+    point_range = (centr_of_pat_trace*5)//100
+    test_patterns = ['0x0000000000000000000000000000000000000000000000000000000000000000', '0x8000000000000000000000000000000000000000000000000000000000000000', '0xC000000000000000000000000000000000000000000000000000000000000000', '0x4000000000000000000000000000000000000000000000000000000000000000']
+    while(n < iters):
+        RIS.set_pattern(test_patterns[0])
+        thread.start()
+        #Dodatkowy sleep żeby poczekać na start pomiaru ??
+        sleep(swt/4)
+        RIS.set_pattern(test_patterns[1])
+        sleep(swt/4)
+        RIS.set_pattern(test_patterns[2])
+        sleep(swt/4)
+        RIS.set_pattern(test_patterns[3])
+        #zmiana elementów - kod greya
         thread.join()
+        #centr_of_pat_trace = POWER_REC.len()/2
+        controll_power_mes = []
+        for pattern in test_patterns:
+            power = single_power_measurement(pattern)
+            controll_power_mes.append(power)
+            #file.write(str(power) + ',')
+            #file.write('\n')
         
-        # Zapisz wynik
-        file2.write((str(POWER_REC))[1:-1])
-        file2.write('\n')
-        n+=1
-    file2.write('\n')
-    file2.close()
-    analyzer_sensing.meas_close()
-    generator.meas_close()
+        power_reading = []
+        for i in range (1, 5):
+            new_centre = centr_of_pat_trace*i
+            power_slice = POWER_REC[new_centre-point_range:new_centre+point_range]
+            power = power_slice.mean()
+            power_reading.append(power)
+        file.write((str(POWER_REC))[1:-1])
+        file.write('\n')
+        file.write((str(power_reading))[1:-1])
+        file.write('\n')
+        file.write((str(controll_power_mes))[1:-1])
+        file.write('\n')
+        n += 1
+    file.write('\n')
+    file.close()
+    generator.com_close()
+    analyzer_sensing.com_close()
     exit()
+
+
+
+        
+
+

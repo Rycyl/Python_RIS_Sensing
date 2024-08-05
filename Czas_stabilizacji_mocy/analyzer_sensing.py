@@ -84,16 +84,14 @@ def trace_get_vect_fx():
 
 
 def trace_get_mean():
-    """Initialize continuous measurement, stop it after the desired time, query trace data"""
     analyzer.write_str_with_opc('INIT;*WAI')  
     # Get y data (amplitude for each point)
     trace_data = analyzer.query_bin_or_ascii_float_list_with_opc('FORM REAL,32;:TRAC:DATA? TRACe1') 
-    trace_len = len(trace_data)
+    #trace_len = len(trace_data)
     x = np.mean(trace_data)
     return x
 
 def trace_get():
-    """Initialize continuous measurement, stop it after the desired time, query trace data"""
     analyzer.write_str_with_opc('INIT;*WAI')  
     # Get y data (amplitude for each point)
     trace_data = analyzer.query_bin_or_ascii_float_list_with_opc('FORM REAL,32;:TRAC:DATA? TRACe1') 
