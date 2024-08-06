@@ -26,6 +26,7 @@ if __name__ == "__main__":
     #------------------------------------
     # Zmienne konfiguracyjne
     swt = 1
+    config.sweptime=swt/4
     rbw = 2000
     points = swt/(1/rbw)
     config.swepnt = swt/(1/rbw)
@@ -42,13 +43,15 @@ if __name__ == "__main__":
     analyzer_sensing.meas_prep(config.freq, swt, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, points) 
     #test funkcji do odczytania mocy z długiego trace vs normalny pomiar
     file = open(trace_file, 'a+')
-    sleep(20)
+    #sleep(20)
     
     n = 0
     centr_of_pat_trace = int(((points/4)//2) - points*0.05)
     point_range = 100 #int((centr_of_pat_trace*5)//100)
     test_patterns = ['0x0000000000000000000000000000000000000000000000000000000000000000', '0x8000000000000000000000000000000000000000000000000000000000000000', '0xC000000000000000000000000000000000000000000000000000000000000000', '0x4000000000000000000000000000000000000000000000000000000000000000']
     while(n < iters):
+        sleep(150)
+        analyzer_sensing.meas_prep(config.freq, swt, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, points) 
         thread = threading.Thread(target=get_trace)
         RIS.set_pattern(test_patterns[0])
         thread.start()
@@ -63,6 +66,7 @@ if __name__ == "__main__":
         thread.join()
         #centr_of_pat_trace = POWER_REC.len()/2
         controll_power_mes = []
+        analyzer_sensing.meas_prep(config.freq, config.sweptime, config.span, config.analyzer_mode, config.detector, config.revlevel, rbw, config.sweptime/(1/rbw)) 
         for pattern in test_patterns:
             power = single_power_measurement(pattern)
             controll_power_mes.append(power)
