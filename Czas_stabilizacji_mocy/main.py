@@ -9,7 +9,7 @@ from time import time, ctime, sleep
 from bitstring import Bits, BitArray, BitStream, pack
 from random import randint
 import threading
-
+import numpy as np
 def get_trace():
     global POWER_REC
     POWER_REC = analyzer_sensing.trace_get()
@@ -26,12 +26,14 @@ if __name__ == "__main__":
     #------------------------------------
     # Zmienne konfiguracyjne
     swt = 1
-    points = 12500
+    rbw = 2000
+    points = swt/(1/rbw)
+    config.swepnt = swt/(1/rbw)
     iters = 10
     trace_file = 'long_vs_normal_trace.csv'
     #------------------------------------
 
-    RIS = RIS(port='/dev/ttyUSB0')
+    RIS = RIS(port='/dev/ttyUSB1')
     RIS.reset()
     generator.com_check()
     analyzer_sensing.com_prep()
@@ -40,13 +42,14 @@ if __name__ == "__main__":
     analyzer_sensing.meas_prep(config.freq, swt, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, points) 
     #test funkcji do odczytania mocy z długiego trace vs normalny pomiar
     file = open(trace_file, 'a+')
-    #sleep(20)
-    thread = threading.Thread(target=get_trace)
+    sleep(20)
+    
     n = 0
-    centr_of_pat_trace = (points/4)/2
-    point_range = (centr_of_pat_trace*5)//100
+    centr_of_pat_trace = int(((points/4)//2) - points*0.05)
+    point_range = 100 #int((centr_of_pat_trace*5)//100)
     test_patterns = ['0x0000000000000000000000000000000000000000000000000000000000000000', '0x8000000000000000000000000000000000000000000000000000000000000000', '0xC000000000000000000000000000000000000000000000000000000000000000', '0x4000000000000000000000000000000000000000000000000000000000000000']
     while(n < iters):
+        thread = threading.Thread(target=get_trace)
         RIS.set_pattern(test_patterns[0])
         thread.start()
         #Dodatkowy sleep żeby poczekać na start pomiaru ??
@@ -67,10 +70,10 @@ if __name__ == "__main__":
             #file.write('\n')
         
         power_reading = []
-        for i in range (1, 5):
-            new_centre = centr_of_pat_trace*i
+        for i in range (0, 4):
+            new_centre = centr_of_pat_trace + 500*i
             power_slice = POWER_REC[new_centre-point_range:new_centre+point_range]
-            power = power_slice.mean()
+            power = np.mean(power_slice)
             power_reading.append(power)
         file.write((str(POWER_REC))[1:-1])
         file.write('\n')
@@ -79,10 +82,11 @@ if __name__ == "__main__":
         file.write((str(controll_power_mes))[1:-1])
         file.write('\n')
         n += 1
+        print("iter::", n)
     file.write('\n')
     file.close()
-    generator.com_close()
-    analyzer_sensing.com_close()
+    generator.close()
+    analyzer_sensing.close()
     exit()
 
 

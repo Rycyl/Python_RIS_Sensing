@@ -34,7 +34,7 @@ def com_prep():
     analyzer.clear_status()  
   
     
-def meas_close():
+def close():
     analyzer.close()
 
 

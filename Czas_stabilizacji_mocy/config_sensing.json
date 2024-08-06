@@ -20,7 +20,7 @@
     "SPAN" : 0,
     "ANALYZER_MODE":"WRITe",
     "REVLEVEL" : -30,
-    "RBW" : "500 Hz",
+    "RBW" : "2000 Hz",
     "GENERATOR_AMPLITUDE" : -10,
     "GENERATOR_MODE" : "CW",
     "SWEEP_POINTS" :1000,
