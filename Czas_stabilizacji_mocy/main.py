@@ -13,6 +13,7 @@ import threading
 def get_trace():
     global POWER_REC
     POWER_REC = analyzer_sensing.trace_get()
+    return
 
 def single_power_measurement(pattern):
     RIS.set_pattern(pattern)
