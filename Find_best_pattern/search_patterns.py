@@ -8,28 +8,16 @@ import time
 import def_pattern
 from bitstring import Bits, BitArray, BitStream, pack
 from copy import copy, deepcopy
+import threading
+from config_obj import Config
+
+
 
 try:
-    with open ("config_sensing.json") as config_f:
-        config = json.load(config_f)
-        trace_file = config["TRACE_FILE"]
-        freq = config['CENTRAL_FREQ']
-        span=config["SPAN"]
-        analyzer_mode=config["ANALYZER_MODE"]
-        revlevel=config["REVLEVEL"]
-        rbw=config["RBW"]
-        swepnt = config["SWEEP_POINTS"]
-        generator_amplitude=config["GENERATOR_AMPLITUDE"]
-        detector = config["DETECTOR"]
-        sweptime = config["SWEEP_TIME"]
-        # More modes will be add later.
-        if config["GENERATOR_MODE"] == "CW":
-            generator_mode = enums.FreqMode.CW
-        else: 
-            generator_mode = enums.FreqMode.CW
-        config_f.close()
+    global config
+    config = Config()
 except FileNotFoundError:
-    print("File with configuration doesn't exist.")
+    print("Błąd z plikiem konfiguracyjnym - search_patterns.py")
     exit()
 
 try:
@@ -48,7 +36,7 @@ def find_best_pattern_codebook(RIS, bsweptime = sweptime, banalyzer_mode = analy
     analyzer_sensing.meas_prep(freq, bsweptime, span, banalyzer_mode, bdetector, revlevel, rbw, bswepnt)
     for pattern in patterns_data:
         RIS.set_pattern(pattern["HEX"])
-        p = analyzer_sensing.trace_get()
+        p = analyzer_sensing.trace_get_mean()
         
         power.append(p)
     for i in range(0, len(power)):
@@ -62,14 +50,8 @@ def find_best_pattern_codebook(RIS, bsweptime = sweptime, banalyzer_mode = analy
     return best_pattern #, worst_pattern
 
 
-
-
-
 def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, banalyzer_mode = analyzer_mode, bdetector = detector, bswepnt = swepnt, bgenerator_amplitude = generator_amplitude):
     ### MASKA MUSI BYĆ BINARNA!!! ###
-    ### MASKI O DŁUGOSCI X != dzielnik 16 nie działają poprawnie ###
-    ### MASKI O DLUGOSI Y!= 1 nie działają poprawnie ### (prawdopodobnie rozwiazanie to XOR z poprzednim patternem przed zerowaniem)
-    ### todo change to make modes work - for now all are type 1#### !!!!!!!!!!!!!!!!
     '''
         maska - jakim mini patternem przesuwamy sie po RIS
     '''
@@ -101,15 +83,15 @@ def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, bana
     power_pattern = [] ###lista do zbierania wyników
     analyzer_sensing.meas_prep(freq, bsweptime, span, banalyzer_mode, bdetector, revlevel, rbw, bswepnt)
 
-    current_pattern = BitArray(length=256) ## all zeros
-    previous_pattern = BitArray(length=256) ##all ones
+    current_pattern = BitArray(length=256)  ## all zeros
+    previous_pattern = BitArray(length=256) ## all zeros
 
     RIS.set_pattern('0x'+current_pattern.hex)
-    pow_max = analyzer_sensing.trace_get()
+    pow_max = analyzer_sensing.trace_get_mean()
     print("current amp:: ", pow_max)
     ### func definition ###
     
-
+    timings = []
     
     y = 0
     i = 1
@@ -120,9 +102,11 @@ def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, bana
             current_element = 16*y + x
             current_pattern.overwrite(mask, current_element)
             current_pattern |= previous_pattern
-            pow_max = analyzer_sensing.trace_get()
+            t1 = time.time()
             RIS.set_pattern('0x'+current_pattern.hex)
-            p = analyzer_sensing.trace_get()
+            p = analyzer_sensing.trace_get_mean()
+            t2 = time.time()
+            timings.append(t2-t1)
             power_pattern.append([[p],[current_pattern.hex]])
             print("pattern:: ", "0x",current_pattern.hex, " = ", p)
             with open(trace_file, 'a+') as file:
@@ -134,7 +118,8 @@ def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, bana
                 file.write("0x" + current_pattern.hex)
                 file.write('\n')
                 file.close()  # CLose the file
-            if(p<pow_max): # maks mocy::: if (p>pow_max):
+            if (p>pow_max):
+                pow_max=p
                 previous_pattern = copy(current_pattern)
             else:
                 current_pattern = copy(previous_pattern)
@@ -152,6 +137,9 @@ def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, bana
 
     print("max power:: ", pow_max)
 
+    print(timings)
+    print("ŚREDNI CZAS ODPOWIEDZI - set pattern:trace_get_mean = ", np.mean(timings))
+    
     best_pow = -220.0
     best_pattern = None
     for p, pattern in power_pattern:
@@ -160,3 +148,69 @@ def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, bana
             best_pow = p[0]
 
     return best_pattern, best_pow
+
+def get_trace():
+    global POWER_REC
+    POWER_REC = analyzer_sensing.trace_get()
+    return
+
+def find_best_pattern_element_wise_by_group_measures(RIS, config = config, n_elements = 2, trace_file = 'optymalizacja_wycinana_z_trace.csv'):
+    """   adnotacje:
+    1) DODAĆ OPCJONALNE ZAPISYWANIE MIEDZYPOMIAROW DO PLIKU
+    """
+    ### INIT MEASURE POINTS AND ANAL AND GEN
+    centr_of_pat_trace = int(((points/n_elements**2)//2)) # kompensacja? teoretycznie jest sleep dodany na to ## - points*0.05)
+    point_range = config.swepnt // n_elements**2 // 3 ## 3 to testowa wartosc, sprawdzic czy trafiamy w trace odpowiednio
+    generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
+    analyzer_sensing.meas_prep(config.freq, config.sweptime, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt) 
+    file = open(trace_file, 'a+')
+
+    ###Set 0 on RIS as current best
+    current_best_pow = BitArray(length=256)
+    RIS.set_pattern('0x' + current_best_pow.hex)
+
+    ## PREPARE PATTERNS TO SWAP
+    pat_array = []
+    for x in range(0, 2**n_elements):
+        pat_array.append(BitArray(uint=x, length=256))
+
+    n = 0
+    while(n<256):
+        thread = threading.Thread(target=get_trace)
+        
+        ### PERFORM MEASURE
+        thread.start()
+        sleep(0.02)
+            ###przełącz RIS z pat_array
+        for y in pat_array:
+            sleep(config.sweptime/n_elements**2)
+            RIS.set_pattern('0x' + y.hex)
+            ###
+        thread.join()
+        ### MEASURE END
+
+        ###wybierz najlepszy pattern z trace_rec
+        power_reading = []
+        for i in range (0, n_elements**2):
+            new_centre = centr_of_pat_trace + (config.swepnt//n_elements**2)*i
+            power_slice = POWER_REC[new_centre-point_range:new_centre+point_range]
+            power = np.mean(power_slice)
+            power_reading.append(power)
+        current_best_pow = max(power_reading)
+        j = 0
+        for pow in power_reading:
+            if (pow == current_best_pow):
+                break
+            else:
+                j+=1
+        current_best_pattern = pat_array[j]
+        ###
+
+        ###przesuń wzory w pat_array o n_elements, następnie wzory OR current best
+        for y in pat_array:
+            y.ror(n_elements)
+            y |= current_best_pattern
+        ###
+
+        n += n_elements
+    return current_best_pattern

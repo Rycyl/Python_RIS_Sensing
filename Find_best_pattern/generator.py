@@ -37,7 +37,7 @@ def meas_prep(set : True, mode, amplitude : int, freq : int):
     response = generator.utilities.query_str('*IDN?')
     print(f'Direct SCPI response on *IDN?: {response}')
 
-def meas_close():
+def close():
     generator.close()
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ class RIS:
         start_time = time.time()
         while True:
             response = self.ser.readline().decode('utf-8').strip()
-            print(response)
+            #print(response)
             if response == "#OK":
                 self.c_pattern = pattern
                 return True
