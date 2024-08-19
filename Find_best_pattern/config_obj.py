@@ -25,6 +25,20 @@ class Config:
             print("File with configuration doesn't exist.")
             exit()
 
+    def update_rbw(self, rbw):
+        self.rbw = rbw
+        self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3])))
+        return
+
+    def update_swt(self, swt):
+        self.sweptime = swt
+        self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3])))
+        return
+
+        
+
+
+
 class Patterns:
     def __init__(self, patterns_path = "RIS_patterns.json"):
         self.load_patterns(patterns_path)
