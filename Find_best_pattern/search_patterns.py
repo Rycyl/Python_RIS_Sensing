@@ -5,13 +5,14 @@ import json
 import numpy as np
 from RsSmw import *
 import time
+from time import sleep
 import def_pattern
 from bitstring import Bits, BitArray, BitStream, pack
 from copy import copy, deepcopy
 import threading
 from config_obj import Config
-
-
+import file_writer
+from copy import copy
 
 try:
     global config
@@ -29,7 +30,7 @@ except FileNotFoundError:
     exit()
     
 
-def find_best_pattern_codebook(RIS, bsweptime = sweptime, banalyzer_mode = analyzer_mode, bdetector = detector, bswepnt = swepnt, bgenerator_amplitude = generator_amplitude):
+def find_best_pattern_codebook(RIS, bsweptime, banalyzer_mode, bdetector, bswepnt, bgenerator_amplitude):
     generator.meas_prep(True, generator_mode, bgenerator_amplitude, freq)
     # power = {}
     power = []
@@ -50,7 +51,7 @@ def find_best_pattern_codebook(RIS, bsweptime = sweptime, banalyzer_mode = analy
     return best_pattern #, worst_pattern
 
 
-def find_best_pattern_element_wise(RIS, mask = '0b1', bsweptime = sweptime, banalyzer_mode = analyzer_mode, bdetector = detector, bswepnt = swepnt, bgenerator_amplitude = generator_amplitude):
+def find_best_pattern_element_wise(RIS, bsweptime, banalyzer_mode, bdetector, bswepnt, bgenerator_amplitude, mask = '0b1'):
     ### MASKA MUSI BYĆ BINARNA!!! ###
     '''
         maska - jakim mini patternem przesuwamy sie po RIS
@@ -154,27 +155,35 @@ def get_trace():
     POWER_REC = analyzer_sensing.trace_get()
     return
 
-def find_best_pattern_element_wise_by_group_measures(RIS, config = config, n_elements = 2, trace_file = 'optymalizacja_wycinana_z_trace.csv'):
+def find_best_pattern_element_wise_by_group_measures(RIS, config = config, n_elements = 4, trace_file = 'optymalizacja_wycinana_z_trace.csv'):
     """   adnotacje:
     1) DODAĆ OPCJONALNE ZAPISYWANIE MIEDZYPOMIAROW DO PLIKU
+    2) N=nie wincyj jak 4 elementy bo sie zapycha cpu
     """
     ### INIT MEASURE POINTS AND ANAL AND GEN
-    centr_of_pat_trace = int(((points/n_elements**2)//2)) # kompensacja? teoretycznie jest sleep dodany na to ## - points*0.05)
-    point_range = config.swepnt // n_elements**2 // 3 ## 3 to testowa wartosc, sprawdzic czy trafiamy w trace odpowiednio
+    current_best_pow = -300.0
+    combinations = 2 ** n_elements
+    points = config.swepnt
+    centr_of_pat_trace = int(((points/combinations)//2)) # kompensacja? teoretycznie jest sleep dodany na to ## - points*0.05)
+    point_range = config.swepnt // combinations // 3 ## 3 to testowa wartosc, sprawdzic czy trafiamy w trace odpowiednio
     generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
     analyzer_sensing.meas_prep(config.freq, config.sweptime, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt) 
     file = open(trace_file, 'a+')
 
     ###Set 0 on RIS as current best
-    current_best_pow = BitArray(length=256)
-    RIS.set_pattern('0x' + current_best_pow.hex)
+    current_best_pattern = BitArray(length=256)
+    RIS.set_pattern('0x' + current_best_pattern.hex)
 
     ## PREPARE PATTERNS TO SWAP
     pat_array = []
-    for x in range(0, 2**n_elements):
+    for x in range(0, combinations):
         pat_array.append(BitArray(uint=x, length=256))
+    pat_array_copy = copy(pat_array)
 
     n = 0
+    write_patterns = []
+    write_powers = []
+    write_std = []
     while(n<256):
         thread = threading.Thread(target=get_trace)
         
@@ -182,35 +191,44 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config = config, n_ele
         thread.start()
         sleep(0.02)
             ###przełącz RIS z pat_array
-        for y in pat_array:
-            sleep(config.sweptime/n_elements**2)
+        for y in pat_array_copy:
+            sleep(config.sweptime/combinations)
             RIS.set_pattern('0x' + y.hex)
             ###
         thread.join()
         ### MEASURE END
-
+        #file.write(str(pat_array)[1:-1] + '\n')
+        file.write(str(POWER_REC)[1:-1] + '\n')
         ###wybierz najlepszy pattern z trace_rec
-        power_reading = []
-        for i in range (0, n_elements**2):
-            new_centre = centr_of_pat_trace + (config.swepnt//n_elements**2)*i
+        for i in range (0, combinations):
+            new_centre = centr_of_pat_trace + (config.swepnt//combinations)*i
             power_slice = POWER_REC[new_centre-point_range:new_centre+point_range]
             power = np.mean(power_slice)
-            power_reading.append(power)
-        current_best_pow = max(power_reading)
-        j = 0
-        for pow in power_reading:
-            if (pow == current_best_pow):
-                break
-            else:
-                j+=1
-        current_best_pattern = pat_array[j]
+            write_patterns.append(pat_array_copy[i])
+            write_powers.append(power)
+            write_std = np.std(power_slice)
+            #print(pat_array[i])
+            #print(type(power), "POWER TYPE", type(current_best_pow))
+            if(power >= current_best_pow):
+                current_best_pattern = copy(pat_array_copy[i])
+                current_best_pow = copy(power)
+
+        print("PAT: ", current_best_pattern.hex, "POW MAX: ", current_best_pow)
         ###
 
         ###przesuń wzory w pat_array o n_elements, następnie wzory OR current best
-        for y in pat_array:
-            y.ror(n_elements)
-            y |= current_best_pattern
+        for i in range(0,combinations):
+            pat_array[i].rol(n_elements)
+            pat_array_copy[i] = pat_array[i] | current_best_pattern
         ###
 
         n += n_elements
+    file.write("\n Wynnik optymalizacji MASOWEJ \n")
+    new_write_patterns = []
+    for x in write_patterns:
+        new_write_patterns.append(x.HEX)
+    file.write(str(new_write_patterns)[1:-1] + '\n')
+    file.write(str(write_powers)[1:-1] + '\n')
+    file.write(str(write_std)[1,-1] + '\n')
+    file.close()
     return current_best_pattern

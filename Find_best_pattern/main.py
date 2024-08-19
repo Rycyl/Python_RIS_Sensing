@@ -12,17 +12,15 @@ config = Config()
 
 if __name__ == "__main__":
 
-    RIS = RIS(port='/dev/ttyUSB1')
+    RIS = RIS(port='/dev/ttyUSB0')
     RIS.reset()
     generator.com_check()
     analyzer_sensing.com_prep()
     analyzer_sensing.com_check()
-   
-    search_patterns.find_best_pattern_element_wise_by_group_measures()
-
+    t1 = time()
+    search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config)
+    print(time() - t1)
   
-    file.write('\n')
-    file.close()
     generator.close()
     analyzer_sensing.close()
     exit()

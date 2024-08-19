@@ -19,7 +19,7 @@ class Config:
                 self.generator_amplitude = config["GENERATOR_AMPLITUDE"]
                 self.detector = config["DETECTOR"]
                 self.sweptime = config["SWEEP_TIME"]
-                self.swepnt = int(sweptime/(1/int(rbw[0:-3])))
+                self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3])))
                 self.generator_mode = enums.FreqMode.CW if config["GENERATOR_MODE"] == "CW" else enums.FreqMode.CW
         except FileNotFoundError:
             print("File with configuration doesn't exist.")
