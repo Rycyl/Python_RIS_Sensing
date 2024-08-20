@@ -19,6 +19,8 @@ if __name__ == "__main__":
     analyzer_sensing.com_check()
  
     i = 0
+    sleep(120)
+    t1 = time()
     
     while(i<8):
         config.update_swt(0.1)
