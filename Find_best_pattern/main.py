@@ -1,8 +1,9 @@
 import analyzer_sensing
 import generator
 from RIS import RIS
-from RsSmw import *
+#from RsSmw import *
 import search_patterns
+import numpy as np
 from file_writer import file_write_single_power
 from config_obj import Config
 from time import time, ctime, sleep
@@ -19,40 +20,33 @@ if __name__ == "__main__":
     analyzer_sensing.com_check()
  
     i = 0
-    sleep(120)
-    t1 = time()
-    
-    while(i<8):
-        config.update_swt(0.1)
-        #search_patterns.find_best_pattern_codebook(RIS, config)
-        search_patterns.find_best_pattern_element_wise(RIS, config, '0b1')
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 1)
-        search_patterns.find_best_pattern_element_wise(RIS, config, '0b11')
-        search_patterns.find_best_pattern_element_wise(RIS, config, '0b1010')
-        config.update_swt(1)
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 1)
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 2)
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 3)
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 4)
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 5)
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 6)
-        
-        config.update_swt(0.5)
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 1)
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 2)
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 3)
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 4)
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 5)
-        search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 6)
-        i+=1
-        sleep(3600.0)
 
-    print("END SUCCESFULL ETA: ", time() - t1)
-    print("ostatni uposledzony")
-    t1 = time()
-    config.update_swt(8)
-    search_patterns.find_best_pattern_element_wise_by_group_measures(RIS,config, 8, trace_file='find_best_pattern_element_wise_by_group_measures_8sec_8bit.csv')
-    print("STRESS END SUCCESFULL ETA: ", time() - t1)
+    t = []
+    pat=[]
+    #sleep(10)
+    while(i<100):
+        config.update_swt(0.1)
+        #pat.append(search_patterns.find_best_pattern_element_wise(RIS, config, find_min=True)[0])
+        #pat.append(search_patterns.find_best_pattern_element_wise(RIS, config)[0])
+        #pat3, pat4 = search_patterns.find_best_pattern_codebook(RIS=RIS, config=config)
+        #pat.append(search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 2, find_min=True)[0])
+        #pat.append(search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 2, find_min=False)[0])
+        config.update_swt(0.1)
+        #RIS.set_pattern(pat3)
+        #print("Pow result ", analyzer_sensing.trace_get_mean())
+        #RIS.set_pattern(pat4)
+        #print("Pow result ", analyzer_sensing.trace_get_mean())
+        
+        RIS.set_pattern('0x' + '043f24bf2b98442c442b47eb021b041f107b00eb40db047f1107447c413b1138')
+        #    print(x.hex)
+        print("Pow result ", analyzer_sensing.trace_get_mean())
+        i+=1
+        #config.update_swt(0.1)
+        #search_patterns.find_best_pattern_codebook(RIS, config)
+        #sleep(5)
+
+
+
     generator.close()
     analyzer_sensing.close()
     exit()

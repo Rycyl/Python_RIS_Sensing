@@ -19,19 +19,22 @@ class RIS:
     def __repr__(self):
         return f"RIS zostal podlaczony do portu {self.ser.port} z id = {self.id}"
 
-    def set_pattern(self, pattern):
+    def set_pattern(self, pattern, ack_on = True):
         self.ser.flushInput()
         self.ser.flushOutput()
         self.ser.write(bytes(f"!{pattern}\n", 'utf-8'))
-        start_time = time.time()
-        while True:
-            response = self.ser.readline().decode('utf-8').strip()
-            #print(response)
-            if response == "#OK":
-                self.c_pattern = pattern
-                return True
-            if time.time() - start_time > self.timeout:
-                return False
+        if (ack_on):
+            start_time = time.time()
+            while True:
+                response = self.ser.readline().decode('utf-8').strip()
+                #print(response)
+                if response == "#OK":
+                    self.c_pattern = pattern
+                    return True
+                if time.time() - start_time > self.timeout:
+                    return False
+        else:
+            time.sleep(0.002)
 
     
     def reset(self):
