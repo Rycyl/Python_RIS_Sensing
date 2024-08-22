@@ -23,29 +23,28 @@ if __name__ == "__main__":
 
     t = []
     pat=[]
-    #sleep(10)
-    while(i<100):
+    sleep(240)
+    while(i<8):
         config.update_swt(0.1)
-        #pat.append(search_patterns.find_best_pattern_element_wise(RIS, config, find_min=True)[0])
-        #pat.append(search_patterns.find_best_pattern_element_wise(RIS, config)[0])
-        #pat3, pat4 = search_patterns.find_best_pattern_codebook(RIS=RIS, config=config)
-        #pat.append(search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 2, find_min=True)[0])
-        #pat.append(search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 2, find_min=False)[0])
-        config.update_swt(0.1)
-        #RIS.set_pattern(pat3)
-        #print("Pow result ", analyzer_sensing.trace_get_mean())
-        #RIS.set_pattern(pat4)
-        #print("Pow result ", analyzer_sensing.trace_get_mean())
-        
-        RIS.set_pattern('0x' + '043f24bf2b98442c442b47eb021b041f107b00eb40db047f1107447c413b1138')
-        #    print(x.hex)
-        print("Pow result ", analyzer_sensing.trace_get_mean())
+        pat.append(search_patterns.find_best_pattern_element_wise(RIS, config, find_min=True)[0])
+        pat.append(search_patterns.find_best_pattern_element_wise(RIS, config)[0])
+        pat.append(search_patterns.find_best_pattern_codebook(RIS=RIS, config=config))
+        pat.append(search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 1, find_min=True)[0])
+        pat.append(search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 1, find_min=False)[0])
+        pat.append(search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 2, find_min=True)[0])
+        pat.append(search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 2, find_min=False)[0])
+        pat.append(search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 4, find_min=True)[0])
+        pat.append(search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 4, find_min=False)[0])
         i+=1
-        #config.update_swt(0.1)
-        #search_patterns.find_best_pattern_codebook(RIS, config)
-        #sleep(5)
+        sleep(3600)
 
-
+    with open('znalezione_patterny.txt', "a+") as file:
+        for data in pat:
+            print(data)
+            file.write(str(data))
+            file.write("\n")
+        file.close()
+        
 
     generator.close()
     analyzer_sensing.close()

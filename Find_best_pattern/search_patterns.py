@@ -161,7 +161,7 @@ def find_best_pattern_element_wise(RIS, config, mask = '0b1', trace_file = 'find
             best_pattern = pattern[0]
             best_pow = p[0]
 
-    return best_pattern, best_pow
+    return best_pattern.hex, best_pow
 
 
 
@@ -268,4 +268,4 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
     file.write(str(write_powers)[1:-1] + '\n')
     file.write(str(write_std)[1:-1] + '\n')
     file.close()
-    return current_best_pattern, current_best_pow
+    return current_best_pattern.hex, current_best_pow
