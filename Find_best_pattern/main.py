@@ -24,7 +24,7 @@ if __name__ == "__main__":
     t = []
     pat=[]
     sleep(240)
-    while(i<8):
+    while(i<10):
         config.update_swt(0.1)
         pat.append(search_patterns.find_best_pattern_element_wise(RIS, config, find_min=True)[0])
         pat.append(search_patterns.find_best_pattern_element_wise(RIS, config)[0])
@@ -38,7 +38,7 @@ if __name__ == "__main__":
         i+=1
         sleep(3600)
 
-    with open('znalezione_patterny.txt', "a+") as file:
+    with open('znalezione_patterny_take_2.txt', "a+") as file:
         for data in pat:
             print(data)
             file.write(str(data))
