@@ -29,10 +29,10 @@ def get_trace():
 
 
 
-def find_best_pattern_codebook(RIS, config, trace_file = 'find_best_pattern_codebook.csv'):
+def find_best_pattern_codebook(RIS, config, mesure_file = 'find_best_pattern_codebook.csv'):
     generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
     analyzer_sensing.meas_prep(config.freq, config.sweptime, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt)
-    file = open(trace_file, 'a+')
+    file = open(mesure_file, 'a+')
     file.write(str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
     file.write('\n')
     power = []
@@ -53,7 +53,7 @@ def find_best_pattern_codebook(RIS, config, trace_file = 'find_best_pattern_code
 
 
 
-def find_best_pattern_element_wise(RIS, config, mask = '0b1', trace_file = 'find_best_pattern_element_wise.csv', find_min=False):
+def find_best_pattern_element_wise(RIS, config, mask = '0b1', mesure_file = 'find_best_pattern_element_wise.csv', find_min=False):
     ### MASKA MUSI BYĆ BINARNA!!! ###
     '''
         maska - jakim mini patternem przesuwamy sie po RIS
@@ -76,12 +76,6 @@ def find_best_pattern_element_wise(RIS, config, mask = '0b1', trace_file = 'find
     x_iters = 16 // mask_x_size
     y_iters = 16 // mask_y_size
     
-
-    ###FILE MESURE START HEADER###
-    file = open(trace_file, 'a+')
-    file.write("ELEMENT WISE MASK = " + mask + '\n')
-    file.write(str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
-    file.write('\n')
 
     ### MEASURE PREPARE ###
     generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
@@ -109,22 +103,19 @@ def find_best_pattern_element_wise(RIS, config, mask = '0b1', trace_file = 'find
             current_pattern |= previous_pattern
             #t1 = time.time()
             RIS.set_pattern('0x'+current_pattern.hex)
-            p = analyzer_sensing.trace_get_mean()
+            pp = analyzer_sensing.trace_get()
+            p = pp.mean()
             #t2 = time.time()
             #timings.append(t2-t1)
             power_pattern.append([[p],[current_pattern.hex]])
             print("pattern:: ", "0x",current_pattern.hex, " = ", p)
-            '''
-            with open(trace_file, 'a+') as file:
-                file.write("pomiar " + str(i) + ",")
-                #file.write(str(time.ctime(time.time())) + ",") 
-                file.write("Rec_PWR,")
+            
+            with open(mesure_file, 'a+') as file:
                 file.write(str(p) + ",")
-                file.write("Pattern,")
                 file.write("0x" + current_pattern.hex)
                 file.write('\n')
                 file.close()  # CLose the file
-            '''
+            
             if(find_min):
                 if (p<pow_max): ### < min find
                     pow_max=p
@@ -142,7 +133,7 @@ def find_best_pattern_element_wise(RIS, config, mask = '0b1', trace_file = 'find
             if (j > x_iters):
                 break
             continue # NEXT X
-        file.write("wiersz RISa: " + str(y) + "," + str(current_pattern.hex) + ',' + str(pow_max) + '\n')    
+       # file.write("wiersz RISa: " + str(y) + "," + str(current_pattern.hex) + ',' + str(pow_max) + '\n')    
         y += mask_y_size #iterate
         i += 1
         if(i > y_iters):
@@ -165,7 +156,7 @@ def find_best_pattern_element_wise(RIS, config, mask = '0b1', trace_file = 'find
 
 
 
-def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4, trace_file = 'find_best_pattern_element_wise_by_group_measures_v2.csv', find_min = False):
+def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4, mesure_file = 'find_best_pattern_element_wise_by_group_measures_v2.csv', find_min = False, debug = False, trace_file = 'trace_file_group_mesures.csv'):
     """   adnotacje:
     1) DODAĆ OPCJONALNE ZAPISYWANIE MIEDZYPOMIAROW DO PLIKU
     2) N=nie wincyj jak 4 elementy bo sie zapycha cpu
@@ -190,34 +181,34 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
     
     generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
     analyzer_sensing.meas_prep(config.freq, config.sweptime, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt) 
-    file = open(trace_file, 'a+')
+    file = open(mesure_file, 'a+')
     file.write(str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + "N_elements ," + str(n_elements) + ", swt = ," + str(config.sweptime))
     file.write('\n')
 
-    ###Set 0 on RIS as current best
-    current_best_pattern = BitArray(length=256)
-    RIS.set_pattern('0x' + current_best_pattern.hex)
 
-    print("INIT BEFORE PATARRAY")
     ## PREPARE PATTERNS TO SWAP
     pat_array = []
     for x in range(0, combinations):
         pat_array.append(BitArray(uint=x, length=256))
     pat_array_copy = copy(pat_array)
-    pat_array_copy.append(current_best_pattern)
     
     n = 0
     write_patterns = []
     write_powers = []
     write_std = []
+
+    ###Set 0 on RIS as current best
+    current_best_pattern = BitArray(length=256)
+    RIS.set_pattern('0x' + current_best_pattern.hex)
+
     while(n<256):
         MEASURE = threading.Thread(target=get_trace) #create thread MEASUREs
-        
+        RIS.set_pattern('0x' + pat_array_copy[0].hex)
         ### PERFORM MEASURE
         MEASURE.start()
         sleep(0.05)
             ###przełącz RIS z pat_array
-        for y in pat_array_copy:
+        for y in pat_array_copy[1:]:
             sleep(config.sweptime/combinations)
             RIS.set_pattern('0x' + y.hex)
             ###
@@ -225,9 +216,17 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
         ### MEASURE END
         #t1 = time.time()
         
-        #file.write(str(pat_array)[1:-1] + '\n')
-        #file.write(str(POWER_REC)[1:-1] + '\n')
         powers = []
+        if(debug):
+            trace_f = open(trace_file, 'a+')
+            trace_f.write('"Grupowy pomiar N_el' + str(n_elements) + ' 1szy opt elem w sekwencji=' + str(n) + '"')
+            trace_f.write("\n")
+
+        if(debug):
+            trace_f.write(str(POWER_REC)[1:-1])
+            trace_f.write("\n")
+
+        power_slice = []
         ###wybierz najlepszy pattern z trace_rec
         for i in range (0, combinations):
             start_pat = point_range*i + N_pts_delete
@@ -235,7 +234,14 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
             power_slice = POWER_REC[start_pat:end_pat]
             std = np.std(power_slice)
             powers.append(np.mean(power_slice))
-            print(f"Najnowsza średnia z mocy: {powers[-1]},                         Odchylenie standardowe: {std}")
+
+            if(debug):
+                for ij in range(0, N_pts_delete):
+                    trace_f.write( '-150,')
+                trace_f.write(str(power_slice)[1:-1])
+                trace_f.write(",")
+                for ij in range(0, N_pts_delete):
+                    trace_f.write( '-150,')
 
             write_patterns.append(pat_array_copy[i])
             write_powers.append(powers[-1])
@@ -246,7 +252,19 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
                     current_best_pow = np.min(powers)
             else:
                     current_best_pow = np.max(powers)
-            
+
+        if(debug):
+                trace_f.write("\n")
+                for abc in pat_array_copy:
+                    for ij in range(0, N_pts_delete):
+                        trace_f.write('"NONE_PAT",')
+                    for xx in range(0, len(power_slice)):
+                        trace_f.write('"' + str(abc.hex) + '"' + ',')
+                    for ij in range(0, N_pts_delete):
+                        trace_f.write('"NONE_PAT",')
+                trace_f.write("\n")
+                trace_f.close()
+
         for i in range (0, combinations):
             if(current_best_pow == powers[i]):
                 current_best_pattern = copy(pat_array_copy[i])
@@ -257,7 +275,6 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
             pat_array[i].rol(n_elements)
             pat_array_copy[i] = pat_array[i] | current_best_pattern
         ###
-        pat_array_copy[-1] = current_best_pattern
         #print("EST TIME: ", time.time() - t1)
         n += n_elements
     file.write("\n Wynnik optymalizacji MASOWEJ \n")
@@ -267,5 +284,6 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
     file.write(str(new_write_patterns)[1:-1] + '\n')
     file.write(str(write_powers)[1:-1] + '\n')
     file.write(str(write_std)[1:-1] + '\n')
+    
     file.close()
     return current_best_pattern.hex, current_best_pow
