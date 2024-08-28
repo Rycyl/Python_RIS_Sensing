@@ -18,7 +18,8 @@ if __name__ == "__main__":
     generator.com_check()
     analyzer_sensing.com_prep()
     analyzer_sensing.com_check()
-    sleep(120)
+    #sleep(120)
+    '''
     search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 1, find_min=False, debug=True, trace_file='trace_file_group_1.csv')
     search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 2, find_min=False, debug=True, trace_file='trace_file_group_2.csv')
     search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 4, find_min=False, debug=True, trace_file='trace_file_group_44.csv')
@@ -26,8 +27,8 @@ if __name__ == "__main__":
     search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 1, find_min=False, debug=True, trace_file='trace_file_group_11.csv')
     search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 2, find_min=False, debug=True, trace_file='trace_file_group_22.csv')
     search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 4, find_min=False, debug=True, trace_file='trace_file_group_44.csv')
-    
-    config.update_swt(0.050)
+    '''
+    config.update_swt(0.075)
     search_patterns.find_best_pattern_element_wise(RIS=RIS, config=config)
     search_patterns.find_best_pattern_codebook(RIS=RIS,config=config)
 

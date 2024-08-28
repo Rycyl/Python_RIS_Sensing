@@ -104,7 +104,7 @@ def find_best_pattern_element_wise(RIS, config, mask = '0b1', mesure_file = 'fin
             #t1 = time.time()
             RIS.set_pattern('0x'+current_pattern.hex)
             pp = analyzer_sensing.trace_get()
-            p = pp.mean()
+            p = np.mean(pp)
             #t2 = time.time()
             #timings.append(t2-t1)
             power_pattern.append([[p],[current_pattern.hex]])
