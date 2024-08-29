@@ -85,7 +85,7 @@ def plot_trace(data):
         #print(x_axis)
         plt.plot(x_axis, y_axis, label=pattern)
 
-    plt.legend()
+    plt.legend(loc = 'upper right')
 
     return 1
 
@@ -99,6 +99,12 @@ def extract_trace(trace_file):
                 plot_trace(data)
                 data = []
             data.append(row)
+
+def run_main(file_path):
+    extract_trace(file_path)
+    pdfile = file_path.split('.')[0] + '.pdf'
+    save_plots_to_pdf(pdfile)
+    plt.close('all')
 
 
 if __name__ == '__main__':
