@@ -231,18 +231,18 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
         power_slice = []
         ###wybierz najlepszy pattern z trace_rec
         for i in range (0, combinations):
-            start_pat = point_range*i + N_pts_delete
-            end_pat = point_range*(i+1) - N_pts_delete
+            start_pat = point_range*i # + N_pts_delete
+            end_pat = point_range*(i+1) - N_pts_delete * 4
             power_slice = POWER_REC[start_pat:end_pat]
             std = np.std(power_slice)
             powers.append(np.mean(power_slice))
 
             if(debug):
-                for ij in range(0, N_pts_delete):
-                    trace_f.write( '-150,')
+                #for ij in range(0, N_pts_delete):
+                #    trace_f.write( '-150,')
                 trace_f.write(str(power_slice)[1:-1])
                 trace_f.write(",")
-                for ij in range(0, N_pts_delete):
+                for ij in range(0, N_pts_delete * 4):
                     trace_f.write( '-150,')
 
             write_patterns.append(pat_array_copy[i])
@@ -258,11 +258,11 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
         if(debug):
                 trace_f.write("\n")
                 for abc in pat_array_copy:
-                    for ij in range(0, N_pts_delete):
-                        trace_f.write('"NONE_PAT",')
+                    #for ij in range(0, N_pts_delete):
+                    #    trace_f.write('"NONE_PAT",')
                     for xx in range(0, len(power_slice)):
                         trace_f.write('"' + str(abc.hex) + '"' + ',')
-                    for ij in range(0, N_pts_delete):
+                    for ij in range(0, N_pts_delete * 4 ):
                         trace_f.write('"NONE_PAT",')
                 trace_f.write("\n")
                 trace_f.close()

@@ -28,7 +28,9 @@ if __name__ == "__main__":
     search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 2, find_min=False, debug=True, trace_file='trace_file_group_22.csv')
     search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 4, find_min=False, debug=True, trace_file='trace_file_group_44.csv')
     '''
-    search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 4, find_min=False, debug=True, trace_file='trace_file_group_444.csv')
+    RIS.set_pattern('0x00f807f009f804f801f802f80bfe007e01f80af803fc04fe01fe42f025d0c17c')
+
+    search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, config, 4, find_min=False, debug=True, trace_file='trace_file_group_444444.csv')
 
     generator.close()
     analyzer_sensing.close()

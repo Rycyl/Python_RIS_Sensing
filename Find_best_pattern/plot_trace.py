@@ -85,7 +85,7 @@ def plot_trace(data):
         #print(x_axis)
         plt.plot(x_axis, y_axis, label=pattern)
 
-    plt.legend(loc = 'upper right')
+    #plt.legend(loc = 'outside right upper')
 
     return 1
 
@@ -109,13 +109,14 @@ def run_main(file_path):
 
 if __name__ == '__main__':
     path = os.getcwd()
-    # file_path = os.path.join(path, 'trace_file_group_1.csv')
-    # extract_trace(file_path)
-    # save_plots_to_pdf('trace_file_group_1.pdf')
-    # plt.close('all')
-    trace_files = [f for f in os.listdir(path) if f.endswith('.csv') and f.startswith('trace_file_group')]
-    for trace_file in trace_files:
-        file_path = os.path.join(path, trace_file)
-        extract_trace(file_path)
-        save_plots_to_pdf(trace_file.split('.')[0] + '.pdf')
-        plt.close('all')
+    filename = 'trace_file_group_444444'
+    file_path = os.path.join(path, filename + '.csv')
+    extract_trace(file_path)
+    save_plots_to_pdf(filename + '.pdf')
+    plt.close('all')
+    # trace_files = [f for f in os.listdir(path) if f.endswith('.csv') and f.startswith('trace_file_group')]
+    # for trace_file in trace_files:
+    #     file_path = os.path.join(path, trace_file)
+    #     extract_trace(file_path)
+    #     save_plots_to_pdf(trace_file.split('.')[0] + '.pdf')
+    #     plt.close('all')
