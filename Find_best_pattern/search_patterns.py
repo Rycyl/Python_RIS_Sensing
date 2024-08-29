@@ -178,7 +178,9 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
 
     delta_t = config.sweptime/points
     N_pts_delete = int((RIS_change_time / delta_t) //2)
-    
+    sleeptime = config.sweptime / combinations - 0.022    
+
+
     generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
     analyzer_sensing.meas_prep(config.freq, config.sweptime, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt) 
     file = open(mesure_file, 'a+')
@@ -209,7 +211,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
         sleep(0.05)
             ###przełącz RIS z pat_array
         for y in pat_array_copy[1:]:
-            sleep(config.sweptime/combinations)
+            sleep(sleeptime)
             RIS.set_pattern('0x' + y.hex)
             ###
         MEASURE.join()
