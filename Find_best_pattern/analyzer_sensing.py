@@ -1,7 +1,4 @@
 from RsInstrument import *
-import time
-from time import sleep
-import json
 import csv
 import numpy as np
 
