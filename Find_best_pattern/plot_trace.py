@@ -109,7 +109,11 @@ def run_main(file_path):
 
 if __name__ == '__main__':
     path = os.getcwd()
+<<<<<<< Updated upstream
     filename = 'trace_file_group_444444'
+=======
+    filename = 'trace_file_group_4'
+>>>>>>> Stashed changes
     file_path = os.path.join(path, filename + '.csv')
     extract_trace(file_path)
     save_plots_to_pdf(filename + '.pdf')

@@ -61,6 +61,7 @@ if __name__ == "__main__":
     start_time = time()
     
     while(n<100):
+<<<<<<< Updated upstream
         MEASURE = threading.Thread(target=get_trace) #create thread MEASUREs
         
         RIS.set_pattern('0x0000000000000000000000000000000000000000000000000000000000000000')
@@ -68,6 +69,13 @@ if __name__ == "__main__":
         #sleep(0.04)
         sleep(sleeptime2)
         RIS.set_pattern('0x00f807f009f804f801f802f80bfe007e01f80af803fc04fe01fe42f025d0c17c')
+=======
+        MEASURE = threading.Thread(target=get_trace, args=(analyzer,)) #create thread MEASUREs
+        RIS.set_pattern('0x0000000000000000000000000000000000000000000000000000000000000000')
+        MEASURE.start()
+        sleep(0.06)
+        RIS.set_pattern('0x0000000000000000000000000000000000000000000000000000000000000000')
+>>>>>>> Stashed changes
         sleep(sleeptime)
         slep_end_time.append( time() - start_time)
         MEASURE.join()

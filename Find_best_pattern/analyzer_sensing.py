@@ -20,6 +20,7 @@ try:
         except TimeoutError or ConnectionAbortedError:
             print("[TIMEOUT ERROR] Check is computer and analyzer is connected to the same local network. Then try again.")
             exit()
+<<<<<<< Updated upstream
         config_f.close()
 except FileNotFoundError:
     print("Brak pliku konfiguracyjnego.")
@@ -41,6 +42,22 @@ def close():
 def com_check():
     idn_response = analyzer.query_str('*IDN?')
     print('Hello, I am ' + idn_response)
+=======
+        self.com_prep()
+        self.com_check()
+
+    def com_prep(self):
+        print(f'VISA Manufacturer: {self.visa_manufacturer}')  
+        self.visa_timeout = 100000  
+        self.opc_timeout = 300000  
+        self.instrument_status_checking = True  
+        self.clear_status()  
+        
+    def com_check(self):
+        idn_response = self.query_str('*IDN?')
+        print('Hello, I am ' + idn_response)
+        
+>>>>>>> Stashed changes
     
    
 def meas_prep(freq : int, swt : int, span : int, mode : str, detector : str, revlevel : int, rbw : str, swepnt : int, swtcnt : int = 1):

@@ -22,6 +22,7 @@ except FileNotFoundError:
     print("File with patterns doesn't exist.")
     exit()
 
+<<<<<<< Updated upstream
 def get_trace():
     global POWER_REC
     POWER_REC = analyzer_sensing.trace_get()
@@ -33,12 +34,27 @@ def find_best_pattern_codebook(RIS, config, mesure_file = 'find_best_pattern_cod
     generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
     analyzer_sensing.meas_prep(config.freq, config.sweptime, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt)
     file = open(mesure_file, 'a+')
+=======
+def get_trace(ANALYZER):
+    global POWER_REC
+    POWER_REC = ANALYZER.trace_get()
+    return
+
+def find_best_pattern_codebook(RIS, GENERATOR, ANALYZER, CONFIG, MEASURE_FILE = 'find_best_pattern_codebook.csv'):
+    GENERATOR.meas_prep(True, CONFIG.generator_mode, CONFIG.generator_amplitude, CONFIG.freq)
+    ANALYZER.meas_prep(CONFIG.freq, CONFIG.sweptime, CONFIG.span, CONFIG.analyzer_mode, CONFIG.detector, CONFIG.revlevel, CONFIG.rbw, CONFIG.swepnt)
+    file = open(MEASURE_FILE, 'a+')
+>>>>>>> Stashed changes
     file.write(str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
     file.write('\n')
     power = []
     for pattern in patterns_data:
         RIS.set_pattern(pattern["HEX"])
+<<<<<<< Updated upstream
         p = analyzer_sensing.trace_get_mean()
+=======
+        p = ANALYZER.trace_get_mean()
+>>>>>>> Stashed changes
         file.write(str(pattern["HEX"]) + ',' + str(p) + '\n')
         power.append(p)
     #for i in range(0, len(power)):
@@ -51,16 +67,20 @@ def find_best_pattern_codebook(RIS, config, mesure_file = 'find_best_pattern_cod
     print(worst_pattern["DESC"], min(power))
     return best_pattern["HEX"], worst_pattern["HEX"]
 
+<<<<<<< Updated upstream
 
 
 def find_best_pattern_element_wise(RIS, config, mask = '0b1', mesure_file = 'find_best_pattern_element_wise.csv', find_min=False):
+=======
+def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1', MEASURE_FILE = 'find_best_pattern_element_wise.csv', FIND_MIN=False):
+>>>>>>> Stashed changes
     ### MASKA MUSI BYĆ BINARNA!!! ###
     '''
         maska - jakim mini patternem przesuwamy sie po RIS
     '''
     ### Obliczenia dlugosci maski ###
-    mask_len = len(mask) - 2
-    mask_y_size = 1 #default shortest mask
+    mask_len = len(MASK) - 2
+    mask_y_size = 1 #default shortest MASK
     mask_x_size = mask_len % 16
     i = 1
     while(1):
@@ -78,15 +98,24 @@ def find_best_pattern_element_wise(RIS, config, mask = '0b1', mesure_file = 'fin
     
 
     ### MEASURE PREPARE ###
+<<<<<<< Updated upstream
     generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
     analyzer_sensing.meas_prep(config.freq, config.sweptime, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt)
+=======
+    GENERATOR.meas_prep(True, CONFIG.generator_mode, CONFIG.generator_amplitude, CONFIG.freq)
+    ANALYZER.meas_prep(CONFIG.freq, CONFIG.sweptime, CONFIG.span, CONFIG.analyzer_mode, CONFIG.detector, CONFIG.revlevel, CONFIG.rbw, CONFIG.swepnt)
+>>>>>>> Stashed changes
     power_pattern = [] ###lista do zbierania wyników
 
     current_pattern = BitArray(length=256)  ## all zeros
     previous_pattern = BitArray(length=256) ## all zeros
 
     RIS.set_pattern('0x'+current_pattern.hex)
+<<<<<<< Updated upstream
     pow_max = analyzer_sensing.trace_get_mean()
+=======
+    pow_max = ANALYZER.trace_get_mean()
+>>>>>>> Stashed changes
     #print("current amp:: ", pow_max)
     ### func definition ###
     
@@ -99,24 +128,28 @@ def find_best_pattern_element_wise(RIS, config, mask = '0b1', mesure_file = 'fin
         j = 1
         while(x<16):
             current_element = 16*y + x
-            current_pattern.overwrite(mask, current_element)
+            current_pattern.overwrite(MASK, current_element)
             current_pattern |= previous_pattern
             #t1 = time.time()
             RIS.set_pattern('0x'+current_pattern.hex)
+<<<<<<< Updated upstream
             pp = analyzer_sensing.trace_get()
+=======
+            pp = ANALYZER.trace_get()
+>>>>>>> Stashed changes
             p = np.mean(pp)
             #t2 = time.time()
             #timings.append(t2-t1)
             power_pattern.append([[p],[current_pattern.hex]])
             print("pattern:: ", "0x",current_pattern.hex, " = ", p)
             
-            with open(mesure_file, 'a+') as file:
+            with open(MEASURE_FILE, 'a+') as file:
                 file.write(str(p) + ",")
                 file.write("0x" + current_pattern.hex)
                 file.write('\n')
                 file.close()  # CLose the file
             
-            if(find_min):
+            if(FIND_MIN):
                 if (p<pow_max): ### < min find
                     pow_max=p
                     previous_pattern = copy(current_pattern)
@@ -154,37 +187,47 @@ def find_best_pattern_element_wise(RIS, config, mask = '0b1', mesure_file = 'fin
 
     return best_pattern, best_pow
 
+<<<<<<< Updated upstream
 
 
 def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4, mesure_file = 'find_best_pattern_element_wise_by_group_measures_v2.csv', find_min = False, debug = False, trace_file = 'trace_file_group_mesures.csv'):
+=======
+def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, DEBUG_FLAG = False, TRACE_FILE = 'trace_file_group_mesures.csv'):
+>>>>>>> Stashed changes
     """   adnotacje:
     1) DODAĆ OPCJONALNE ZAPISYWANIE MIEDZYPOMIAROW DO PLIKU
     2) N=nie wincyj jak 4 elementy bo sie zapycha cpu
     """
     ### INIT MEASURE POINTS AND ANAL AND GEN
-    if (find_min):
-        current_best_pow = 1000.0
-    else:
-        current_best_pow = -1000.0
-    combinations = (2 ** n_elements)
+    current_best_pow = 1000.0 if FIND_MIN else -1000.0
+
+    combinations = (2 ** N_ELEMENTS)
 
     RIS_change_time = 0.022
     Total_ris_changing_time = combinations * RIS_change_time
     
-    config.update_swt(Total_ris_changing_time * 3) ## 1/3 danych jest niewiadomej reputacji teraz
-    points = config.swepnt
+    CONFIG.update_swt(Total_ris_changing_time * 3) ## 1/3 danych jest niewiadomej reputacji teraz
+    points = CONFIG.swepnt
     point_range = int( points // combinations )
     print("POINST TOTAL = ", points, "Point Range = ", point_range)
 
-    delta_t = config.sweptime/points
-    N_pts_delete = int((RIS_change_time / delta_t) //2)
-    sleeptime = config.sweptime / combinations - 0.022    
+    delta_t = CONFIG.sweptime/points
+    STD_analyzer_time_points = int(10)
+    N_pts_delete = STD_analyzer_time_points * N_SIGMA
+    sleeptime = CONFIG.sweptime / combinations - 0.022    
 
 
+<<<<<<< Updated upstream
     generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
     analyzer_sensing.meas_prep(config.freq, config.sweptime, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt) 
     file = open(mesure_file, 'a+')
     file.write(str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + "N_elements ," + str(n_elements) + ", swt = ," + str(config.sweptime))
+=======
+    GENERATOR.meas_prep(True, CONFIG.generator_mode, CONFIG.generator_amplitude, CONFIG.freq)
+    ANALYZER.meas_prep(CONFIG.freq, CONFIG.sweptime, CONFIG.span, CONFIG.analyzer_mode, CONFIG.detector, CONFIG.revlevel, CONFIG.rbw, CONFIG.swepnt) 
+    file = open(MEASURE_FILE, 'a+')
+    file.write(str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + "N_elements ," + str(N_ELEMENTS) + ", swt = ," + str(CONFIG.sweptime))
+>>>>>>> Stashed changes
     file.write('\n')
 
 
@@ -204,11 +247,15 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
     RIS.set_pattern('0x' + current_best_pattern.hex)
 
     while(n<256):
+<<<<<<< Updated upstream
         MEASURE = threading.Thread(target=get_trace) #create thread MEASUREs
+=======
+        MEASURE = threading.Thread(target=get_trace, args=(ANALYZER,)) #create thread MEASUREs
+>>>>>>> Stashed changes
         RIS.set_pattern('0x' + pat_array_copy[0].hex)
         ### PERFORM MEASURE
         MEASURE.start()
-        sleep(0.05)
+        sleep(0.06)
             ###przełącz RIS z pat_array
         for y in pat_array_copy[1:]:
             sleep(sleeptime)
@@ -219,30 +266,30 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
         #t1 = time.time()
         
         powers = []
-        if(debug):
-            trace_f = open(trace_file, 'a+')
-            trace_f.write('"Grupowy pomiar N_el' + str(n_elements) + ' 1szy opt elem w sekwencji=' + str(n) + '"')
+        if(DEBUG_FLAG):
+            trace_f = open(TRACE_FILE, 'a+')
+            trace_f.write('"Grupowy pomiar N_el' + str(N_ELEMENTS) + ' 1szy opt elem w sekwencji=' + str(n) + '"')
             trace_f.write("\n")
 
-        if(debug):
+        if(DEBUG_FLAG):
             trace_f.write(str(POWER_REC)[1:-1])
             trace_f.write("\n")
 
         power_slice = []
         ###wybierz najlepszy pattern z trace_rec
         for i in range (0, combinations):
-            start_pat = point_range*i # + N_pts_delete
-            end_pat = point_range*(i+1) - N_pts_delete * 4
+            start_pat = point_range*i + N_pts_delete
+            end_pat = point_range*(i+1) - N_pts_delete
             power_slice = POWER_REC[start_pat:end_pat]
             std = np.std(power_slice)
             powers.append(np.mean(power_slice))
 
-            if(debug):
-                #for ij in range(0, N_pts_delete):
-                #    trace_f.write( '-150,')
+            if(DEBUG_FLAG):
+                for ij in range(0, N_pts_delete):
+                    trace_f.write( '-150,')
                 trace_f.write(str(power_slice)[1:-1])
                 trace_f.write(",")
-                for ij in range(0, N_pts_delete * 4):
+                for ij in range(0, N_pts_delete):
                     trace_f.write( '-150,')
 
             write_patterns.append(pat_array_copy[i])
@@ -250,16 +297,13 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
             write_std.append(std)
 
         
-            if (find_min):
-                    current_best_pow = np.min(powers)
-            else:
-                    current_best_pow = np.max(powers)
+            current_best_pow = np.min(powers) if FIND_MIN else np.max(powers)
 
-        if(debug):
+        if(DEBUG_FLAG):
                 trace_f.write("\n")
                 for abc in pat_array_copy:
-                    #for ij in range(0, N_pts_delete):
-                    #    trace_f.write('"NONE_PAT",')
+                    for ij in range(0, N_pts_delete):
+                        trace_f.write('"NONE_PAT",')
                     for xx in range(0, len(power_slice)):
                         trace_f.write('"' + str(abc.hex) + '"' + ',')
                     for ij in range(0, N_pts_delete * 4 ):
@@ -270,15 +314,15 @@ def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4
         for i in range (0, combinations):
             if(current_best_pow == powers[i]):
                 current_best_pattern = copy(pat_array_copy[i])
-        print("PAT: ", current_best_pattern.hex, "POW MAX: ", current_best_pow) ##debug
+        print("PAT: ", current_best_pattern.hex, "POW MAX: ", current_best_pow) ##DEBUG_FLAG
 
-        ###przesuń wzory w pat_array o n_elements, następnie wzory OR current best
+        ###przesuń wzory w pat_array o N_ELEMENTS, następnie wzory OR current best
         for i in range(0,combinations):
-            pat_array[i].rol(n_elements)
+            pat_array[i].rol(N_ELEMENTS)
             pat_array_copy[i] = pat_array[i] | current_best_pattern
         ###
         #print("EST TIME: ", time.time() - t1)
-        n += n_elements
+        n += N_ELEMENTS
     file.write("\n Wynnik optymalizacji MASOWEJ \n")
     new_write_patterns = []
     for x in write_patterns:
