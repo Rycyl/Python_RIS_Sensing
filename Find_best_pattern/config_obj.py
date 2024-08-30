@@ -21,6 +21,14 @@ class Config:
                 self.sweptime = config["SWEEP_TIME"]
                 self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3])))
                 self.generator_mode = enums.FreqMode.CW if config["GENERATOR_MODE"] == "CW" else enums.FreqMode.CW
+                self.IP_ADDRESS_ANALYZER = config["IP_ADDRESS_ANALYZER"]
+                self.PORT_ANALYZER = config["PORT"]
+                self.CONNECTION_TYPE = config["CONNECTION_TYPE"]
+                self.TRACE_FILE = config["TRACE_FILE"] 
+                self.MEASURE_TIME = config["MEASURE_TIME"]
+                self.DETECTOR = config["DETECTOR"]
+                self.IP_ADDRESS_GENERATOR = config["IP_ADDRESS_GENERATOR"]
+                self.PORT_GENERATOR = config["PORT"]
         except FileNotFoundError:
             print("File with configuration doesn't exist.")
             exit()
