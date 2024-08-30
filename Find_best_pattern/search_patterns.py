@@ -22,19 +22,6 @@ except FileNotFoundError:
     print("File with patterns doesn't exist.")
     exit()
 
-<<<<<<< Updated upstream
-def get_trace():
-    global POWER_REC
-    POWER_REC = analyzer_sensing.trace_get()
-    return
-
-
-
-def find_best_pattern_codebook(RIS, config, mesure_file = 'find_best_pattern_codebook.csv'):
-    generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
-    analyzer_sensing.meas_prep(config.freq, config.sweptime, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt)
-    file = open(mesure_file, 'a+')
-=======
 def get_trace(ANALYZER):
     global POWER_REC
     POWER_REC = ANALYZER.trace_get()
@@ -44,17 +31,12 @@ def find_best_pattern_codebook(RIS, GENERATOR, ANALYZER, CONFIG, MEASURE_FILE = 
     GENERATOR.meas_prep(True, CONFIG.generator_mode, CONFIG.generator_amplitude, CONFIG.freq)
     ANALYZER.meas_prep(CONFIG.freq, CONFIG.sweptime, CONFIG.span, CONFIG.analyzer_mode, CONFIG.detector, CONFIG.revlevel, CONFIG.rbw, CONFIG.swepnt)
     file = open(MEASURE_FILE, 'a+')
->>>>>>> Stashed changes
     file.write(str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
     file.write('\n')
     power = []
     for pattern in patterns_data:
         RIS.set_pattern(pattern["HEX"])
-<<<<<<< Updated upstream
-        p = analyzer_sensing.trace_get_mean()
-=======
         p = ANALYZER.trace_get_mean()
->>>>>>> Stashed changes
         file.write(str(pattern["HEX"]) + ',' + str(p) + '\n')
         power.append(p)
     #for i in range(0, len(power)):
@@ -67,13 +49,7 @@ def find_best_pattern_codebook(RIS, GENERATOR, ANALYZER, CONFIG, MEASURE_FILE = 
     print(worst_pattern["DESC"], min(power))
     return best_pattern["HEX"], worst_pattern["HEX"]
 
-<<<<<<< Updated upstream
-
-
-def find_best_pattern_element_wise(RIS, config, mask = '0b1', mesure_file = 'find_best_pattern_element_wise.csv', find_min=False):
-=======
 def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1', MEASURE_FILE = 'find_best_pattern_element_wise.csv', FIND_MIN=False):
->>>>>>> Stashed changes
     ### MASKA MUSI BYĆ BINARNA!!! ###
     '''
         maska - jakim mini patternem przesuwamy sie po RIS
@@ -98,24 +74,15 @@ def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1
     
 
     ### MEASURE PREPARE ###
-<<<<<<< Updated upstream
-    generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
-    analyzer_sensing.meas_prep(config.freq, config.sweptime, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt)
-=======
     GENERATOR.meas_prep(True, CONFIG.generator_mode, CONFIG.generator_amplitude, CONFIG.freq)
     ANALYZER.meas_prep(CONFIG.freq, CONFIG.sweptime, CONFIG.span, CONFIG.analyzer_mode, CONFIG.detector, CONFIG.revlevel, CONFIG.rbw, CONFIG.swepnt)
->>>>>>> Stashed changes
     power_pattern = [] ###lista do zbierania wyników
 
     current_pattern = BitArray(length=256)  ## all zeros
     previous_pattern = BitArray(length=256) ## all zeros
 
     RIS.set_pattern('0x'+current_pattern.hex)
-<<<<<<< Updated upstream
-    pow_max = analyzer_sensing.trace_get_mean()
-=======
     pow_max = ANALYZER.trace_get_mean()
->>>>>>> Stashed changes
     #print("current amp:: ", pow_max)
     ### func definition ###
     
@@ -132,11 +99,7 @@ def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1
             current_pattern |= previous_pattern
             #t1 = time.time()
             RIS.set_pattern('0x'+current_pattern.hex)
-<<<<<<< Updated upstream
-            pp = analyzer_sensing.trace_get()
-=======
             pp = ANALYZER.trace_get()
->>>>>>> Stashed changes
             p = np.mean(pp)
             #t2 = time.time()
             #timings.append(t2-t1)
@@ -187,13 +150,7 @@ def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1
 
     return best_pattern, best_pow
 
-<<<<<<< Updated upstream
-
-
-def find_best_pattern_element_wise_by_group_measures(RIS, config, n_elements = 4, mesure_file = 'find_best_pattern_element_wise_by_group_measures_v2.csv', find_min = False, debug = False, trace_file = 'trace_file_group_mesures.csv'):
-=======
 def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, DEBUG_FLAG = False, TRACE_FILE = 'trace_file_group_mesures.csv'):
->>>>>>> Stashed changes
     """   adnotacje:
     1) DODAĆ OPCJONALNE ZAPISYWANIE MIEDZYPOMIAROW DO PLIKU
     2) N=nie wincyj jak 4 elementy bo sie zapycha cpu
@@ -217,17 +174,10 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     sleeptime = CONFIG.sweptime / combinations - 0.022    
 
 
-<<<<<<< Updated upstream
-    generator.meas_prep(True, config.generator_mode, config.generator_amplitude, config.freq)
-    analyzer_sensing.meas_prep(config.freq, config.sweptime, config.span, config.analyzer_mode, config.detector, config.revlevel, config.rbw, config.swepnt) 
-    file = open(mesure_file, 'a+')
-    file.write(str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + "N_elements ," + str(n_elements) + ", swt = ," + str(config.sweptime))
-=======
     GENERATOR.meas_prep(True, CONFIG.generator_mode, CONFIG.generator_amplitude, CONFIG.freq)
     ANALYZER.meas_prep(CONFIG.freq, CONFIG.sweptime, CONFIG.span, CONFIG.analyzer_mode, CONFIG.detector, CONFIG.revlevel, CONFIG.rbw, CONFIG.swepnt) 
     file = open(MEASURE_FILE, 'a+')
     file.write(str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + "N_elements ," + str(N_ELEMENTS) + ", swt = ," + str(CONFIG.sweptime))
->>>>>>> Stashed changes
     file.write('\n')
 
 
@@ -247,11 +197,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     RIS.set_pattern('0x' + current_best_pattern.hex)
 
     while(n<256):
-<<<<<<< Updated upstream
-        MEASURE = threading.Thread(target=get_trace) #create thread MEASUREs
-=======
         MEASURE = threading.Thread(target=get_trace, args=(ANALYZER,)) #create thread MEASUREs
->>>>>>> Stashed changes
         RIS.set_pattern('0x' + pat_array_copy[0].hex)
         ### PERFORM MEASURE
         MEASURE.start()
