@@ -129,12 +129,8 @@ if __name__ == '__main__':
     # print(plt.rcParams["axes.prop_cycle"].by_key()['color'])
     # exit()
     path = os.getcwd()
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     filename = 'trace_file_group_444444'
-=======
     filename = 'trace_file_group_4'
->>>>>>> Stashed changes
     file_path = os.path.join(path, filename + '.csv')
     extract_trace(file_path)
     save_plots_to_pdf(filename + '.pdf')
@@ -145,7 +141,6 @@ if __name__ == '__main__':
     #     extract_trace(file_path)
     #     save_plots_to_pdf(trace_file.split('.')[0] + '.pdf')
     #     plt.close('all')
-=======
     path = os.path.join(path, "Wyniki")
     # filename = 'trace_file_group_444444'
     # file_path = os.path.join(path, filename + '.csv')
@@ -166,4 +161,4 @@ if __name__ == '__main__':
         pdf_file_path = os.path.join(path, trace_file.split('.')[0] + '.pdf')
         save_plots_to_pdf(pdf_file_path)
         plt.close('all')
->>>>>>> Stashed changes
+
