@@ -64,7 +64,10 @@ def plot_trace(data):
     #print(start_end_for_patterns)
     
     x = np.arange(len(full_trace))
-    plt.figure()
+    current_colors = plt.rcParams["axes.prop_cycle"].by_key()['color']
+    new_colors = [color for color in current_colors if color != '#1f77b4']
+    plt.rcParams["axes.prop_cycle"] = plt.cycler(color=new_colors)
+    fig = plt.figure(layout= "constrained", figsize= (15, 7))
     plt.subplot(1, 1, 1)
     plt.grid()
     plt.xlabel('Point')
@@ -73,7 +76,7 @@ def plot_trace(data):
     plt.ylim(bottom_y, top_y)
     plt.xlim(0, len(full_trace))
 
-    plt.plot(x, full_trace, label='Full Trace')
+    plt.plot(x, full_trace, label='Full Trace', color='#1f77b4')
 
     for pattern in all_patterns:
         start, end = start_end_for_patterns[pattern]
@@ -85,7 +88,7 @@ def plot_trace(data):
         #print(x_axis)
         plt.plot(x_axis, y_axis, label=pattern)
 
-    #plt.legend(loc = 'outside right upper')
+    fig.legend(loc = 'outside right upper')
 
     return 1
 
@@ -106,14 +109,28 @@ def run_main(file_path):
     save_plots_to_pdf(pdfile)
     plt.close('all')
 
+def run_all():
+    path = os.getcwd()
+    trace_files = [f for f in os.listdir(path) if f.endswith('.csv') and f.startswith('trace_file_group')]
+    pdf_files = [f for f in os.listdir(path) if f.endswith('.pdf') and f.startswith('trace_file_group')]
+    for pdf_file in pdf_files:
+        pdf_file_name = pdf_file.split('.')[0]
+        for trace_file in trace_files:
+            if trace_file.startswith(pdf_file_name):
+                trace_files.remove(trace_file)
+    for trace_file in trace_files:
+        file_path = os.path.join(path, trace_file)
+        extract_trace(file_path)
+        save_plots_to_pdf(trace_file.split('.')[0] + '.pdf')
+        plt.close('all')
+
 
 if __name__ == '__main__':
+    # print(plt.rcParams["axes.prop_cycle"].by_key()['color'])
+    # exit()
     path = os.getcwd()
-<<<<<<< Updated upstream
     filename = 'trace_file_group_444444'
-=======
     filename = 'trace_file_group_4'
->>>>>>> Stashed changes
     file_path = os.path.join(path, filename + '.csv')
     extract_trace(file_path)
     save_plots_to_pdf(filename + '.pdf')
@@ -124,3 +141,24 @@ if __name__ == '__main__':
     #     extract_trace(file_path)
     #     save_plots_to_pdf(trace_file.split('.')[0] + '.pdf')
     #     plt.close('all')
+    path = os.path.join(path, "Wyniki")
+    # filename = 'trace_file_group_444444'
+    # file_path = os.path.join(path, filename + '.csv')
+    # extract_trace(file_path)
+    # save_plots_to_pdf(filename + '.pdf')
+    # plt.close('all')
+    trace_files = [f for f in os.listdir(path) if f.endswith('.csv') and f.startswith('trace_file_group')]
+    pdf_files = [f for f in os.listdir(path) if f.endswith('.pdf') and f.startswith('trace_file_group')]
+    for pdf_file in pdf_files:
+        pdf_file_name = pdf_file.split('.')[0]
+        for trace_file in trace_files:
+            trace_name = trace_file.split('.')[0]
+            if trace_name == pdf_file_name:
+                trace_files.remove(trace_file)
+    for trace_file in trace_files:
+        file_path = os.path.join(path, trace_file)
+        extract_trace(file_path)
+        pdf_file_path = os.path.join(path, trace_file.split('.')[0] + '.pdf')
+        save_plots_to_pdf(pdf_file_path)
+        plt.close('all')
+
