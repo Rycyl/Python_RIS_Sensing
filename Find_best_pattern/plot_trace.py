@@ -129,19 +129,19 @@ if __name__ == '__main__':
     # print(plt.rcParams["axes.prop_cycle"].by_key()['color'])
     # exit()
     path = os.getcwd()
-    filename = 'trace_file_group_444444'
-    filename = 'trace_file_group_4'
-    file_path = os.path.join(path, filename + '.csv')
-    extract_trace(file_path)
-    save_plots_to_pdf(filename + '.pdf')
-    plt.close('all')
+    # filename = 'trace_file_group_444444'
+    # filename = 'trace_file_group_4'
+    # file_path = os.path.join(path, filename + '.csv')
+    # extract_trace(file_path)
+    # save_plots_to_pdf(filename + '.pdf')
+    # plt.close('all')
     # trace_files = [f for f in os.listdir(path) if f.endswith('.csv') and f.startswith('trace_file_group')]
     # for trace_file in trace_files:
     #     file_path = os.path.join(path, trace_file)
     #     extract_trace(file_path)
     #     save_plots_to_pdf(trace_file.split('.')[0] + '.pdf')
     #     plt.close('all')
-    path = os.path.join(path, "Wyniki")
+    path = os.path.join(path, "Wyniki_TEAMS")
     # filename = 'trace_file_group_444444'
     # file_path = os.path.join(path, filename + '.csv')
     # extract_trace(file_path)
@@ -156,6 +156,7 @@ if __name__ == '__main__':
             if trace_name == pdf_file_name:
                 trace_files.remove(trace_file)
     for trace_file in trace_files:
+        print(trace_file)
         file_path = os.path.join(path, trace_file)
         extract_trace(file_path)
         pdf_file_path = os.path.join(path, trace_file.split('.')[0] + '.pdf')
