@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     x = 0
     sigma = 3
-    '''
+    
     config.update_swt(0.1)
     sleep(30)
     search_patterns.find_best_pattern_element_wise(RIS=ris, ANALYZER=analyzer, GENERATOR=generator, CONFIG=config)
@@ -34,12 +34,12 @@ if __name__ == "__main__":
             sigma = 2
         else:
             sigma = 3
-        search_patterns.find_best_pattern_element_wise_by_group_measures(ris, generator, analyzer, config, 1, N_SIGMA=sigma ,MEASURE_FILE= f'find_best_pattern_element_wise_by_group_measures_swt_test_{x}.csv' , FIND_MIN=False, DEBUG_FLAG=True, TRACE_FILE=f'trace_file_group_swt_test{x}.csv', time_safety_margin = swt_val)
+        search_patterns.find_best_pattern_element_wise_by_group_measures(ris, generator, analyzer, config, 4, N_SIGMA=sigma, STD_CHECK_ON=False ,MEASURE_FILE= f'find_best_pattern_element_wise_by_group_measures_swt_test_v2_{x}.csv' , FIND_MIN=False, DEBUG_FLAG=True, TRACE_FILE=f'trace_file_group_swt_test{x}.csv', time_safety_margin = swt_val)
         x += 1
 
     config.update_swt(0.1)
     search_patterns.find_best_pattern_element_wise(RIS=ris, ANALYZER=analyzer, GENERATOR=generator, CONFIG=config)
-    '''
+    
     plot_trace.run_all()
     
     generator.close()
