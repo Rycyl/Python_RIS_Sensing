@@ -260,7 +260,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                             shift += (point_range * 0.1)
                             continue
                 powers.append(copy(mean))
-                print(mean)
+                #print(mean)
                 if(DEBUG_FLAG):
                     for ij in range(0, N_pts_delete):
                         trace_f.write( '-150,')
