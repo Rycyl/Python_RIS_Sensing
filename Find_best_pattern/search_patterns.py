@@ -262,11 +262,12 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                 powers.append(copy(mean))
                 #print(mean)
                 if(DEBUG_FLAG):
-                    for ij in range(0, N_pts_delete):
+                    
+                    for ij in range(0, N_pts_delete + shift):
                         trace_f.write( '-150,')
                     trace_f.write(str(power_slice)[1:-1])
                     trace_f.write(",")
-                    for ij in range(0, N_pts_delete):
+                    for ij in range(0, N_pts_delete - shift):
                         trace_f.write( '-150,')
                 write_patterns.append(pat_array_copy[i])
                 write_powers.append(powers[-1])
@@ -277,11 +278,11 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
         if(DEBUG_FLAG):
                 trace_f.write("\n")
                 for abc in pat_array_copy:
-                    for ij in range(0, N_pts_delete):
+                    for ij in range(0, N_pts_delete + shift):
                         trace_f.write('"NONE_PAT",')
                     for xx in range(0, len(power_slice)):
                         trace_f.write('"' + str(abc.hex) + '"' + ',')
-                    for ij in range(0, N_pts_delete * 4 ):
+                    for ij in range(0, N_pts_delete - shift):
                         trace_f.write('"NONE_PAT",')
                 trace_f.write("\n")
                 trace_f.close()
