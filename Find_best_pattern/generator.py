@@ -20,7 +20,7 @@ class Generator(RsSmw):
         self.repcap_hwInstance_set(repcap.HwInstance.InstA)
 
 
-    def meas_prep(self, set : True, mode, amplitude : int, freq : int):
+    def meas_prep(self, set, mode, amplitude : int, freq : int):
         self.output.state.set_value(set)
         self.source.frequency.set_mode(mode)
         self.source.power.level.immediate.set_amplitude(amplitude)
