@@ -27,15 +27,15 @@ def get_trace(ANALYZER):
     POWER_REC = ANALYZER.trace_get()
     return
 
-def measure_thread_with_RIS_changes(ANALYZER, RIS, PAT_ARRAY):
+def measure_thread_with_RIS_changes(ANALYZER, RIS, PAT_ARRAY, SLEEPTIME):
         MEASURE = threading.Thread(target=get_trace, args=(ANALYZER,)) #create thread MEASUREs
         RIS.set_pattern('0x' + PAT_ARRAY[0].hex)
         ### PERFORM MEASURE
         MEASURE.start()
         sleep(0.06)
             ###przełącz RIS z pat_array
-        for y in PAT_ARRAYs[1:]:
-            sleep(sleeptime)
+        for y in PAT_ARRAY[1:]:
+            sleep(SLEEPTIME)
             RIS.set_pattern('0x' + y.hex)
             ###
         MEASURE.join()
@@ -210,7 +210,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     current_best_pattern = BitArray(length=256)
     RIS.set_pattern('0x' + current_best_pattern.hex)
     while(n<256):
-        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy) 
+        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy, SLEEPTIME=sleeptime) 
         if(DEBUG_FLAG):
             trace_f = open(TRACE_FILE, 'a+')
             trace_f.write('"Grupowy pomiar N_el' + str(N_ELEMENTS) + ' 1szy opt elem w sekwencji=' + str(n) + '||SWT = ' + str(CONFIG.sweptime) + '||' + '"')
@@ -223,17 +223,17 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
         powers = []
         power_slice = []
         shift = 0
-        enum = 0
         ###wybierz najlepszy pattern z trace_rec
         for i in range (0, combinations):
+            enum = 0
             while(enum < 3):
-                enum += 1
-                start_pat = point_range*i + N_pts_delete + shift
-                end_pat = point_range*(i+1) - N_pts_delete - shift
+                start_pat = int (point_range*i + N_pts_delete + shift)
+                end_pat = int (point_range*(i+1) - N_pts_delete - shift)
                 power_slice = POWER_REC[start_pat:end_pat]
                 std = np.std(power_slice)
                 mean = np.mean(power_slice)
-                if (std > STD_TRS):
+                if (std > STD_TRS and STD_CHECK_ON):
+                    enum += 1
                     ## calc min i max
                     ## compare min max z mean
                     ## select idx out of std
@@ -242,8 +242,8 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                     maxpow = max(power_slice)
                     max_out = (maxpow > mean + 2 * std)
                     min_out = (minpow < mean - 2 * std)
-                    if (min_out and max_out and STD_CHECK_ON):
-                        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy)
+                    if (min_out and max_out):
+                        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy, SLEEPTIME=sleeptime) 
                         continue
                     elif (max_out):
                         if (power_slice.index(maxpow) > point_range//2):
@@ -259,7 +259,8 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                         else:
                             shift += (point_range * 0.1)
                             continue
-                powers.append(mean)
+                powers.append(copy(mean))
+                print(mean)
                 if(DEBUG_FLAG):
                     for ij in range(0, N_pts_delete):
                         trace_f.write( '-150,')
@@ -271,6 +272,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                 write_powers.append(powers[-1])
                 write_std.append(std)
                 current_best_pow = np.min(powers) if FIND_MIN else np.max(powers)
+                break
 
         if(DEBUG_FLAG):
                 trace_f.write("\n")
@@ -283,10 +285,9 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                         trace_f.write('"NONE_PAT",')
                 trace_f.write("\n")
                 trace_f.close()
+        best_idx = powers.index(current_best_pow)
+        current_best_pattern = copy(pat_array_copy[best_idx])
 
-        for i in range (0, combinations):
-            if(current_best_pow == powers[i]):
-                current_best_pattern = copy(pat_array_copy[i])
         print("PAT: ", current_best_pattern.hex, "POW MAX: ", current_best_pow) ##DEBUG_FLAG
 
         ###przesuń wzory w pat_array o N_ELEMENTS, następnie wzory OR current best

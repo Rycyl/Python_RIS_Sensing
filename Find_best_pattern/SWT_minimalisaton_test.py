@@ -23,9 +23,13 @@ if __name__ == "__main__":
     swt_vals =  np.around(swt_vals, decimals=2)
 
     x = 0
-
+    sigma = 3
     for swt_val in swt_vals:
-        search_patterns.find_best_pattern_element_wise_by_group_measures(ris, Generator, Analyzer, config, 4, MEASURE_FILE= f'find_best_pattern_element_wise_by_group_measures_swt_test_{x}.csv' , FIND_MIN=False, DEBUG_FLAG=True, TRACE_FILE=f'trace_file_group_swt_test{x}.csv', time_safety_margin = swt_val)
+        if(swt_val < 1.5):
+            sigma = 2
+        else:
+            sigma = 3
+        search_patterns.find_best_pattern_element_wise_by_group_measures(ris, generator, analyzer, config, 2, N_SIGMA=sigma ,MEASURE_FILE= f'find_best_pattern_element_wise_by_group_measures_swt_test_{x}.csv' , FIND_MIN=False, DEBUG_FLAG=True, TRACE_FILE=f'trace_file_group_swt_test{x}.csv', time_safety_margin = swt_val)
         x += 1
 
     plot_trace.run_all()
