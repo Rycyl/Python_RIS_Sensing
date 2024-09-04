@@ -27,6 +27,20 @@ def get_trace(ANALYZER):
     POWER_REC = ANALYZER.trace_get()
     return
 
+def measure_thread_with_RIS_changes(ANALYZER, RIS, PAT_ARRAY):
+        MEASURE = threading.Thread(target=get_trace, args=(ANALYZER,)) #create thread MEASUREs
+        RIS.set_pattern('0x' + PAT_ARRAY[0].hex)
+        ### PERFORM MEASURE
+        MEASURE.start()
+        sleep(0.06)
+            ###przełącz RIS z pat_array
+        for y in PAT_ARRAYs[1:]:
+            sleep(sleeptime)
+            RIS.set_pattern('0x' + y.hex)
+            ###
+        MEASURE.join()
+        ### MEASURE END
+
 def find_best_pattern_codebook(RIS, GENERATOR, ANALYZER, CONFIG, MEASURE_FILE = 'find_best_pattern_codebook.csv'):
     GENERATOR.meas_prep(True, CONFIG.generator_mode, CONFIG.generator_amplitude, CONFIG.freq)
     ANALYZER.meas_prep(CONFIG.freq, CONFIG.sweptime, CONFIG.span, CONFIG.analyzer_mode, CONFIG.detector, CONFIG.revlevel, CONFIG.rbw, CONFIG.swepnt)
@@ -150,7 +164,7 @@ def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1
 
     return best_pattern, best_pow
 
-def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, DEBUG_FLAG = False, TRACE_FILE = 'trace_file_group_mesures.csv', time_safety_margin = 3.0):
+def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, STD_TRS = 0.08, STD_CHECK_ON = True, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, DEBUG_FLAG = False, TRACE_FILE = 'trace_file_group_mesures.csv', time_safety_margin = 3.0):
     """   adnotacje:
     1) DODAĆ OPCJONALNE ZAPISYWANIE MIEDZYPOMIAROW DO PLIKU
     2) N=nie wincyj jak 4 elementy bo sie zapycha cpu
@@ -195,55 +209,68 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     ###Set 0 on RIS as current best
     current_best_pattern = BitArray(length=256)
     RIS.set_pattern('0x' + current_best_pattern.hex)
-
     while(n<256):
-        MEASURE = threading.Thread(target=get_trace, args=(ANALYZER,)) #create thread MEASUREs
-        RIS.set_pattern('0x' + pat_array_copy[0].hex)
-        ### PERFORM MEASURE
-        MEASURE.start()
-        sleep(0.06)
-            ###przełącz RIS z pat_array
-        for y in pat_array_copy[1:]:
-            sleep(sleeptime)
-            RIS.set_pattern('0x' + y.hex)
-            ###
-        MEASURE.join()
-        ### MEASURE END
-        #t1 = time.time()
-        
-        powers = []
+        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy) 
         if(DEBUG_FLAG):
             trace_f = open(TRACE_FILE, 'a+')
             trace_f.write('"Grupowy pomiar N_el' + str(N_ELEMENTS) + ' 1szy opt elem w sekwencji=' + str(n) + '||SWT = ' + str(CONFIG.sweptime) + '||' + '"')
             trace_f.write("\n")
-
+        
         if(DEBUG_FLAG):
             trace_f.write(str(POWER_REC)[1:-1])
             trace_f.write("\n")
-
+        
+        powers = []
         power_slice = []
+        shift = 0
+        enum = 0
         ###wybierz najlepszy pattern z trace_rec
         for i in range (0, combinations):
-            start_pat = point_range*i + N_pts_delete
-            end_pat = point_range*(i+1) - N_pts_delete
-            power_slice = POWER_REC[start_pat:end_pat]
-            std = np.std(power_slice)
-            powers.append(np.mean(power_slice))
-
-            if(DEBUG_FLAG):
-                for ij in range(0, N_pts_delete):
-                    trace_f.write( '-150,')
-                trace_f.write(str(power_slice)[1:-1])
-                trace_f.write(",")
-                for ij in range(0, N_pts_delete):
-                    trace_f.write( '-150,')
-
-            write_patterns.append(pat_array_copy[i])
-            write_powers.append(powers[-1])
-            write_std.append(std)
-
-        
-            current_best_pow = np.min(powers) if FIND_MIN else np.max(powers)
+            while(enum < 3):
+                enum += 1
+                start_pat = point_range*i + N_pts_delete + shift
+                end_pat = point_range*(i+1) - N_pts_delete - shift
+                power_slice = POWER_REC[start_pat:end_pat]
+                std = np.std(power_slice)
+                mean = np.mean(power_slice)
+                if (std > STD_TRS):
+                    ## calc min i max
+                    ## compare min max z mean
+                    ## select idx out of std
+                    ## make +-
+                    minpow = min(power_slice)
+                    maxpow = max(power_slice)
+                    max_out = (maxpow > mean + 2 * std)
+                    min_out = (minpow < mean - 2 * std)
+                    if (min_out and max_out and STD_CHECK_ON):
+                        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy)
+                        continue
+                    elif (max_out):
+                        if (power_slice.index(maxpow) > point_range//2):
+                            shift -= (point_range * 0.1)
+                            continue
+                        else:
+                            shift += (point_range * 0.1)
+                            continue
+                    elif (min_out):
+                        if (power_slice.index(minpow) > point_range//2):
+                            shift -= (point_range * 0.1)
+                            continue
+                        else:
+                            shift += (point_range * 0.1)
+                            continue
+                powers.append(mean)
+                if(DEBUG_FLAG):
+                    for ij in range(0, N_pts_delete):
+                        trace_f.write( '-150,')
+                    trace_f.write(str(power_slice)[1:-1])
+                    trace_f.write(",")
+                    for ij in range(0, N_pts_delete):
+                        trace_f.write( '-150,')
+                write_patterns.append(pat_array_copy[i])
+                write_powers.append(powers[-1])
+                write_std.append(std)
+                current_best_pow = np.min(powers) if FIND_MIN else np.max(powers)
 
         if(DEBUG_FLAG):
                 trace_f.write("\n")
