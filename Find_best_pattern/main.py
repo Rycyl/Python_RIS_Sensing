@@ -20,7 +20,7 @@ if __name__ == "__main__":
     search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, generator, analyzer, config, 4, FIND_MIN=False, DEBUG_FLAG=True, TRACE_FILE='trace_file_group_4.csv')
 
     generator.close()
-    analyzer_sensing.close()
+    analyzer.close()
     exit()
 
 ### CHYBA ZROBIONE, NO ALE TO SIĘ OKAŻE PO ODPALENIU, składniowo mi nie krzyczy jak uruchamiam

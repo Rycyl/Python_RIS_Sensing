@@ -150,7 +150,7 @@ def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1
 
     return best_pattern, best_pow
 
-def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, DEBUG_FLAG = False, TRACE_FILE = 'trace_file_group_mesures.csv'):
+def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, DEBUG_FLAG = False, TRACE_FILE = 'trace_file_group_mesures.csv', time_safety_margin = 3.0):
     """   adnotacje:
     1) DODAĆ OPCJONALNE ZAPISYWANIE MIEDZYPOMIAROW DO PLIKU
     2) N=nie wincyj jak 4 elementy bo sie zapycha cpu
@@ -163,7 +163,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     RIS_change_time = 0.022
     Total_ris_changing_time = combinations * RIS_change_time
     
-    CONFIG.update_swt(Total_ris_changing_time * 3) ## 1/3 danych jest niewiadomej reputacji teraz
+    CONFIG.update_swt(Total_ris_changing_time * time_safety_margin) ## zmienna time_safety_margin pozwala na iteracyjne zmniejszanie swt (do testów)   ## 1/3 danych jest niewiadomej reputacji teraz
     points = CONFIG.swepnt
     point_range = int( points // combinations )
     print("POINST TOTAL = ", points, "Point Range = ", point_range)
@@ -214,7 +214,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
         powers = []
         if(DEBUG_FLAG):
             trace_f = open(TRACE_FILE, 'a+')
-            trace_f.write('"Grupowy pomiar N_el' + str(N_ELEMENTS) + ' 1szy opt elem w sekwencji=' + str(n) + '"')
+            trace_f.write('"Grupowy pomiar N_el' + str(N_ELEMENTS) + ' 1szy opt elem w sekwencji=' + str(n) + '||SWT = ' + str(CONFIG.sweptime) + '||' + '"')
             trace_f.write("\n")
 
         if(DEBUG_FLAG):
