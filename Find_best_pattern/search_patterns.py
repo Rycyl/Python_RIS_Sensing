@@ -219,7 +219,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
             t0.append(time.time())
         
         if(DEBUG_FLAG):
-            power_debug = np.full(len(POWER_REC), -150).tolist()
+            power_debug = [-150] * len(POWER_REC)
             pattern_debug = [None] * len(POWER_REC) 
                             
         powers = []
