@@ -164,7 +164,7 @@ def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1
 
     return best_pattern, best_pow
 
-def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, STD_TRS = 0.08, STD_CHECK_ON = True, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, DEBUG_FLAG = False, TRACE_FILE = 'trace_file_group_mesures.csv', time_safety_margin = 3.0):
+def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, TIME_SAFETY_MARGIN = 3.0, STD_TRS = 0.08, STD_CHECK_ON = True, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, DEBUG_FLAG = False, TRACE_FILE = 'trace_file_group_mesures.csv', TIME_FILE = None):
     """   adnotacje:
     1) DODAĆ OPCJONALNE ZAPISYWANIE MIEDZYPOMIAROW DO PLIKU
     2) N=nie wincyj jak 4 elementy bo sie zapycha cpu
@@ -177,7 +177,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     RIS_change_time = 0.022
     Total_ris_changing_time = combinations * RIS_change_time
     
-    CONFIG.update_swt(Total_ris_changing_time * time_safety_margin) ## zmienna time_safety_margin pozwala na iteracyjne zmniejszanie swt (do testów)   ## 1/3 danych jest niewiadomej reputacji teraz
+    CONFIG.update_swt(Total_ris_changing_time * TIME_SAFETY_MARGIN) ## zmienna TIME_SAFETY_MARGIN pozwala na iteracyjne zmniejszanie swt (do testów)   ## 1/3 danych jest niewiadomej reputacji teraz
     points = CONFIG.swepnt
     point_range = int( points // combinations )
     print("POINST TOTAL = ", points, "Point Range = ", point_range)
@@ -205,12 +205,18 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     write_patterns = []
     write_powers = []
     write_std = []
-
+    t1 = []
+    t0 = []
+    time_mes_to_next_mes = []
     ###Set 0 on RIS as current best
     current_best_pattern = BitArray(length=256)
     RIS.set_pattern('0x' + current_best_pattern.hex)
     while(n<256):
+        if(TIME_FILE):
+            t1.append(time.time())
         measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy, SLEEPTIME=sleeptime) 
+        if(TIME_FILE):
+            t0.append(time.time())
         if(DEBUG_FLAG):
             trace_f = open(TRACE_FILE, 'a+')
             trace_f.write('"Grupowy pomiar N_el' + str(N_ELEMENTS) + ' 1szy opt elem w sekwencji=' + str(n) + '||SWT = ' + str(CONFIG.sweptime) + '||' + '"')
@@ -222,11 +228,11 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
         
         powers = []
         power_slice = []
-        shift = 0
+        shift = int(0)
         ###wybierz najlepszy pattern z trace_rec
         for i in range (0, combinations):
             enum = 0
-            while(enum < 3):
+            while(enum < 5):
                 start_pat = int (point_range*i + N_pts_delete + shift)
                 end_pat = int (point_range*(i+1) - N_pts_delete - shift)
                 power_slice = POWER_REC[start_pat:end_pat]
@@ -247,17 +253,17 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                         continue
                     elif (max_out):
                         if (power_slice.index(maxpow) > point_range//2):
-                            shift -= (point_range * 0.1)
+                            shift -= int(point_range * 0.1)
                             continue
                         else:
-                            shift += (point_range * 0.1)
+                            shift += int(point_range * 0.1)
                             continue
                     elif (min_out):
                         if (power_slice.index(minpow) > point_range//2):
-                            shift -= (point_range * 0.1)
+                            shift -= int(point_range * 0.1)
                             continue
                         else:
-                            shift += (point_range * 0.1)
+                            shift += int(point_range * 0.1)
                             continue
                 powers.append(copy(mean))
                 #print(mean)
@@ -305,6 +311,12 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     file.write(str(new_write_patterns)[1:-1] + '\n')
     file.write(str(write_powers)[1:-1] + '\n')
     file.write(str(write_std)[1:-1] + '\n')
+    
+    if(TIME_FILE):
+        timefile = open(f"{TIME_FILE}.csv", 'a+')
+        timefile.write(str(t0[:-1])[1:-1])
+        timefile.write(str(t1[1:])[1:-1])
+        timefile.close()
     
     file.close()
     return current_best_pattern.hex, current_best_pow
