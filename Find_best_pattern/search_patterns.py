@@ -220,7 +220,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
         
         if(DEBUG_FLAG):
             power_debug = np.full(len(POWER_REC), -150).tolist()
-            pattern_debug = np.full(len(POWER_REC), '"NONE_PAT"').tolist()
+            pattern_debug = [None] * len(POWER_REC) 
                             
         powers = []
         power_slice = []
@@ -276,7 +276,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                     print("ZAKRES ", start_pat, end_pat)
                     for xx in range(start_pat, end_pat):
                         power_debug[xx] = copy(POWER_REC[xx])
-                        pattern_debug[xx] = '"' + str(pat_array_copy[i].hex) + '"'
+                        pattern_debug[xx] = str(pat_array_copy[i].hex)
 
                 #Write_iter_measures        
                 write_patterns.append(pat_array_copy[i])
@@ -293,7 +293,8 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                 trace_f.write("\n")
                 trace_f.write(str(power_debug)[1:-1])
                 trace_f.write("\n")
-                trace_f.write(str(pattern_debug)[1:-1])
+                for napis in pattern_debug:
+                    trace_f.write('"' + str(napis) + '"')
                 trace_f.write("\n")
                 trace_f.close()
 
