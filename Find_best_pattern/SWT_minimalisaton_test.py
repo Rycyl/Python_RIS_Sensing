@@ -35,7 +35,7 @@ if __name__ == "__main__":
             sigma = 2
         else:
             sigma = 3
-        search_patterns.find_best_pattern_element_wise_by_group_measures(ris, generator, analyzer, config, 4, N_SIGMA=sigma, TIME_FILE=f'times_{x}', STD_CHECK_ON=True ,MEASURE_FILE= f'find_best_pattern_element_wise_by_group_measures_swt_test_v2_{x}.csv' , FIND_MIN=False, DEBUG_FLAG=True, TRACE_FILE=f'trace_file_group_swt_test{x}.csv', TIME_SAFETY_MARGIN = swt_val)
+        search_patterns.find_best_pattern_element_wise_by_group_measures(ris, generator, analyzer, config, 4,STD_TRS=0.05 ,N_SIGMA=sigma, TIME_FILE=f'times_{x}', STD_CHECK_ON=True ,MEASURE_FILE= f'find_best_pattern_element_wise_by_group_measures_swt_test_v2_{x}.csv' , FIND_MIN=False, DEBUG_FLAG=True, TRACE_FILE=f'trace_file_group_swt_test{x}.csv', TIME_SAFETY_MARGIN = swt_val)
         x += 1
 
     #config.update_swt(0.1)

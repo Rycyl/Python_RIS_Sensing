@@ -217,28 +217,31 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
         measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy, SLEEPTIME=sleeptime) 
         if(TIME_FILE):
             t0.append(time.time())
-        if(DEBUG_FLAG):
-            trace_f = open(TRACE_FILE, 'a+')
-            trace_f.write('"Grupowy pomiar N_el' + str(N_ELEMENTS) + ' 1szy opt elem w sekwencji=' + str(n) + '||SWT = ' + str(CONFIG.sweptime) + '||' + '"')
-            trace_f.write("\n")
         
         if(DEBUG_FLAG):
-            trace_f.write(str(POWER_REC)[1:-1])
-            trace_f.write("\n")
-        
+            power_debug = np.full(len(POWER_REC), -150).tolist()
+            pattern_debug = np.full(len(POWER_REC), '"NONE_PAT"').tolist()
+                            
         powers = []
         power_slice = []
         shift = int(0)
         ###wybierz najlepszy pattern z trace_rec
         for i in range (0, combinations):
             enum = 0
-            while(True):#(enum < 5):
+            
+            while(enum < 6):
                 start_pat = int (point_range*i + N_pts_delete + shift)
                 end_pat = int (point_range*(i+1) - N_pts_delete + shift)
+                if (start_pat < 0):
+                    start_pat = 0
+                if(end_pat >= len(POWER_REC)):
+                    end_pat = len(POWER_REC)
                 power_slice = POWER_REC[start_pat:end_pat]
                 std = np.std(power_slice)
+                if(i==0):
+                    print ("STD:: ",std)
                 mean = np.mean(power_slice)
-                if (std > STD_TRS and STD_CHECK_ON):
+                if (std > STD_TRS and STD_CHECK_ON and i==0):
                     enum += 1
                     ## calc min i max
                     ## compare min max z mean
@@ -270,29 +273,27 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                 powers.append(copy(mean))
 
                 if(DEBUG_FLAG):
-                    
-                    for ij in range(0, N_pts_delete + shift):
-                        trace_f.write( '-150,')
-                    trace_f.write(str(power_slice)[1:-1])
-                    trace_f.write(",")
-                    for ij in range(0, N_pts_delete - shift):
-                        trace_f.write( '-150,')
+                    print("ZAKRES ", start_pat, end_pat)
+                    for xx in range(start_pat, end_pat):
+                        power_debug[xx] = copy(POWER_REC[xx])
+                        pattern_debug[xx] = '"' + str(pat_array_copy[i].hex) + '"'
+
+                #Write_iter_measures        
                 write_patterns.append(pat_array_copy[i])
                 write_powers.append(powers[-1])
                 write_std.append(std)
                 current_best_power = np.min(powers) if FIND_MIN else np.max(powers)
-
                 break
 
         if(DEBUG_FLAG):
+                trace_f = open(TRACE_FILE, 'a+')
+                trace_f.write('"Grupowy pomiar N_el' + str(N_ELEMENTS) + ' 1szy opt elem w sekwencji=' + str(n) + '||SWT = ' + str(CONFIG.sweptime) + '||' + '"')
                 trace_f.write("\n")
-                for abc in pat_array_copy:
-                    for ij in range(0, N_pts_delete + shift):
-                        trace_f.write('"NONE_PAT",')
-                    for xx in range(0, len(power_slice)):
-                        trace_f.write('"' + str(abc.hex) + '"' + ',')
-                    for ij in range(0, N_pts_delete - shift):
-                        trace_f.write('"NONE_PAT",')
+                trace_f.write(str(POWER_REC)[1:-1])
+                trace_f.write("\n")
+                trace_f.write(str(power_debug)[1:-1])
+                trace_f.write("\n")
+                trace_f.write(str(pattern_debug)[1:-1])
                 trace_f.write("\n")
                 trace_f.close()
 
@@ -317,9 +318,9 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     
     if(TIME_FILE):
         timefile = open(f"{TIME_FILE}.csv", 'a+')
-        timefile.write(str(t0[:-1])[1:-1])
+        timefile.write(str(t0)[1:-1])
         timefile.write('\n')
-        timefile.write(str(t1[1:])[1:-1])
+        timefile.write(str(t1)[1:-1])
         timefile.close()
     
     file.close()
