@@ -250,6 +250,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                     min_out = (minpow < mean - 2 * std)
                     if (min_out and max_out):
                         measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy, SLEEPTIME=sleeptime) 
+                        shift = int(0)
                         continue
                     elif (max_out):
                         if (power_slice.index(maxpow) > point_range//2):
