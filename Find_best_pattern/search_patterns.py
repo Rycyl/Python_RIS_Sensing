@@ -294,7 +294,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                 trace_f.write(str(power_debug)[1:-1])
                 trace_f.write("\n")
                 for napis in pattern_debug:
-                    trace_f.write('"' + str(napis) + '"')
+                    trace_f.write('"' + str(napis) + '"' + ',')
                 trace_f.write("\n")
                 trace_f.close()
 
