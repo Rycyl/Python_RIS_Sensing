@@ -18,7 +18,7 @@ if __name__ == "__main__":
     ris = RIS(port='/dev/ttyUSB0')
     ris.reset()
 
-    swt_vals = np.linspace(1.0,1.0 , num = 1)
+    swt_vals = np.linspace(2.0,1.0 , num = 4)
     print(swt_vals)
     swt_vals =  np.around(swt_vals, decimals=2)
 

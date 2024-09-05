@@ -33,6 +33,7 @@ def measure_thread_with_RIS_changes(ANALYZER, RIS, PAT_ARRAY, SLEEPTIME):
         ### PERFORM MEASURE
         MEASURE.start()
         sleep(0.06)
+        sleep(0.022) ## wait for ris margin
             ###przełącz RIS z pat_array
         for y in PAT_ARRAY[1:]:
             sleep(SLEEPTIME)
@@ -177,7 +178,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     RIS_change_time = 0.022
     Total_ris_changing_time = combinations * RIS_change_time
     
-    CONFIG.update_swt(Total_ris_changing_time * TIME_SAFETY_MARGIN) ## zmienna TIME_SAFETY_MARGIN pozwala na iteracyjne zmniejszanie swt (do testów)   ## 1/3 danych jest niewiadomej reputacji teraz
+    CONFIG.update_swt(Total_ris_changing_time * TIME_SAFETY_MARGIN + 2*0.022) ## zmienna TIME_SAFETY_MARGIN pozwala na iteracyjne zmniejszanie swt (do testów)   ## 1/3 danych jest niewiadomej reputacji teraz
     points = CONFIG.swepnt
     point_range = int( points // combinations )
     print("POINST TOTAL = ", points, "Point Range = ", point_range)
@@ -229,7 +230,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
         for i in range (0, combinations):
             enum = 0
             
-            while(enum < 6):
+            while(enum < 10):
                 start_pat = int (point_range*i + N_pts_delete + shift)
                 end_pat = int (point_range*(i+1) - N_pts_delete + shift)
                 if (start_pat < 0):
