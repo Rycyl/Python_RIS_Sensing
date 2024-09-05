@@ -170,7 +170,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     2) N=nie wincyj jak 4 elementy bo sie zapycha cpu
     """
     ### INIT MEASURE POINTS AND ANAL AND GEN
-    current_best_pow = 1000.0 if FIND_MIN else -1000.0
+    current_best_power = 1000.0 if FIND_MIN else -1000.0
 
     combinations = (2 ** N_ELEMENTS)
 
@@ -232,9 +232,9 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
         ###wybierz najlepszy pattern z trace_rec
         for i in range (0, combinations):
             enum = 0
-            while(enum < 5):
+            while(True):#(enum < 5):
                 start_pat = int (point_range*i + N_pts_delete + shift)
-                end_pat = int (point_range*(i+1) - N_pts_delete - shift)
+                end_pat = int (point_range*(i+1) - N_pts_delete + shift)
                 power_slice = POWER_REC[start_pat:end_pat]
                 std = np.std(power_slice)
                 mean = np.mean(power_slice)
@@ -265,20 +265,22 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                         else:
                             shift += int(point_range * 0.1)
                             continue
+
                 powers.append(copy(mean))
-                #print(mean)
+
                 if(DEBUG_FLAG):
                     
                     for ij in range(0, N_pts_delete + shift):
                         trace_f.write( '-150,')
                     trace_f.write(str(power_slice)[1:-1])
                     trace_f.write(",")
-                    for ij in range(0, N_pts_delete - shift):
+                    for ij in range(0, N_pts_delete + shift):
                         trace_f.write( '-150,')
                 write_patterns.append(pat_array_copy[i])
                 write_powers.append(powers[-1])
                 write_std.append(std)
-                current_best_pow = np.min(powers) if FIND_MIN else np.max(powers)
+                current_best_power = np.min(powers) if FIND_MIN else np.max(powers)
+
                 break
 
         if(DEBUG_FLAG):
@@ -288,21 +290,21 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
                         trace_f.write('"NONE_PAT",')
                     for xx in range(0, len(power_slice)):
                         trace_f.write('"' + str(abc.hex) + '"' + ',')
-                    for ij in range(0, N_pts_delete - shift):
+                    for ij in range(0, N_pts_delete + shift):
                         trace_f.write('"NONE_PAT",')
                 trace_f.write("\n")
                 trace_f.close()
-        best_idx = powers.index(current_best_pow)
+
+        best_idx = powers.index(current_best_power)
         current_best_pattern = copy(pat_array_copy[best_idx])
 
-        print("PAT: ", current_best_pattern.hex, "POW MAX: ", current_best_pow) ##DEBUG_FLAG
+        print("PAT: ", current_best_pattern.hex, "POW MAX: ", current_best_power) ##DEBUG_FLAG
 
         ###przesuń wzory w pat_array o N_ELEMENTS, następnie wzory OR current best
         for i in range(0,combinations):
             pat_array[i].rol(N_ELEMENTS)
             pat_array_copy[i] = pat_array[i] | current_best_pattern
         ###
-        #print("EST TIME: ", time.time() - t1)
         n += N_ELEMENTS
     file.write("\n Wynnik optymalizacji MASOWEJ \n")
     new_write_patterns = []
@@ -315,8 +317,9 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     if(TIME_FILE):
         timefile = open(f"{TIME_FILE}.csv", 'a+')
         timefile.write(str(t0[:-1])[1:-1])
+        timefile.write('\n')
         timefile.write(str(t1[1:])[1:-1])
         timefile.close()
     
     file.close()
-    return current_best_pattern.hex, current_best_pow
+    return current_best_pattern.hex, current_best_power
