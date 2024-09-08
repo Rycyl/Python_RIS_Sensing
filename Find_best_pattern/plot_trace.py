@@ -26,7 +26,7 @@ def plot_trace(data):
     # print(type(header))
     # print(header[0])
     # exit()
-    power_slices.remove('')
+    #power_slices.remove('')
     # print(type(power_slices))
     for datum in power_slices:
         if type(datum) == str:
@@ -50,7 +50,7 @@ def plot_trace(data):
     top_y += 0.5
 
     all_patterns = set(patterns)
-    all_patterns.remove('NONE_PAT')
+    all_patterns.remove('None')
     all_patterns.remove('')
     all_patterns = list(all_patterns)
 

@@ -1,3 +1,3 @@
-x = [None] * 12
-for i in x:
-    print('"' + str(i) + '"')
+import plot_trace
+
+plot_trace.run_all()
