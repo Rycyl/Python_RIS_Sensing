@@ -224,7 +224,7 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
     powers = []
     for i in range(len(PAT_ARRAY)):
         enum = 0
-        while enum < 10:
+        while True:
             enum += 1
             start_pat = max(0, int(point_range * i + N_pts_delete + shift))
             end_pat = min(len(POWER_REC), int(point_range * (i + 1) - N_pts_delete + shift))
@@ -233,11 +233,9 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
             mean = np.mean(power_slice)
 
             if DEBUG_FLAG:
-                print(f"STD:: {std}, enum:: {enum}, len_power_slice:: {len(power_slice)}")
-                if(start_pat == end_pat-1):
-                    print(start_pat, end_pat, start_pat == end_pat)              
+                print(f"STD:: {std}, enum:: {enum}, len_power_slice:: {len(power_slice)}")          
 
-            if std > STD_TRS and STD_CHECK_ON:
+            if std > STD_TRS and STD_CHECK_ON and enum < 10:
                 shift = calculate_shift(mean, power_slice, std, STD_CHECK_ON, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
                 continue
 
