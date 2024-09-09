@@ -218,21 +218,22 @@ def write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, powe
                 trace_f.write(f'"{str(napis)}",')
             trace_f.write('\n')
 
-def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range, N_pts_delete, shift, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, powers, best_power, FIND_MIN):
+def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range, N_pts_delete, shift, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, best_power, FIND_MIN):
     power_debug = [-150] * len(POWER_REC) if DEBUG_FLAG else None
     pattern_debug = [None] * len(POWER_REC) if DEBUG_FLAG else None
-    
+    powers = []
     for i in range(len(PAT_ARRAY)):
         enum = 0
         while enum < 10:
+            enum += 1
             start_pat = max(0, int(point_range * i + N_pts_delete + shift))
             end_pat = min(len(POWER_REC), int(point_range * (i + 1) - N_pts_delete + shift))
             power_slice = POWER_REC[start_pat:end_pat]
             std = np.std(power_slice)
             mean = np.mean(power_slice)
 
-            if DEBUG_FLAG and i == 0:
-                print(f"STD:: {std}")
+            if DEBUG_FLAG:
+                print(f"STD:: {std}, enum:: {enum}")              
 
             if std > STD_TRS and STD_CHECK_ON:
                 shift = calculate_shift(mean, power_slice, std, STD_CHECK_ON, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
@@ -250,9 +251,9 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
     best_power = np.min(powers) if FIND_MIN else np.max(powers)
     best_idx = powers.index(best_power)
     
-    return best_idx, best_power, power_debug, pattern_debug
+    return best_idx, best_power, power_debug, pattern_debug, powers
 
-def optimize_patterns_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, TIME_SAFETY_MARGIN = 3.0, STD_TRS = 0.08, STD_CHECK_ON = True, DEBUG_FLAG = False, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, DEBUG_FLAG = False, TRACE_FILE = 'trace_file_group_mesures.csv', TIME_FILE = None):
+def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, TIME_SAFETY_MARGIN = 3.0, STD_TRS = 0.08, STD_CHECK_ON = True, DEBUG_FLAG = False, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, TRACE_FILE = 'trace_file_group_mesures.csv', TIME_FILE = None):
     RIS_change_time = 0.022
     pat_array, pat_array_copy = prepare_patterns(N_ELEMENTS)
     current_best_power = 1000.0 if FIND_MIN else -1000.0
@@ -262,9 +263,10 @@ def optimize_patterns_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEM
     ANALYZER.meas_prep(CONFIG.freq, CONFIG.sweptime, CONFIG.span, CONFIG.analyzer_mode, CONFIG.detector, CONFIG.revlevel, CONFIG.rbw, CONFIG.swepnt)
 
     file, t0, t1 = prepare_measurement_files(MEASURE_FILE, TIME_FILE, CONFIG, N_ELEMENTS)
-    powers = []
+    
     n = 0
-
+    power_write = []
+    pattern_write = []
     while n < 256:
         if TIME_FILE:
             t1.append(time.time())
@@ -274,10 +276,19 @@ def optimize_patterns_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEM
 
         point_range = CONFIG.swepnt // len(pat_array)
         N_pts_delete = int(10) * N_SIGMA
-        best_idx, current_best_power, power_debug, pattern_debug = measure_patterns(ANALYZER, RIS, pat_array_copy, CONFIG.sweptime, CONFIG.sweptime / len(pat_array) - RIS_change_time, point_range, N_pts_delete, 0, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, powers, current_best_power, FIND_MIN)
+        best_idx, current_best_power, power_debug, pattern_debug, powers = measure_patterns(ANALYZER, RIS, pat_array_copy, CONFIG.sweptime, CONFIG.sweptime / len(pat_array) - RIS_change_time, point_range, N_pts_delete, 0, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, current_best_power, FIND_MIN)
 
         current_best_pattern = pat_array_copy[best_idx]
+
         
+        power_write.extend(powers)
+        
+        for pat in pat_array_copy:
+            pattern_write.append(pat.hex)
+
+        if DEBUG_FLAG:
+            print(f"Pat:: {current_best_pattern}, Pow:: {current_best_power}")
+
         if (DEBUG_FLAG):
             write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, power_debug, pattern_debug, n)
 
@@ -287,6 +298,8 @@ def optimize_patterns_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEM
 
         n += N_ELEMENTS
 
+    file.write(f"{str(pattern_write)[1:-1]}\n{str(power_write)[1:-1]}\n\n")
+
     if TIME_FILE:
         timefile = open(f"{TIME_FILE}.csv", 'a+')
         timefile.write(str(t0)[1:-1])
@@ -294,6 +307,5 @@ def optimize_patterns_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEM
         timefile.write(str(t1)[1:-1])
         timefile.close()
 
-    file.write("\n Wynnik optymalizacji MASOWEJ \n")
     file.close()
     return current_best_pattern.hex, current_best_power
