@@ -233,7 +233,9 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
             mean = np.mean(power_slice)
 
             if DEBUG_FLAG:
-                print(f"STD:: {std}, enum:: {enum}")              
+                print(f"STD:: {std}, enum:: {enum}, len_power_slice:: {len(power_slice)}")
+                if(start_pat == end_pat-1):
+                    print(start_pat, end_pat, start_pat == end_pat)              
 
             if std > STD_TRS and STD_CHECK_ON:
                 shift = calculate_shift(mean, power_slice, std, STD_CHECK_ON, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
