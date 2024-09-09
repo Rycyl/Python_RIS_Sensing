@@ -189,22 +189,23 @@ def update_config_sweep_time(CONFIG, combinations, TIME_SAFETY_MARGIN, RIS_chang
 def calculate_shift(mean, power_slice, std, std_check, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG):
     minpow = min(power_slice)
     maxpow = max(power_slice)
-    max_out = (maxpow > mean + 2 * std)
-    min_out = (minpow < mean - 2 * std)
+    max_out = (maxpow > mean + std)
+    min_out = (minpow < mean - std)
 
-    if min_out and max_out:
-        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
-        shift = 0
-    elif max_out:
-        if power_slice.index(maxpow) > point_range // 2:
-            shift -= int(point_range * 0.1)
+    # if False:#min_out == max_out:
+    #     measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
+    #     print("new mes")
+    #     shift = 0
+    if max_out:
+        if power_slice.index(maxpow) < (point_range * 0.7):
+            shift -= int(point_range * 0.07)
         else:
-            shift += int(point_range * 0.1)
-    elif min_out:
-        if power_slice.index(minpow) > point_range // 2:
-            shift -= int(point_range * 0.1)
+            shift += int(point_range * 0.03)
+    else: #min_out:
+        if power_slice.index(minpow) < (point_range * 0.3):
+            shift -= int(point_range * 0.07) 
         else:
-            shift += int(point_range * 0.1)
+            shift += int(point_range * 0.03)
     
     return shift
 
@@ -218,10 +219,11 @@ def write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, powe
                 trace_f.write(f'"{str(napis)}",')
             trace_f.write('\n')
 
-def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range, N_pts_delete, shift, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, best_power, FIND_MIN):
+def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range, N_pts_delete, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, best_power, FIND_MIN):
     power_debug = [-150] * len(POWER_REC) if DEBUG_FLAG else None
     pattern_debug = [None] * len(POWER_REC) if DEBUG_FLAG else None
     powers = []
+    shift = 0
     for i in range(len(PAT_ARRAY)):
         enum = 0
         while True:
@@ -229,14 +231,16 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
             start_pat = max(0, int(point_range * i + N_pts_delete + shift))
             end_pat = min(len(POWER_REC), int(point_range * (i + 1) - N_pts_delete + shift))
             power_slice = POWER_REC[start_pat:end_pat]
+
             std = np.std(power_slice)
             mean = np.mean(power_slice)
 
             if DEBUG_FLAG:
-                print(f"STD:: {std}, enum:: {enum}, len_power_slice:: {len(power_slice)}")          
+                print(f"STD:: {std}, mean:: {mean}, enum:: {enum}, len_power_slice:: {len(power_slice)}")          
 
-            if std > STD_TRS and STD_CHECK_ON and enum < 10:
+            if std > STD_TRS and STD_CHECK_ON and enum < 20 and i == 0 and len(power_slice)>20:
                 shift = calculate_shift(mean, power_slice, std, STD_CHECK_ON, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
+                print(f"shift:: {shift}")
                 continue
 
             powers.append(mean)
@@ -276,7 +280,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
 
         point_range = CONFIG.swepnt // len(pat_array)
         N_pts_delete = int(10) * N_SIGMA
-        best_idx, current_best_power, power_debug, pattern_debug, powers = measure_patterns(ANALYZER, RIS, pat_array_copy, CONFIG.sweptime, CONFIG.sweptime / len(pat_array) - RIS_change_time, point_range, N_pts_delete, 0, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, current_best_power, FIND_MIN)
+        best_idx, current_best_power, power_debug, pattern_debug, powers = measure_patterns(ANALYZER, RIS, pat_array_copy, CONFIG.sweptime, CONFIG.sweptime / len(pat_array) - RIS_change_time, point_range, N_pts_delete, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, current_best_power, FIND_MIN)
 
         current_best_pattern = pat_array_copy[best_idx]
 

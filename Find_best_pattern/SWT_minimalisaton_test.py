@@ -18,11 +18,11 @@ if __name__ == "__main__":
     ris = RIS(port='/dev/ttyUSB0')
     ris.reset()
 
-    swt_vals = np.linspace(1.0,1.0 , num = 1)
+    swt_vals = np.linspace(1.0,1.0 , num = 2)
     print(swt_vals)
     swt_vals =  np.around(swt_vals, decimals=2)
 
-    x = 0
+    x = 1
     sigma = 3
     
     #config.update_swt(0.1)
@@ -35,7 +35,7 @@ if __name__ == "__main__":
             sigma = 2
         else:
             sigma = 3
-        search_patterns.find_best_pattern_element_wise_by_group_measures(ris, generator, analyzer, config, 4,STD_TRS=0.05 ,N_SIGMA=sigma, TIME_FILE=f'times_{x}', STD_CHECK_ON=True ,MEASURE_FILE= f'find_best_pattern_element_wise_by_group_measures_swt_test_v2_{x}.csv' , FIND_MIN=False, DEBUG_FLAG=True, TRACE_FILE=f'trace_file_group_swt_test{x}.csv', TIME_SAFETY_MARGIN = swt_val)
+        search_patterns.find_best_pattern_element_wise_by_group_measures(ris, generator, analyzer, config, 4, STD_TRS=0.06, N_SIGMA=sigma, TIME_FILE=f'times_{x}', STD_CHECK_ON=True ,MEASURE_FILE= f'find_best_pattern_element_wise_by_group_measures_swt_test_v2_{x}.csv' , FIND_MIN=False, DEBUG_FLAG=True, TRACE_FILE=f'trace_file_group_swt_test{x}.csv', TIME_SAFETY_MARGIN = swt_val)
         x += 1
 
     #config.update_swt(0.1)
