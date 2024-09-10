@@ -211,12 +211,12 @@ def calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER,
     #      print("New MES Done")
     #      shift = 0
     if max_out:
-        if power_slice.index(maxpow) < (point_range * 0.7):
+        if power_slice.index(maxpow) < (point_range * 0.51):
             shift -= int(point_range * 0.07)
         else:
             shift += int(point_range * 0.03)
     else min_out:
-        if power_slice.index(minpow) < (point_range * 0.3):
+        if power_slice.index(minpow) < (point_range * 0.5):
             shift -= int(point_range * 0.07) 
         else:
             shift += int(point_range * 0.03)
@@ -233,7 +233,9 @@ def calculate_measure_results(NO_OF_PATS, point_range, N_pts_delete, shift):
     start_end = []
     for i in range(NO_OF_PATS):
         start_pat = max(0, int(point_range * i + N_pts_delete + shift))
-        end_pat = min(len(POWER_REC), int(point_range * (i+1) - N_pts_delete + shift))
+        start_pat = min(start_pat, len(POWER_REC)-1)
+        end_pat = min(len(POWER_REC)-1, int(point_range * (i+1) - N_pts_delete + shift))
+        end_pat = max(end_pat, 1)
         power_slice = POWER_REC[start_pat:end_pat]
         power_slices.append(power_slice)
         stds.append(np.std(power_slice))
