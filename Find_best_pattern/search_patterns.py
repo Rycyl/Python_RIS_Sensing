@@ -212,14 +212,14 @@ def calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER,
     #      shift = 0
     if max_out:
         if power_slice.index(maxpow) < (point_range * 0.51):
-            shift -= int(point_range * 0.07)
+            shift -= int(point_range * 0.11)
         else:
-            shift += int(point_range * 0.03)
+            shift += int(point_range * 0.05)
     else min_out:
         if power_slice.index(minpow) < (point_range * 0.5):
-            shift -= int(point_range * 0.07) 
+            shift -= int(point_range * 0.11) 
         else:
-            shift += int(point_range * 0.03)
+            shift += int(point_range * 0.05)
     #else:
         #measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
 
