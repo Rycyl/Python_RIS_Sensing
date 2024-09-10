@@ -184,7 +184,7 @@ def prepare_patterns(N_ELEMENTS):
 def update_config_sweep_time(CONFIG, combinations, TIME_SAFETY_MARGIN, RIS_change_time):
     Total_ris_changing_time = combinations * RIS_change_time
     CONFIG.update_swt(Total_ris_changing_time * TIME_SAFETY_MARGIN + 2 * RIS_change_time)
-    return CONFIG
+    return Total_ris_changing_time
 
 def write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, power_debug, pattern_debug, n):
     if DEBUG_FLAG:
@@ -262,7 +262,7 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
         if np.max(stds) > STD_TRS and STD_CHECK_ON and enum < 20:
             shift = calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
             print(f"shift:: {shift}")
-            if (shift>point_range):
+            if (shift>point_range//2 or shift<(-1*point_range//2)):
                 break
             continue
         break
@@ -284,7 +284,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     RIS_change_time = 0.022
     pat_array, pat_array_copy = prepare_patterns(N_ELEMENTS)
     current_best_power = 1000.0 if FIND_MIN else -1000.0
-    CONFIG = update_config_sweep_time(CONFIG, len(pat_array), TIME_SAFETY_MARGIN, RIS_change_time)
+    Total_ris_changing_time = update_config_sweep_time(CONFIG, len(pat_array), TIME_SAFETY_MARGIN, RIS_change_time)
 
     GENERATOR.meas_prep(True, CONFIG.generator_mode, CONFIG.generator_amplitude, CONFIG.freq)
     ANALYZER.meas_prep(CONFIG.freq, CONFIG.sweptime, CONFIG.span, CONFIG.analyzer_mode, CONFIG.detector, CONFIG.revlevel, CONFIG.rbw, CONFIG.swepnt)
@@ -297,7 +297,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
     while n < 256:
         if TIME_FILE:
             t1.append(time.time())
-        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy, SLEEPTIME=(CONFIG.sweptime / len(pat_array)) - RIS_change_time)
+        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy, SLEEPTIME=(Total_ris_changing_time / len(pat_array)) - RIS_change_time)
         if TIME_FILE:
             t0.append(time.time())
 
