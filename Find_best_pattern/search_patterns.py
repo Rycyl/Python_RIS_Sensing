@@ -33,7 +33,7 @@ def measure_thread_with_RIS_changes(ANALYZER, RIS, PAT_ARRAY, SLEEPTIME):
         ### PERFORM MEASURE
         MEASURE.start()
         sleep(0.06)
-        sleep(0.022) ## wait for ris margin
+        #sleep(0.022) ## wait for ris margin
             ###przełącz RIS z pat_array
         for y in PAT_ARRAY[1:]:
             sleep(SLEEPTIME)
@@ -63,109 +63,7 @@ def find_best_pattern_codebook(RIS, GENERATOR, ANALYZER, CONFIG, MEASURE_FILE = 
     print(best_pattern["DESC"], max(power))
     print(worst_pattern["DESC"], min(power))
     return best_pattern["HEX"], worst_pattern["HEX"]
-
-def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1', MEASURE_FILE = 'find_best_pattern_element_wise.csv', FIND_MIN=False):
-    ### MASKA MUSI BYĆ BINARNA!!! ###
-    '''
-        maska - jakim mini patternem przesuwamy sie po RIS
-    '''
-    ### Obliczenia dlugosci maski ###
-    mask_len = len(MASK) - 2
-    mask_y_size = 1 #default shortest MASK
-    mask_x_size = mask_len % 16
-    i = 1
-    while(1):
-        if ( mask_len // (16 * i) ):
-            print("mask_len // (16 * i):: ", mask_len // (16 * i))
-            mask_y_size += 1
-        else:
-            break
-        i += 1
-        continue
-    #print("mask_y_size:: ", mask_y_size)
-    #print("mask_x_size:: ", mask_x_size)
-    x_iters = 16 // mask_x_size
-    y_iters = 16 // mask_y_size
-    
-
-    ### MEASURE PREPARE ###
-    GENERATOR.meas_prep(True, CONFIG.generator_mode, CONFIG.generator_amplitude, CONFIG.freq)
-    ANALYZER.meas_prep(CONFIG.freq, CONFIG.sweptime, CONFIG.span, CONFIG.analyzer_mode, CONFIG.detector, CONFIG.revlevel, CONFIG.rbw, CONFIG.swepnt)
-    power_pattern = [] ###lista do zbierania wyników
-
-    current_pattern = BitArray(length=256)  ## all zeros
-    previous_pattern = BitArray(length=256) ## all zeros
-
-    RIS.set_pattern('0x'+current_pattern.hex)
-    pow_max = ANALYZER.trace_get_mean()
-    #print("current amp:: ", pow_max)
-    ### func definition ###
-    
-    timings = []
-    
-    y = 0
-    i = 1
-    while(y<16):
-        x = 0
-        j = 1
-        while(x<16):
-            current_element = 16*y + x
-            current_pattern.overwrite(MASK, current_element)
-            current_pattern |= previous_pattern
-            #t1 = time.time()
-            RIS.set_pattern('0x'+current_pattern.hex)
-            pp = ANALYZER.trace_get()
-            p = np.mean(pp)
-            #t2 = time.time()
-            #timings.append(t2-t1)
-            power_pattern.append([[p],[current_pattern.hex]])
-            print("pattern:: ", "0x",current_pattern.hex, " = ", p)
-            
-            with open(MEASURE_FILE, 'a+') as file:
-                file.write(str(p) + ",")
-                file.write("0x" + current_pattern.hex)
-                file.write('\n')
-                file.close()  # CLose the file
-            
-            if(FIND_MIN):
-                if (p<pow_max): ### < min find
-                    pow_max=p
-                    previous_pattern = copy(current_pattern)
-                else:
-                    current_pattern = copy(previous_pattern)
-            else:
-                if (p>pow_max): ### >maks find
-                    pow_max=p
-                    previous_pattern = copy(current_pattern)
-                else:
-                    current_pattern = copy(previous_pattern)
-            x += mask_x_size #iterate
-            j += 1
-            if (j > x_iters):
-                break
-            continue # NEXT X
-       # file.write("wiersz RISa: " + str(y) + "," + str(current_pattern.hex) + ',' + str(pow_max) + '\n')    
-        y += mask_y_size #iterate
-        i += 1
-        if(i > y_iters):
-            break
-        continue # NEXT Y
-
-    #print("max power:: ", pow_max)
-
-    #print(timings)
-    #print("ŚREDNI CZAS ODPOWIEDZI - set pattern:trace_get_mean = ", np.mean(timings))
-    
-    best_pow = -220.0
-    best_pattern = None
-    for p, pattern in power_pattern:
-        if p[0] > best_pow:
-            best_pattern = pattern[0]
-            best_pow = p[0]
-
-    return best_pattern, best_pow
-
-def prepare_measurement_files(MEASURE_FILE, TIME_FILE, CONFIG, N_ELEMENTS):
+measure_thread_with_RIS_changesONFIG, N_ELEMENTS):
     file = open(MEASURE_FILE, 'a+')
     file.write(str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + "N_elements ," + str(N_ELEMENTS) + ", swt = ," + str(CONFIG.sweptime))
     file.write('\n')
@@ -183,7 +81,7 @@ def prepare_patterns(N_ELEMENTS):
 
 def update_config_sweep_time(CONFIG, combinations, TIME_SAFETY_MARGIN, RIS_change_time):
     Total_ris_changing_time = combinations * RIS_change_time
-    CONFIG.update_swt(Total_ris_changing_time * TIME_SAFETY_MARGIN + 2 * RIS_change_time)
+    CONFIG.update_swt(Total_ris_changing_time * TIME_SAFETY_MARGIN) #+ 2 * RIS_change_time)
     return Total_ris_changing_time
 
 def write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, power_debug, pattern_debug, n):
