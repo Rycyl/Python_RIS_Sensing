@@ -198,10 +198,10 @@ def write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, powe
 
 def calculate_shift(power_slice, std, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG):
     mean = np.mean(power_slice)
-    minpow = min(power_slices[std_max_idx])
-    maxpow = max(power_slices[std_max_idx])
-    max_dev = maxpow if (abs(maxpow) - abs(mean) > abs(minpow) - abs(mean)) else minpow
-    idx_max_dev = power_slice.index()
+    minpow = min(power_slice)
+    maxpow = max(power_slice)
+    max_out = (maxpow > mean + 2 * std) #Bool
+    min_out = (minpow < mean - 2 * std) #Bool
 
     #jak przesuwać?!!!?!!?! ML *
     #ML
@@ -219,7 +219,7 @@ def calculate_shift(power_slice, std, point_range, shift, PAT_ARRAY, ANALYZER, R
     return shift
 
 
-def calculate_measure_results(NO_OF_PATS, point_range, N_pts_delete, shifts, STD_CHECK_ON, STD_TRS):
+def calculate_measure_results(NO_OF_PATS, point_range, N_pts_delete, shifts, STD_CHECK_ON, STD_TRS,PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG):
     power_slices = []
     stds = []
     means = []
@@ -243,7 +243,7 @@ def calculate_measure_results(NO_OF_PATS, point_range, N_pts_delete, shifts, STD
             enum+=1
             continue
 
-        if (shifts[i]>point_range//2 or shift<(-1*point_range//2)):
+        if (shifts[i]>point_range//2 or shifts[i]<(-1*point_range//2)):
             pass
 
         means.append(np.mean(power_slice))
@@ -261,7 +261,7 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
     shifts = np.zeros(combinations)
     enum = 0
     enum += 1
-    power_slices means, start_end = calculate_measure_results(combinations, point_range, N_pts_delete, shifts, STD_CHECK_ON, STD_TRS)
+    power_slices, means, start_end = calculate_measure_results(combinations, point_range, N_pts_delete, shifts, STD_CHECK_ON, STD_TRS,PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
 
         #if DEBUG_FLAG and False:
         #    print(f"STD:: {np.max(stds)}, enum:: {enum}, len_power_slice:: {len(power_slices[0])}")          
