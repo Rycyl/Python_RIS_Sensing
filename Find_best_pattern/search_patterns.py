@@ -202,20 +202,20 @@ def calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER,
     mean = np.mean(power_slices[std_max_idx])
     minpow = min(power_slices[std_max_idx])
     maxpow = max(power_slices[std_max_idx])
-    max_out = (maxpow > mean + 3 * std) #Bool
-    min_out = (minpow < mean - 3 * std) #Bool
+    max_out = (maxpow > mean + 2 * std) #Bool
+    min_out = (minpow < mean - 2 * std) #Bool
     power_slice = power_slices[std_max_idx]
 
-    if False:#min_out == max_out:
-         measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
-         print("New MES Done")
-         shift = 0
+    # if False:#min_out == max_out:
+    #      measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
+    #      print("New MES Done")
+    #      shift = 0
     if max_out:
         if power_slice.index(maxpow) < (point_range * 0.7):
             shift -= int(point_range * 0.07)
         else:
             shift += int(point_range * 0.03)
-    elif min_out:
+    else min_out:
         if power_slice.index(minpow) < (point_range * 0.3):
             shift -= int(point_range * 0.07) 
         else:
