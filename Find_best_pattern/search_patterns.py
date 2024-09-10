@@ -223,14 +223,14 @@ def write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, powe
                 trace_f.write(f'"{str(napis)}",')
             trace_f.write('\n')
 
-def Find_all_stds(TRACE, NO_OF_PATS, point_range, N_pts_delete, shift):
+def calculate_measure_results(NO_OF_PATS, point_range, N_pts_delete, shift):
     power_slices = []
     stds = []
     means = []
     for i in range(NO_OF_PATS):
         start_pat = max(0, int(point_range * i + N_pts_delete + shift))
-        end_pat = min(len(TRACE), int(point_range * (i+1) - N_pts_delete + shift))
-        power_slice = TRACE[start_pat:end_pat]
+        end_pat = min(len(POWER_REC), int(point_range * (i+1) - N_pts_delete + shift))
+        power_slice = POWER_REC[start_pat:end_pat]
         power_slices.append(power_slice)
         stds.append(np.std(power_slice))
         means.append(np.mean(power_slice))
@@ -239,37 +239,33 @@ def Find_all_stds(TRACE, NO_OF_PATS, point_range, N_pts_delete, shift):
 
 
 def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range, N_pts_delete, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, best_power, FIND_MIN):
+    combinations = len(PAT_ARRAY)
     power_debug = [-150] * len(POWER_REC) if DEBUG_FLAG else None
     pattern_debug = [None] * len(POWER_REC) if DEBUG_FLAG else None
     powers = []
     shift = 0
-    for i in range(len(PAT_ARRAY)):
-        enum = 0
-        while True:
-            enum += 1
-            start_pat = max(0, int(point_range * i + N_pts_delete + shift))
-            end_pat = min(len(POWER_REC), int(point_range * (i + 1) - N_pts_delete + shift))
-            power_slice = POWER_REC[start_pat:end_pat]
+    enum = 0
+    while True:
+        enum += 1
+        power_slices, stds, means = calculate_measure_results(combinations, point_range, N_pts_delete, shift)
 
-            std = np.std(power_slice)
-            mean = np.mean(power_slice)
+        if DEBUG_FLAG:
+            print(f"STD:: {np.stds(max)}, mean:: {means}, enum:: {enum}, len_power_slice:: {len(power_slices[0])}")          
 
-            if DEBUG_FLAG:
-                print(f"STD:: {std}, mean:: {mean}, enum:: {enum}, len_power_slice:: {len(power_slice)}")          
+        if std > STD_TRS and STD_CHECK_ON and enum < 20 and i == 0 and len(power_slices[0])>20:
+            shift = calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
+            print(f"shift:: {shift}")
+            if (shift>point_range):
+                break
+            continue
+        break
+    
+    powers.extend(means)
 
-            if std > STD_TRS and STD_CHECK_ON and enum < 20 and i == 0 and len(power_slice)>20:
-                shift = calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
-                print(f"shift:: {shift}")
-                continue
-
-            powers.append(mean)
-
-            if DEBUG_FLAG:
-                for xx in range(start_pat, end_pat):
-                    power_debug[xx] = POWER_REC[xx]
-                    pattern_debug[xx] = str(PAT_ARRAY[i].hex)
-
-            break
+    if DEBUG_FLAG:
+        for xx in range(start_pat, end_pat):
+            power_debug[xx] = POWER_REC[xx]
+            pattern_debug[xx] = str(PAT_ARRAY[i].hex)
 
     best_power = np.min(powers) if FIND_MIN else np.max(powers)
     best_idx = powers.index(best_power)
