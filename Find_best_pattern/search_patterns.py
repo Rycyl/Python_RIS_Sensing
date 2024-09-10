@@ -223,6 +223,21 @@ def write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, powe
                 trace_f.write(f'"{str(napis)}",')
             trace_f.write('\n')
 
+def Find_all_stds(TRACE, NO_OF_PATS, point_range, N_pts_delete, shift):
+    power_slices = []
+    stds = []
+    means = []
+    for i in range(NO_OF_PATS):
+        start_pat = max(0, int(point_range * i + N_pts_delete + shift))
+        end_pat = min(len(TRACE), int(point_range * (i+1) - N_pts_delete + shift))
+        power_slice = TRACE[start_pat:end_pat]
+        power_slices.append(power_slice)
+        stds.append(np.std(power_slice))
+        means.append(np.mean(power_slice))
+
+    return power_slices, stds, means
+
+
 def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range, N_pts_delete, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, best_power, FIND_MIN):
     power_debug = [-150] * len(POWER_REC) if DEBUG_FLAG else None
     pattern_debug = [None] * len(POWER_REC) if DEBUG_FLAG else None
