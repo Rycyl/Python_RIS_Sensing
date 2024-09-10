@@ -30,7 +30,7 @@ if __name__ == "__main__":
     
     for swt_val in swt_vals:
         if(swt_val < 1.5):
-            sigma = 1
+            sigma = 1.5
         elif(swt_val < 2):
             sigma = 2
         else:

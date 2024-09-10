@@ -33,7 +33,7 @@ def measure_thread_with_RIS_changes(ANALYZER, RIS, PAT_ARRAY, SLEEPTIME):
         ### PERFORM MEASURE
         MEASURE.start()
         sleep(0.06)
-        #sleep(0.022) ## wait for ris margin
+        sleep(0.022) ## wait for ris margin
             ###przełącz RIS z pat_array
         for y in PAT_ARRAY[1:]:
             sleep(SLEEPTIME)
@@ -183,7 +183,7 @@ def prepare_patterns(N_ELEMENTS):
 
 def update_config_sweep_time(CONFIG, combinations, TIME_SAFETY_MARGIN, RIS_change_time):
     Total_ris_changing_time = combinations * RIS_change_time
-    CONFIG.update_swt(Total_ris_changing_time * TIME_SAFETY_MARGIN )#+ 2 * RIS_change_time)
+    CONFIG.update_swt(Total_ris_changing_time * TIME_SAFETY_MARGIN + 2 * RIS_change_time)
     return Total_ris_changing_time
 
 def write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, power_debug, pattern_debug, n):
