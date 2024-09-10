@@ -196,11 +196,11 @@ def calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER,
     min_out = (minpow < mean - 3 * std) #Bool
     power_slice = power_slices[std_max_idx]
 
-    if min_out == max_out:
+    if False:#min_out == max_out:
          measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
          print("New MES Done")
          shift = 0
-    elif max_out:
+    if max_out:
         if power_slice.index(maxpow) < (point_range * 0.7):
             shift -= int(point_range * 0.07)
         else:
@@ -210,8 +210,8 @@ def calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER,
             shift -= int(point_range * 0.07) 
         else:
             shift += int(point_range * 0.03)
-    else:
-        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
+    #else:
+        #measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
 
     return shift
 
@@ -254,7 +254,7 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
         power_slices, stds, means, start_end = calculate_measure_results(combinations, point_range, N_pts_delete, shift)
 
         if DEBUG_FLAG:
-            print(f"STD:: {np.max(stds)}, mean:: {means}, enum:: {enum}, len_power_slice:: {len(power_slices[0])}")          
+            print(f"STD:: {np.max(stds)}, enum:: {enum}, len_power_slice:: {len(power_slices[0])}")          
 
         if np.max(stds) > STD_TRS and STD_CHECK_ON and enum < 20:
             shift = calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
@@ -265,7 +265,7 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
         break
     
     powers.extend(means)
-
+    print(np.max(powers))
     if DEBUG_FLAG:
         for i in range(combinations):    
             for xx in range(start_end[i][0], start_end[i][1]):
