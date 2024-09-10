@@ -186,27 +186,31 @@ def update_config_sweep_time(CONFIG, combinations, TIME_SAFETY_MARGIN, RIS_chang
     CONFIG.update_swt(Total_ris_changing_time * TIME_SAFETY_MARGIN + 2 * RIS_change_time)
     return CONFIG
 
-def calculate_shift(mean, power_slice, std, std_check, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG):
-    minpow = min(power_slice)
-    maxpow = max(power_slice)
-    max_out = (maxpow > mean + std)
-    min_out = (minpow < mean - std)
+def calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG):
+    std_max_idx = stds.index(np.max(stds))
+    mean = np.mean(power_slices[std_max_idx])
+    minpow = min(power_slices[std_max_idx])
+    maxpow = max(power_slices[std_max_idx])
+    max_out = (maxpow > mean + 3 * std) #Bool
+    min_out = (minpow < mean - 3 * std) #Bool
 
-    # if False:#min_out == max_out:
-    #     measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
-    #     print("new mes")
-    #     shift = 0
-    if max_out:
+    if False:#min_out == max_out:
+         measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
+         print("New MES Done")
+         shift = 0
+    elif max_out:
         if power_slice.index(maxpow) < (point_range * 0.7):
             shift -= int(point_range * 0.07)
         else:
             shift += int(point_range * 0.03)
-    else: #min_out:
+    elif: min_out:
         if power_slice.index(minpow) < (point_range * 0.3):
             shift -= int(point_range * 0.07) 
         else:
             shift += int(point_range * 0.03)
-    
+    else:
+        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
+
     return shift
 
 def write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, power_debug, pattern_debug, n):
@@ -239,7 +243,7 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
                 print(f"STD:: {std}, mean:: {mean}, enum:: {enum}, len_power_slice:: {len(power_slice)}")          
 
             if std > STD_TRS and STD_CHECK_ON and enum < 20 and i == 0 and len(power_slice)>20:
-                shift = calculate_shift(mean, power_slice, std, STD_CHECK_ON, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
+                shift = calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
                 print(f"shift:: {shift}")
                 continue
 
