@@ -215,7 +215,7 @@ def calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER,
             shift -= int(point_range * 0.07)
         else:
             shift += int(point_range * 0.03)
-    else min_out:
+    else:
         if power_slice.index(minpow) < (point_range * 0.5):
             shift -= int(point_range * 0.07) 
         else:
