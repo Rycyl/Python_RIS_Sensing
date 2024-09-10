@@ -186,6 +186,16 @@ def update_config_sweep_time(CONFIG, combinations, TIME_SAFETY_MARGIN, RIS_chang
     CONFIG.update_swt(Total_ris_changing_time * TIME_SAFETY_MARGIN + 2 * RIS_change_time)
     return CONFIG
 
+def write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, power_debug, pattern_debug, n):
+    if DEBUG_FLAG:
+        with open(TRACE_FILE, 'a+') as trace_f:
+            trace_f.write(f'"Grupowy pomiar N_el{N_ELEMENTS} 1szy opt elem w sekwencji={n}||SWT = {CONFIG.sweptime}||"\n')
+            trace_f.write(f'{str(POWER_REC)[1:-1]}\n')
+            trace_f.write(f'{str(power_debug)[1:-1]}\n')
+            for napis in pattern_debug:
+                trace_f.write(f'"{str(napis)}",')
+            trace_f.write('\n')
+
 def calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG):
     std_max_idx = stds.index(np.max(stds))
     mean = np.mean(power_slices[std_max_idx])
@@ -213,15 +223,6 @@ def calculate_shift(power_slices, stds, point_range, shift, PAT_ARRAY, ANALYZER,
 
     return shift
 
-def write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, power_debug, pattern_debug, n):
-    if DEBUG_FLAG:
-        with open(TRACE_FILE, 'a+') as trace_f:
-            trace_f.write(f'"Grupowy pomiar N_el{N_ELEMENTS} 1szy opt elem w sekwencji={n}||SWT = {CONFIG.sweptime}||"\n')
-            trace_f.write(f'{str(POWER_REC)[1:-1]}\n')
-            trace_f.write(f'{str(power_debug)[1:-1]}\n')
-            for napis in pattern_debug:
-                trace_f.write(f'"{str(napis)}",')
-            trace_f.write('\n')
 
 def calculate_measure_results(NO_OF_PATS, point_range, N_pts_delete, shift):
     power_slices = []
@@ -259,7 +260,7 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
                 break
             continue
         break
-    
+
     powers.extend(means)
 
     if DEBUG_FLAG:
