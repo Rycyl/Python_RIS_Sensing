@@ -200,26 +200,19 @@ def calculate_shift(power_slice, std, point_range, shift, PAT_ARRAY, ANALYZER, R
     mean = np.mean(power_slice)
     minpow = min(power_slices[std_max_idx])
     maxpow = max(power_slices[std_max_idx])
-    max_out = (maxpow > mean + 2 * std) #Bool
-    min_out = (minpow < mean - 2 * std) #Bool
+    max_dev = maxpow if (abs(maxpow) - abs(mean) > abs(minpow) - abs(mean)) else minpow
+    idx_max_dev = power_slice.index()
 
     #jak przesuwać?!!!?!!?! ML *
     #ML
     #statystyka x pierwszych
-    #
+    #idx max ochylenia w trace (abs)
 
-
-
-    if max_out:
-        if power_slice.index(maxpow) < (point_range * 0.51):
-            shift += int(point_range * 0.07)
-        else:
-            shift -= int(point_range * 0.11)
+    if idx_max_dev > (point_range * 0.5):
+        shift -= int(point_range * 0.07)
     else:
-        if power_slice.index(minpow) < (point_range * 0.5):
-            shift += int(point_range * 0.07) 
-        else:
-            shift -= int(point_range * 0.11)
+        shift += int(point_range * 0.05)
+
     #else:
         #measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
 
@@ -233,17 +226,18 @@ def calculate_measure_results(NO_OF_PATS, point_range, N_pts_delete, shifts, STD
     start_end = []
     i = 0
     enum = 0
+    
 
     while(i<NO_OF_PATS):
-        start_pat = max(0, int(point_range * i + N_pts_delete + shifts[i]))
+        start_pat = max(0, int(point_range * i + N_pts_delete + shifts[i] + shift[i-1]))
         start_pat = min(start_pat, len(POWER_REC)-1)
-        end_pat = min(len(POWER_REC)-1, int(point_range * (i+1) - N_pts_delete + shifts[i]))
+        end_pat = min(len(POWER_REC)-1, int(point_range * (i+1) - N_pts_delete + shifts[i] + shift[i-1]))
         end_pat = max(end_pat, 1)
         power_slice = POWER_REC[start_pat:end_pat]
         power_slices.append(power_slice)
         std = (np.std(power_slice))
         
-        if std > STD_TRS and STD_CHECK_ON and enum < 20:
+        if ( std > STD_TRS and STD_CHECK_ON and enum < 20 and):
             shifts[i] = calculate_shift(power_slices[i], std, point_range, shifts[i], PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
             print(f"shift:: {shifts[i]}")
             enum+=1
