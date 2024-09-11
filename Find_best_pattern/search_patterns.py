@@ -305,8 +305,8 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
         if TIME_FILE:
             t0.append(time.time())
 
-        point_range = Total_ris_changing_time // len(pat_array)
-        N_pts_delete = int(10) * N_SIGMA
+        point_range = CONFIG.swepnt // len(pat_array)
+        N_pts_delete = int(9.5 * N_SIGMA)
         best_idx, current_best_power, power_debug, pattern_debug, powers = measure_patterns(ANALYZER, RIS, pat_array_copy, CONFIG.sweptime, CONFIG.sweptime / len(pat_array) - RIS_change_time, point_range, N_pts_delete, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, current_best_power, FIND_MIN)
 
         current_best_pattern = pat_array_copy[best_idx]
