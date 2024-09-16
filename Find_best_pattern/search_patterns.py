@@ -209,9 +209,9 @@ def calculate_shift(power_slice, std, point_range, shift, PAT_ARRAY, ANALYZER, R
     #idx max ochylenia w trace (abs)
 
     if idx_max_dev > (point_range * 0.5):
-        shift -= int(point_range * 0.07)
+        shift -= int(point_range * 0.09)
     else:
-        shift += int(point_range * 0.05)
+        shift += int(point_range * 0.07)
 
     #else:
         #measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=PAT_ARRAY, SLEEPTIME=sleeptime)
@@ -226,17 +226,16 @@ def calculate_measure_results(NO_OF_PATS, point_range, N_pts_delete, shifts, STD
     start_end = []
     i = 0
     enum = 0
-    
 
     while(i<NO_OF_PATS):
         start_pat = max(0, int(point_range * i + N_pts_delete + shifts[i] + shifts[i-1]))
         start_pat = min(start_pat, len(POWER_REC)-1)
         end_pat = min(len(POWER_REC)-1, int(point_range * (i+1) - N_pts_delete + shifts[i] + shifts[i-1]))
-        print(f"{point_range} * {(i+1)} - {N_pts_delete} + {shifts[i]} + {shifts[i-1]}")
+        #print(f"{point_range} * {(i+1)} - {N_pts_delete} + {shifts[i]} + {shifts[i-1]}")
         end_pat = max(end_pat, 1)
         power_slice = POWER_REC[start_pat:end_pat]
         power_slices.append(power_slice)
-        print(f"start:: {start_pat}, end:: {end_pat}")
+        #print(f"start:: {start_pat}, end:: {end_pat}")
         std = (np.std(power_slice))
         
         if ( std > STD_TRS and STD_CHECK_ON and enum < 20):
@@ -249,7 +248,7 @@ def calculate_measure_results(NO_OF_PATS, point_range, N_pts_delete, shifts, STD
         
         mean = np.mean(power_slice)
         means.append(mean)
-        print(f"std:: {std}, mean:: {mean}")
+        #print(f"std:: {std}, mean:: {mean}")
         start_end.append((start_pat, end_pat))
         enum = 0
         i+=1
@@ -272,7 +271,7 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
 
 
     powers.extend(means)
-    print(np.max(powers))
+    #print(np.max(powers))
     if DEBUG_FLAG:
         for i in range(combinations):    
             for xx in range(start_end[i][0], start_end[i][1]):
@@ -305,7 +304,7 @@ def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, C
         if TIME_FILE:
             t0.append(time.time())
 
-        point_range = CONFIG.swepnt // len(pat_array)
+        point_range = int(int((CONFIG.sweptime - 0.044)/(1/int(CONFIG.rbw[0:-3]))) // len(pat_array))
         N_pts_delete = int(9.5 * N_SIGMA)
         best_idx, current_best_power, power_debug, pattern_debug, powers = measure_patterns(ANALYZER, RIS, pat_array_copy, CONFIG.sweptime, CONFIG.sweptime / len(pat_array) - RIS_change_time, point_range, N_pts_delete, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, current_best_power, FIND_MIN)
 
