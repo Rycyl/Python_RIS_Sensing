@@ -181,10 +181,9 @@ def prepare_patterns(N_ELEMENTS):
     pat_array = [BitArray(uint=x, length=256) for x in range(combinations)]
     return pat_array, copy(pat_array)
 
-def update_config_sweep_time(CONFIG, combinations, TIME_SAFETY_MARGIN, RIS_change_time):
-    Total_ris_changing_time = combinations * RIS_change_time
+def update_config_sweep_time(CONFIG, TIME_SAFETY_MARGIN, Total_ris_changing_time, RIS_change_time):
     CONFIG.update_swt(Total_ris_changing_time * TIME_SAFETY_MARGIN + 2 * RIS_change_time)
-    return Total_ris_changing_time
+    return
 
 def write_debug_info(DEBUG_FLAG, TRACE_FILE, N_ELEMENTS, CONFIG, POWER_REC, power_debug, pattern_debug, n):
     if DEBUG_FLAG:
@@ -219,30 +218,42 @@ def calculate_shift(power_slice, std, point_range, shift, PAT_ARRAY, ANALYZER, R
     return shift
 
 
-def calculate_measure_results(NO_OF_PATS, point_range, N_pts_delete, shifts, STD_CHECK_ON, STD_TRS,PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG):
+def calculate_measure_results(CONFIG, NO_OF_PATS, point_range, N_pts_delete, shifts, STD_CHECK_ON, STD_TRS,PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG):
     power_slices = []
     stds = []
     means = []
     start_end = []
     i = 0
     enum = 0
-
+    start_pat = 0
+    end_pat = 1
     while(i<NO_OF_PATS):
         if enum == 0:
-            shifts[i] = copy(shifts[i-1])
-        start_pat = max(0, int(point_range * i + N_pts_delete + shifts[i]))
-        start_pat = min(start_pat, len(POWER_REC)-1)
-        end_pat = min(len(POWER_REC)-1, int(point_range * (i+1) - N_pts_delete + shifts[i]))
-        #print(f"{point_range} * {(i+1)} - {N_pts_delete} + {shifts[i]} + {shifts[i-1]}")
+            if i == 0:
+                shifts[i] = (CONFIG.swepnt - len(PAT_ARRAY) * point_range) // 2
+            else:
+                shifts[i] = copy(shifts[i-1])
+        # start_pat = max(end_pat+1, int(point_range * i + N_pts_delete + shifts[i]))
+        # #start_pat = min(start_pat, end_pat+point_range)
+        # end_pat = min(len(POWER_REC)-1, int(point_range * (i+1) - N_pts_delete + shifts[i]))
+        # #print(f"{point_range} * {(i+1)} - {N_pts_delete} + {shifts[i]} + {shifts[i-1]}")
+        # end_pat = max(end_pat, 1)
+        start_pat = max(end_pat + 1, int(i * point_range + N_pts_delete + shifts[i]))
+        start_pat = min(start_pat, len(POWER_REC) - 1)
+        end_pat = min(len(POWER_REC) - 1, int((i + 1) * point_range - N_pts_delete + shifts[i]))
+        if start_pat > end_pat:
+            print(f"Warning: start_pat ({start_pat}) > end_pat ({end_pat}), adjusting start_pat.")
+            start_pat = end_pat  # Zmniejszamy start_pat, by był zgodny z end_pat
+
         end_pat = max(end_pat, 1)
         power_slice = POWER_REC[start_pat:end_pat]
+        
         power_slices.append(power_slice)
         #print(f"start:: {start_pat}, end:: {end_pat}")
         std = (np.std(power_slice))
         
         if ( std > STD_TRS and STD_CHECK_ON and enum < 20):
             shifts[i] = calculate_shift(power_slice, std, point_range, shifts[i], PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
-            print(shifts[i])
             enum+=1
             continue
 
@@ -251,27 +262,26 @@ def calculate_measure_results(NO_OF_PATS, point_range, N_pts_delete, shifts, STD
         
 
         mean = np.mean(power_slice)
-        print(f"shift:: {shifts}, std:: {std}, mean:: {mean}, enum:: {enum}, cal_sht:: {std > STD_TRS and STD_CHECK_ON and enum < 20}")
+        print(f"shift:: {shifts[i]}, pw_slc_len:: {len(power_slice)}, std:: {std}, mean:: {mean}, enum:: {enum}, cal_sht:: {std > STD_TRS and STD_CHECK_ON and enum < 20}")
         
         
         means.append(mean)
         #print(shifts[i])
         
         start_end.append((start_pat, end_pat))
+        print(start_end[-1])
         enum = 0
         i+=1
     return power_slices, means, start_end, shifts
 
 
-def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range, N_pts_delete, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, best_power, FIND_MIN):
+def measure_patterns(CONFIG,ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range, N_pts_delete, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, best_power, FIND_MIN):
     combinations = len(PAT_ARRAY)
     power_debug = [-150] * len(POWER_REC) if DEBUG_FLAG else None
     pattern_debug = [None] * len(POWER_REC) if DEBUG_FLAG else None
     powers = []
     shifts = np.zeros(combinations)
-    enum = 0
-    enum += 1
-    power_slices, means, start_end, shifts = calculate_measure_results(combinations, point_range, N_pts_delete, shifts, STD_CHECK_ON, STD_TRS,PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
+    power_slices, means, start_end, shifts = calculate_measure_results(CONFIG, combinations, point_range, N_pts_delete, shifts, STD_CHECK_ON, STD_TRS,PAT_ARRAY, ANALYZER, RIS, sleeptime, DEBUG_FLAG)
 
         #if DEBUG_FLAG and False:
         #    print(f"STD:: {np.max(stds)}, enum:: {enum}, len_power_slice:: {len(power_slices[0])}")          
@@ -294,27 +304,29 @@ def measure_patterns(ANALYZER, RIS, PAT_ARRAY, sweeptime, sleeptime, point_range
 def find_best_pattern_element_wise_by_group_measures(RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, TIME_SAFETY_MARGIN = 3.0, STD_TRS = 0.08, STD_CHECK_ON = True, DEBUG_FLAG = False, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, TRACE_FILE = 'trace_file_group_mesures.csv', TIME_FILE = None):
     RIS_change_time = 0.022
     pat_array, pat_array_copy = prepare_patterns(N_ELEMENTS)
+    combinations = len(pat_array)
     current_best_power = 1000.0 if FIND_MIN else -1000.0
-    Total_ris_changing_time = update_config_sweep_time(CONFIG, len(pat_array), TIME_SAFETY_MARGIN, RIS_change_time)
-
+    Total_ris_changing_time = combinations * RIS_change_time
+    update_config_sweep_time(CONFIG, TIME_SAFETY_MARGIN, Total_ris_changing_time, RIS_change_time)
+    points = CONFIG.swepnt
     GENERATOR.meas_prep(True, CONFIG.generator_mode, CONFIG.generator_amplitude, CONFIG.freq)
     ANALYZER.meas_prep(CONFIG.freq, CONFIG.sweptime, CONFIG.span, CONFIG.analyzer_mode, CONFIG.detector, CONFIG.revlevel, CONFIG.rbw, CONFIG.swepnt)
-
-    file, t0, t1 = prepare_measurement_files(MEASURE_FILE, TIME_FILE, CONFIG, N_ELEMENTS)
     
+    file, t0, t1 = prepare_measurement_files(MEASURE_FILE, TIME_FILE, CONFIG, N_ELEMENTS)
+    SLEEPTIME = (CONFIG.sweptime - 2 * RIS_change_time) / len(pat_array)
     n = 0
     power_write = []
     pattern_write = []
     while n < 256:
         if TIME_FILE:
             t1.append(time.time())
-        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy, SLEEPTIME=(Total_ris_changing_time / len(pat_array)) - RIS_change_time)
+        measure_thread_with_RIS_changes(ANALYZER=ANALYZER, RIS=RIS, PAT_ARRAY=pat_array_copy, SLEEPTIME=SLEEPTIME - RIS_change_time)
         if TIME_FILE:
             t0.append(time.time())
 
         point_range = int(int((CONFIG.sweptime - 0.044)/(1/int(CONFIG.rbw[0:-3]))) // len(pat_array))
         N_pts_delete = int(9.5 * N_SIGMA)
-        best_idx, current_best_power, power_debug, pattern_debug, powers = measure_patterns(ANALYZER, RIS, pat_array_copy, CONFIG.sweptime, CONFIG.sweptime / len(pat_array) - RIS_change_time, point_range, N_pts_delete, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, current_best_power, FIND_MIN)
+        best_idx, current_best_power, power_debug, pattern_debug, powers = measure_patterns(CONFIG, ANALYZER, RIS, pat_array_copy, CONFIG.sweptime, CONFIG.sweptime / len(pat_array) - RIS_change_time, point_range, N_pts_delete, POWER_REC, STD_TRS, STD_CHECK_ON, DEBUG_FLAG, current_best_power, FIND_MIN)
 
         current_best_pattern = pat_array_copy[best_idx]
 

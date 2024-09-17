@@ -18,11 +18,11 @@ if __name__ == "__main__":
     ris = RIS(port='/dev/ttyUSB0')
     ris.reset()
 
-    swt_vals = np.linspace(1.0,1.0 , num = 1)
+    swt_vals = np.linspace(2.0,2.0 , num = 1)
     print(swt_vals)
     swt_vals =  np.around(swt_vals, decimals=2)
 
-    x = 1
+    x = 4
     sigma = 3
     
     config.update_swt(0.1)
