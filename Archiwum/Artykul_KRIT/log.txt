@@ -1,0 +1,363 @@
+VISA Manufacturer: SocketIO
+Hello, I am Rohde&Schwarz,FSV3030,1330.5000K30/102136,2.00SP1
+Channel 1 PEP level: -10.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 0.15 s
+pattern id::  0  =  -67.7295832901001
+pattern id::  1  =  -60.786423656463626
+pattern id::  2  =  -67.84037722778321
+pattern id::  3  =  -67.44272456359863
+pattern id::  4  =  -61.65361762619018
+pattern id::  5  =  -69.52003247833252
+pattern id::  6  =  -63.649143520355224
+pattern id::  7  =  -64.27246197509766
+pattern id::  8  =  -64.64860865783692
+pattern id::  9  =  -63.717795295715334
+pattern id::  10  =  -61.77194179916382
+pattern id::  11  =  -62.06077875137329
+pattern id::  12  =  -61.53406714248657
+pattern id::  13  =  -61.57932114410401
+pattern id::  14  =  -63.83272985839844
+pattern id::  15  =  -62.550901828765866
+pattern id::  16  =  -77.25171672058106
+pattern id::  17  =  -57.132950073242185
+pattern id::  18  =  -63.577870807647706
+pattern id::  19  =  -63.610835186004635
+pattern id::  20  =  -63.5964814414978
+pattern id::  21  =  -64.42799125671387
+pattern id::  22  =  -63.970442642211914
+pattern id::  23  =  -60.266133060455324
+pattern id::  24  =  -60.8164299697876
+pattern id::  25  =  -65.27478729248047
+pattern id::  26  =  -60.46552679824829
+Thicker vertical strips [00001111] -57.132950073242185
+Thicker vertical strips [11110000] -77.25171672058106
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -45.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.3318468093872
+Pat_1_pow_avre =  -112.26130770111084
+Pat_2_pow_avre =  -92.12594261169434
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -47.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.51203510284424
+Pat_1_pow_avre =  -114.17420783996582
+Pat_2_pow_avre =  -94.13423218536377
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -49.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.29884619903565
+Pat_1_pow_avre =  -116.04307509613037
+Pat_2_pow_avre =  -96.12359141540527
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -51.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.79274308776856
+Pat_1_pow_avre =  -118.22795517730712
+Pat_2_pow_avre =  -98.13496899414062
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -53.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.45333601379394
+Pat_1_pow_avre =  -119.83793561553955
+Pat_2_pow_avre =  -100.14455735015869
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -55.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.4940753326416
+Pat_1_pow_avre =  -121.4419055633545
+Pat_2_pow_avre =  -102.14811824798583
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -57.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.45513456726074
+Pat_1_pow_avre =  -122.81282533264161
+Pat_2_pow_avre =  -104.15965058135987
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -59.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.46076275634766
+Pat_1_pow_avre =  -123.37281364440918
+Pat_2_pow_avre =  -106.08740785217284
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -61.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.57977658843994
+Pat_1_pow_avre =  -124.43292972564697
+Pat_2_pow_avre =  -108.13296646881103
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.49108400726318
+Pat_1_pow_avre =  -124.93054486083985
+Pat_2_pow_avre =  -110.09481407165528
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.6023509902954
+Pat_1_pow_avre =  -124.61218439483642
+Pat_2_pow_avre =  -110.11391287231446
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.64392594909668
+Pat_1_pow_avre =  -124.94976524353028
+Pat_2_pow_avre =  -110.10371381378174
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.47094570922852
+Pat_1_pow_avre =  -124.69692707061768
+Pat_2_pow_avre =  -110.09990467834473
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.62703432464599
+Pat_1_pow_avre =  -124.94744258117676
+Pat_2_pow_avre =  -110.0803461303711
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.71908377075195
+Pat_1_pow_avre =  -124.97611212921143
+Pat_2_pow_avre =  -110.12956885528564
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.462341796875
+Pat_1_pow_avre =  -124.89549868774414
+Pat_2_pow_avre =  -110.15867184448243
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.4874535369873
+Pat_1_pow_avre =  -124.73558267974853
+Pat_2_pow_avre =  -110.18850520324708
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.89032865905762
+Pat_1_pow_avre =  -124.5523519897461
+Pat_2_pow_avre =  -110.14002378845215
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -65.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.61848161315918
+Pat_1_pow_avre =  -124.92481352233887
+Pat_2_pow_avre =  -112.03805374908447
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -65.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.53246280670166
+Pat_1_pow_avre =  -124.73922705841065
+Pat_2_pow_avre =  -112.12750020599366
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -65.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.3366732635498
+Pat_1_pow_avre =  -125.20310856628419
+Pat_2_pow_avre =  -112.13319712066651
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -64.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.55489205169678
+Pat_1_pow_avre =  -124.9594369506836
+Pat_2_pow_avre =  -111.06602045440674
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -64.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.41562321472168
+Pat_1_pow_avre =  -124.95019370269776
+Pat_2_pow_avre =  -111.05901873016357
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.49326538085937
+Pat_1_pow_avre =  -124.50745175170898
+Pat_2_pow_avre =  -110.08946842956543
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.55952921295166
+Pat_1_pow_avre =  -124.67205989074706
+Pat_2_pow_avre =  -110.14401874542236
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.53442677307129
+Pat_1_pow_avre =  -124.52167393493653
+Pat_2_pow_avre =  -110.15949198150635
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -65.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.5619208984375
+Pat_1_pow_avre =  -125.27840138244629
+Pat_2_pow_avre =  -112.12532571411133
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -64.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.50491090393066
+Pat_1_pow_avre =  -124.76978458404541
+Pat_2_pow_avre =  -111.09152473449707
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -64.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.57021464538575
+Pat_1_pow_avre =  -125.12510652160644
+Pat_2_pow_avre =  -111.03385971832276
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.23515850067139
+Pat_1_pow_avre =  -124.62195205688477
+Pat_2_pow_avre =  -110.13980654144287
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.47615782928467
+Pat_1_pow_avre =  -124.75503174591064
+Pat_2_pow_avre =  -110.09794114685059
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -63.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.59531395721436
+Pat_1_pow_avre =  -124.5305843887329
+Pat_2_pow_avre =  -110.09496894836425
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -65.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.35417289733887
+Pat_1_pow_avre =  -124.8702103729248
+Pat_2_pow_avre =  -112.08269367218017
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -64.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.82121927642822
+Pat_1_pow_avre =  -124.6811749420166
+Pat_2_pow_avre =  -111.09882657623291
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -66.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.12172344207764
+Pat_1_pow_avre =  -125.0474419631958
+Pat_2_pow_avre =  -113.02033013916015
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+Measurement time: 20.1 s
+Channel 1 PEP level: -65.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Avre_noise =  -125.67006814575196
+Pat_1_pow_avre =  -124.99880265045167
+Pat_2_pow_avre =  -112.00244599151611
+Channel 1 PEP level: -140.0 dBm
+Direct SCPI response on *IDN?: Rohde&Schwarz,SMM100A,1440.8002K02/101983,5.10.035.38  
+Measurement prepared. freq: 5500000000.0 span: 0 mode: WRITe revlevel: -30 rbw: 500 Hz swepnt: 1000 swtcnt: 1
+k

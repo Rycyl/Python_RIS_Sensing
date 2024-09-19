@@ -230,22 +230,21 @@ def calculate_measure_results(CONFIG, NO_OF_PATS, point_range, N_pts_delete, shi
     while(i<NO_OF_PATS):
         if enum == 0:
             if i == 0:
-                shifts[i] = (CONFIG.swepnt - len(PAT_ARRAY) * point_range) // 2
+                shifts[i] = (CONFIG.swepnt - len(PAT_ARRAY) * point_range) // 4
+                start_pat = max( 0 , int(N_pts_delete + shifts[i]))
+                start_pat = min( start_pat, len(POWER_REC)-2)
+                end_pat = min( len(POWER_REC) - 1 , int(point_range - N_pts_delete + shifts[i]))
+                end_pat = max(end_pat, 1)
             else:
-                shifts[i] = copy(shifts[i-1])
-        # start_pat = max(end_pat+1, int(point_range * i + N_pts_delete + shifts[i]))
+                start_pat = max( start_end[-1][1] + 1, int(start_end[-1][0] + point_range + shifts[i]))
+                start_pat = min(start_pat, start_end[-1][1] + point_range, len(POWER_REC)-2)
+                end_pat = int(min(start_end[-1][1]+point_range+shifts[i], start_end[-1][0]+2*point_range, len(POWER_REC)-1))
+
         # #start_pat = min(start_pat, end_pat+point_range)
         # end_pat = min(len(POWER_REC)-1, int(point_range * (i+1) - N_pts_delete + shifts[i]))
         # #print(f"{point_range} * {(i+1)} - {N_pts_delete} + {shifts[i]} + {shifts[i-1]}")
         # end_pat = max(end_pat, 1)
-        start_pat = max(end_pat + 1, int(i * point_range + N_pts_delete + shifts[i]))
-        start_pat = min(start_pat, len(POWER_REC) - 1)
-        end_pat = min(len(POWER_REC) - 1, int((i + 1) * point_range - N_pts_delete + shifts[i]))
-        if start_pat > end_pat:
-            print(f"Warning: start_pat ({start_pat}) > end_pat ({end_pat}), adjusting start_pat.")
-            start_pat = end_pat  # Zmniejszamy start_pat, by był zgodny z end_pat
-
-        end_pat = max(end_pat, 1)
+        #print(start_pat, end_pat)
         power_slice = POWER_REC[start_pat:end_pat]
         
         power_slices.append(power_slice)
@@ -262,14 +261,14 @@ def calculate_measure_results(CONFIG, NO_OF_PATS, point_range, N_pts_delete, shi
         
 
         mean = np.mean(power_slice)
-        print(f"shift:: {shifts[i]}, pw_slc_len:: {len(power_slice)}, std:: {std}, mean:: {mean}, enum:: {enum}, cal_sht:: {std > STD_TRS and STD_CHECK_ON and enum < 20}")
+        #print(f"shift:: {shifts[i]}, pw_slc_len:: {len(power_slice)}, std:: {std}, mean:: {mean}, enum:: {enum}, cal_sht:: {std > STD_TRS and STD_CHECK_ON and enum < 20}")
         
         
         means.append(mean)
         #print(shifts[i])
         
         start_end.append((start_pat, end_pat))
-        print(start_end[-1])
+        #print(start_end[-1])
         enum = 0
         i+=1
     return power_slices, means, start_end, shifts
