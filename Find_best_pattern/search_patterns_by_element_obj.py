@@ -55,7 +55,7 @@ class Element_By_Element_Search:
     
     def prepare_measurement_files(self):
         file = open(self.MEASURE_FILE, 'a+')
-        file.write(str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + "N_elements ," + str(N_ELEMENTS) + ", swt = ," + str(CONFIG.sweptime))
+        file.write(str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + "N_elements ," + str(self.N_ELEMENTS) + ", swt = ," + str(self.CONFIG.sweptime))
         file.write('\n')
         
         if self.TIME_FILE:
