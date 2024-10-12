@@ -154,6 +154,8 @@ class Element_By_Element_Search_std_PK:
                         pattern_debug[xx] = str(self.pat_array[i].hex)
                 
                 break #koniec while
+            
+        #znajdz max std z każdego shifta
         x = 0
         while (x < shift):
             stds = []
