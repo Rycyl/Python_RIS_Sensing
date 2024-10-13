@@ -13,6 +13,8 @@ import threading
 from config_obj import Config
 import file_writer
 from copy import copy
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 
 
 class Element_By_Element_Search_std_PK:
@@ -43,6 +45,8 @@ class Element_By_Element_Search_std_PK:
         self.SLEEPTIME = (self.CONFIG.sweptime / len(self.pat_array) - self.RIS_change_time)
         self.point_range = self.CONFIG.swepnt // len(self.pat_array)
         self.N_pts_delete = int(10) * self.N_SIGMA
+        self.plots_list = []
+        self.pdf_file = PdfPages(MEASURE_FILE.split('.')[0] + '.pdf')
         
     def prepare_patterns(self):
         pat_array = [BitArray(uint=x, length=256) for x in range(self.combinations)]
@@ -161,13 +165,38 @@ class Element_By_Element_Search_std_PK:
             stds = []
             for i in range(len(self.pat_array)):
                 stds.append(stds_from_trace_shift[i][x])                
-            stds_maxs.append(np.max(stds_from_trace_shifts))
+            stds_from_trace_shift_maxs.append(np.max(stds))
             x+=1
 
         best_power = np.min(powers) if self.FIND_MIN else np.max(powers)
         best_idx = powers.index(best_power)
         
-        return best_idx, best_power, power_debug, pattern_debug, powers
+        return best_idx, best_power, power_debug, pattern_debug, powers, stds_from_trace_shift_maxs, stds_from_trace_shift
+    
+    def plot_stds(self, stds_maxs, n):
+        lenght = len(stds_maxs)
+        shifts = np.arange(lenght)
+        fig = plt.figure(layout= "constrained", figsize= (15, 7))
+        plt.subplot(1, 1, 1)
+        plt.grid()
+        plt.xlabel('Delta_X')
+        plt.ylabel('Max_sigma^2')
+        plt.title('Maximal std for eavry shift')
+        
+        plt.plot(shifts, stds_maxs, label = f"STDS for N = {n}")
+
+        self.plots_list.append(fig)
+
+        return
+    
+    def save_plots_to_pdf(self):
+
+        for fig in self.plots_list:
+            fig.savefig(self.pdf_file, format='pdf')
+        
+        return
+
+
     
     def search(self):
         n = 0
@@ -180,7 +209,7 @@ class Element_By_Element_Search_std_PK:
             if self.TIME_FILE:
                 self.t0.append(time.time())
                 
-            best_idx, current_best_power, power_debug, pattern_debug, powers = self.measure_patterns()
+            best_idx, current_best_power, power_debug, pattern_debug, powers, stds_maxs, stds_all = self.measure_patterns()
             
             current_best_pattern = self.pat_array_copy[best_idx]
             
@@ -197,9 +226,12 @@ class Element_By_Element_Search_std_PK:
                 self.pat_array[i].rol(self.N_ELEMENTS)
                 self.pat_array_copy[i] = self.pat_array[i] | current_best_pattern
             
+            self.plot_stds(stds_maxs, n)
+            
             n += self.N_ELEMENTS
         
         self.meas_file.write(f"{str(pattern_write)[1:-1]}\n{str(power_write)[1:-1]}\n\n")
+        self.save_plots_to_pdf()
         
         if self.TIME_FILE:
             with open (f"{self.TIME_FILE}.csv", 'a+') as timefile:
@@ -207,3 +239,10 @@ class Element_By_Element_Search_std_PK:
                 timefile.write('\n')
                 timefile.write(str(self.t1)[1:-1])
                 timefile.close()
+
+        return
+    
+    def __del__(self):
+        self.meas_file.close()
+        self.pdf_file.close()
+        return
