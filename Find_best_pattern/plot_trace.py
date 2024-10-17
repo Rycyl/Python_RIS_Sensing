@@ -141,7 +141,7 @@ if __name__ == '__main__':
     #     extract_trace(file_path)
     #     save_plots_to_pdf(trace_file.split('.')[0] + '.pdf')
     #     plt.close('all')
-    path = os.path.join(path, "Wyniki_TEAMS")
+    #path = os.path.join(path, "Wyniki_TEAMS")
     # filename = 'trace_file_group_444444'
     # file_path = os.path.join(path, filename + '.csv')
     # extract_trace(file_path)

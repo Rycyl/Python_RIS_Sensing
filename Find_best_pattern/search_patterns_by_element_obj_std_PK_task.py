@@ -47,6 +47,14 @@ class Element_By_Element_Search_std_PK:
         self.N_pts_delete = int(10) * self.N_SIGMA
         self.plots_list = []
         self.pdf_file = PdfPages(MEASURE_FILE.split('.')[0] + '.pdf')
+
+    def run(self, new_mesure_file_no = None):
+        if new_mesure_file_no:
+            self.MEASURE_FILE = self.MEASURE_FILE.split('.')[0] + f'_{new_mesure_file_no}.csv'
+        if new_mesure_file_no:
+            self.TRACE_FILE = self.TRACE_FILE.split('.')[0] + f'_{new_mesure_file_no}.csv'
+        self.search()
+        return
         
     def prepare_patterns(self):
         pat_array = [BitArray(uint=x, length=256) for x in range(self.combinations)]
@@ -129,8 +137,10 @@ class Element_By_Element_Search_std_PK:
                 enum += 1
                 start_pat = max(0, int(self.point_range * i + shift)) # self.N_pts_delete ))
                 end_pat = min(len(self.POWER_REC), int(self.point_range * (i + 1) + shift )) #- self.N_pts_delete ))
+                start_pat = min(start_pat, end_pat)
                 power_slice = self.POWER_REC[start_pat:end_pat]
-                
+                if power_slice == []:
+                    break
                 std = np.std(power_slice)
                 mean = np.mean(power_slice)
                 
