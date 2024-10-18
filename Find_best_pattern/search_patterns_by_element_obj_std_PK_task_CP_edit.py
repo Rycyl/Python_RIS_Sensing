@@ -43,7 +43,7 @@ class Element_By_Element_Search_std_PK:
         self.meas_file, self.t0, self.t1 = self.prepare_measurement_files()
         self.POWER_REC = None
         self.SLEEPTIME = (self.CONFIG.sweptime / len(self.pat_array) - self.RIS_change_time)
-        self.point_range = self.CONFIG.swepnt // len(self.pat_array)
+        self.point_range = int((self.CONFIG.sweptime - 2*self.RIS_change_time) /(1/int(self.CONFIG.rbw[0:-3]))) // len(self.pat_array)
         self.N_pts_delete = int(10) * self.N_SIGMA
         self.plots_list = []
         self.pdf_file = PdfPages(MEASURE_FILE.split('.')[0] + '.pdf')
@@ -131,75 +131,52 @@ class Element_By_Element_Search_std_PK:
         stds_from_trace_shift_maxs = []
         stds_from_trace_shift = [[]]*len(self.pat_array)
         shift = 0
-        start_end_for_patterns = ()
+        start_end_for_patterns = []
         for i in range(len(self.pat_array)):
             start = int(i * self.point_range)
             end = int((i + 1) * self.point_range)
-            start_end_for_patterns[i] = ((start, end))
-        
+            start_end_for_patterns.append((start, end))
+        end_pat = 0
+        start_pat = 0
 
-        while True:
-            if(start_end_for_patterns[len(self.pat_array)][0] + shift > start_end_for_patterns[len(self.pat_array)][1] + shift):
-                break
+        while end_pat<len(self.POWER_REC)-1:
+            shift += 1
+            print(shift, start_pat, end_pat, len(self.POWER_REC))
             for i in range(len(self.pat_array)):
-                start_pat = max(0, start_end_for_patterns[i][0] + shift)
-                end_pat = min(len(self.POWER_REC), self.point_range + shift)
-                power_slice = self.POWER_REC[start_pat:end_pat]
-                std = np.std(power_slice)
-                mean = np.mean(power_slice)
+                enum = 0
+                while True:
+                    enum += 1
+                    start_pat = max(0, int(self.point_range * i + shift)) # self.N_pts_delete ))
+                    end_pat = min(len(self.POWER_REC), int(self.point_range * (i + 1) + shift )) #- self.N_pts_delete ))
+                    start_pat = min(start_pat, end_pat)
+                    power_slice = self.POWER_REC[start_pat:end_pat]
+                    if power_slice == []:
+                        break
+                    std = np.std(power_slice)
+                    mean = np.mean(power_slice)
+                    
+                    if self.DEBUG_FLAG:
+                        print(f"STD:: {std}, mean:: {mean}, enum:: {enum}, len_power_slice:: {len(power_slice)}")
+                    
+                    '''    
+                    if std > self.STD_TRS and self.STD_CHECK_ON and enum < 20 and i == 0 and len(power_slice)>20:
+                        shift = self.calculate_shift(power_slice, std, mean)
+                        print(f"shift:: {shift}")
+                        continue
+                    '''
+                    
+                    stds_from_trace_shift[i].append(std) #i-ty pattern, dodaj jego bierzące std
+                    
 
-                if self.DEBUG_FLAG:
-                    print(f"STD:: {std}, mean:: {mean}, shift:: {shift}, len_power_slice:: {len(power_slice)}")
-                
-                stds_from_trace_shift[shift].append(std)
-                powers.append(mean)
 
-                if end_pat < len(self.POWER_REC):
-                    shift += 1
-                    continue
 
-                if self.DEBUG_FLAG:
-                    for xx in range(start_pat, end_pat):
-                        power_debug[xx] = self.POWER_REC[xx]
-                        pattern_debug[xx] = str(self.pat_array[i].hex)
-
-        # for i in range(len(self.pat_array)):
-        #     enum = 0
-        #     while True:
-        #         enum += 1
-        #         start_pat = max(0, int(self.point_range * i + shift)) # self.N_pts_delete ))
-        #         end_pat = min(len(self.POWER_REC), int(self.point_range * (i + 1) + shift )) #- self.N_pts_delete ))
-        #         start_pat = min(start_pat, end_pat)
-        #         power_slice = self.POWER_REC[start_pat:end_pat]
-        #         if power_slice == []:
-        #             break
-        #         std = np.std(power_slice)
-        #         mean = np.mean(power_slice)
-                
-        #         if self.DEBUG_FLAG:
-        #             print(f"STD:: {std}, mean:: {mean}, enum:: {enum}, len_power_slice:: {len(power_slice)}")
-                
-        #         '''    
-        #         if std > self.STD_TRS and self.STD_CHECK_ON and enum < 20 and i == 0 and len(power_slice)>20:
-        #             shift = self.calculate_shift(power_slice, std, mean)
-        #             print(f"shift:: {shift}")
-        #             continue
-        #         '''
-                
-        #         stds_from_trace_shift[i].append(std) #i-ty pattern, dodaj jego bierzące std
-                
-
-        #         if end_pat<len(self.POWER_REC):
-        #             shift += 1
-        #             continue
-
-        #         powers.append(mean)
-        #         if self.DEBUG_FLAG:
-        #             for xx in range(start_pat, end_pat):
-        #                 power_debug[xx] = self.POWER_REC[xx]
-        #                 pattern_debug[xx] = str(self.pat_array[i].hex)
-                
-        #         break #koniec while
+                    powers.append(mean)
+                    if self.DEBUG_FLAG:
+                        for xx in range(start_pat, end_pat):
+                            power_debug[xx] = self.POWER_REC[xx]
+                            pattern_debug[xx] = str(self.pat_array[i].hex)
+                    
+                    break #koniec while
             
         #znajdz max std z każdego shifta
         x = 0
@@ -209,7 +186,9 @@ class Element_By_Element_Search_std_PK:
                 stds.append(stds_from_trace_shift[i][x])                
             stds_from_trace_shift_maxs.append(np.max(stds))
             x+=1
-
+        #temp powers cut for std checkout##############33
+        powers = powers[0:len(self.pat_array)]
+        ###############################################33
         best_power = np.min(powers) if self.FIND_MIN else np.max(powers)
         best_idx = powers.index(best_power)
         
