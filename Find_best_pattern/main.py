@@ -4,6 +4,7 @@ from config_obj import Config
 from RIS import RIS
 #import search_patterns
 from search_patterns_by_element_obj_std_PK_task_CP_edit import Element_By_Element_Search_std_PK
+import os
 
 import numpy as np
 
@@ -17,12 +18,26 @@ if __name__ == "__main__":
     generator = Generator(config)
     RIS = RIS(port='/dev/ttyUSB0')
     RIS.reset()
-    filename = "pomiar_piatek_po_spotkaniu_test_funkcji_std.csv"
-    Search_patterns = Element_By_Element_Search_std_PK(RIS, generator, analyzer, config, 4, 3, 3.0, 0.08, True, True, filename, False, 'trace_file_group_mesures_PK_test_empty_room.csv', None)
+    filename = "pomiar_piatek_po_spotkaniu_test_funkcji_std"
+    trace_file = 'trace_file_group_mesures_PK_test_empty_room'
+    path = os.getcwd()
+    no_file_set = True
+    i = 0
+    while no_file_set:
+        i += 1
+        files = [f for f in os.listdir(path) if f.endswith('.csv')]
+        for f in files:
+            if filename + str(i) + '.csv' == f or trace_file + str(i) + '.csv' == f:
+                continue
+            else:
+                filename = filename + f"_{str(i)}.csv"
+                trace_file = trace_file + f"_{str(i)}.csv"
+                no_file_set = False
+                break
+    Search_patterns = Element_By_Element_Search_std_PK(RIS, generator, analyzer, config, 4, 3, 3.0, 0.08, True, True, filename, False, trace_file, None)
     #sleep(10)
     Search_patterns.run()
 
-#     search_patterns.find_best_pattern_element_wise_by_group_measures(RIS, generator, analyzer, config, 4, FIND_MIN=False, DEBUG_FLAG=True, TRACE_FILE='trace_file_group_4.csv')
     del Search_patterns
     generator.close()
     analyzer.close()

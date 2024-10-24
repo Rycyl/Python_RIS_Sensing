@@ -76,9 +76,9 @@ class Element_By_Element_Search_std_PK:
             return file, t0, t1
         return file, None, None
     
-    def write_debug_info(self, n, power_debug, pattern_debug):
+    def write_debug_info(self, n, power_debug, pattern_debug, shift):
         with open (self.TRACE_FILE, 'a+') as trace_f:
-            trace_f.write(f'"Grupowy pomiar N_el{self.N_ELEMENTS} 1szy opt elem w sekwencji={n}||SWT = {self.CONFIG.sweptime}||"\n')
+            trace_f.write(f'"Grupowy pomiar N_el{self.N_ELEMENTS} 1szy opt elem w sekwencji={n}||SWT = {self.CONFIG.sweptime}|| ||Shift = {shift}||"\n')
             trace_f.write(f'{str(self.POWER_REC)[1:-1]}\n')
             trace_f.write(f'{str(power_debug)[1:-1]}\n')
             for napis in pattern_debug:
@@ -90,13 +90,13 @@ class Element_By_Element_Search_std_PK:
         return
     
     def measure_thread_with_RIS_changes(self):
-        Measure = threading.Thread(target=self.get_trace)
-        self.RIS.set_pattern('0x' + self.pat_array_copy[0].hex)
-        Measure.start()
-        sleep(0.06)
-        sleep(0.022)
-        for y in self.pat_array_copy[1:]:
-            sleep(self.SLEEPTIME)
+        Measure = threading.Thread(target=self.get_trace) # cel wątku
+        self.RIS.set_pattern('0x' + self.pat_array_copy[0].hex) # ustawienie pierwszego wzorca
+        Measure.start() # rozpoczęcie wątku
+        sleep(0.06) # czas oczekiwania na analizator
+        sleep(0.022) # offset na początku pomiaru (?)
+        for y in self.pat_array_copy[1:]: # start pętli po wzorcach
+            sleep(self.SLEEPTIME) # 
             self.RIS.set_pattern('0x' + y.hex)
         Measure.join()
         return
@@ -123,6 +123,8 @@ class Element_By_Element_Search_std_PK:
         if self.DEBUG_FLAG:
             power_debug = [-150] * len(self.POWER_REC)
             pattern_debug = [None] * len(self.POWER_REC)
+            power_debug_shift =[]
+            pattern_debug_shift = []
         else:
             power_debug = None
             pattern_debug = None
@@ -130,18 +132,13 @@ class Element_By_Element_Search_std_PK:
         stds_from_trace_shift_maxs = []
         stds_from_trace_shift = [[]]*len(self.pat_array)
         shift = 0
-        start_end_for_patterns = []
-        ### init patrange
-        for i in range(len(self.pat_array)):
-            start = int(i * self.point_range)
-            end = int((i + 1) * self.point_range)
-            start_end_for_patterns.append((start, end))
         end_pat = 0
         start_pat = 0
 
         ### iterate shift
         while end_pat<len(self.POWER_REC)-1:
             shift += 1
+            enum = 0
             print(shift, start_pat, end_pat, len(self.POWER_REC))
             ### iterate patterns
             for i in range(len(self.pat_array)):
@@ -169,6 +166,9 @@ class Element_By_Element_Search_std_PK:
                     '''
                     
                     stds_from_trace_shift[i].append(std) #i-ty pattern, dodaj jego bierzące std
+                    
+                    print(f"start:: {start_pat}, end:: {end_pat}, shift:: {shift}, pat_no:: {i}")
+
 
                     powers.append(mean)
 
@@ -177,9 +177,10 @@ class Element_By_Element_Search_std_PK:
                         for xx in range(start_pat, end_pat):
                             power_debug[xx] = self.POWER_REC[xx]
                             pattern_debug[xx] = str(self.pat_array[i].hex)
-                    
                     break #koniec while
-            
+                if self.DEBUG_FLAG:
+                    power_debug_shift.append(power_debug)
+                    pattern_debug_shift.append(pattern_debug)
         #znajdz max std z każdego shifta
         x = 0
         ### find max std from all shifts 
@@ -195,7 +196,7 @@ class Element_By_Element_Search_std_PK:
         best_power = np.min(powers) if self.FIND_MIN else np.max(powers)
         best_idx = powers.index(best_power)
         
-        return best_idx, best_power, power_debug, pattern_debug, powers, stds_from_trace_shift_maxs, stds_from_trace_shift
+        return best_idx, best_power, power_debug_shift, pattern_debug_shift, powers, stds_from_trace_shift_maxs, stds_from_trace_shift
     
     def plot_stds(self, stds_maxs, n):
         lenght = len(stds_maxs)
@@ -243,8 +244,13 @@ class Element_By_Element_Search_std_PK:
                 pattern_write.append(pat.hex)
             
             if self.DEBUG_FLAG:
+                shift = 0
                 print(f"Pat:: {current_best_pattern}, Pow:: {current_best_power}")
-                self.write_debug_info(n, power_debug, pattern_debug)
+                for i in range(len(power_debug)):
+                    shift += 1
+                    power_debug_table = power_debug[i]
+                    pattern_debug_table = pattern_debug[i]
+                    self.write_debug_info(n, power_debug_table, pattern_debug_table, shift)
             
             ### rol_patterns
             for i in range(len(self.pat_array)):
