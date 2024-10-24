@@ -18,23 +18,28 @@ if __name__ == "__main__":
     generator = Generator(config)
     RIS = RIS(port='/dev/ttyUSB0')
     RIS.reset()
-    filename = "pomiar_piatek_po_spotkaniu_test_funkcji_std"
+    filename = "pomiar_test_funkcji_std"
     trace_file = 'trace_file_group_mesures_PK_test_empty_room'
     path = os.getcwd()
     no_file_set = True
-    i = 0
+    i = 1
     while no_file_set:
-        i += 1
         files = [f for f in os.listdir(path) if f.endswith('.csv')]
         for f in files:
-            if filename + str(i) + '.csv' == f or trace_file + str(i) + '.csv' == f:
+            #print(filename + f"_{str(i)}" + '.csv')
+            if filename + f"_{str(i)}" + '.csv' == f or trace_file + f"_{str(i)}" + '.csv' == f:
+                print(f"File {f} already exists")
+                i += 1
                 continue
             else:
                 filename = filename + f"_{str(i)}.csv"
                 trace_file = trace_file + f"_{str(i)}.csv"
                 no_file_set = False
                 break
-    Search_patterns = Element_By_Element_Search_std_PK(RIS, generator, analyzer, config, 4, 3, 3.0, 0.08, True, True, filename, False, trace_file, None)
+    # print(f"Filename: {filename}")
+    # print(f"Trace file: {trace_file}")
+    # sleep(10)
+    Search_patterns = Element_By_Element_Search_std_PK(RIS, generator, analyzer, config, 4, 3, 3.0, 0.08, True, True, filename, False, trace_file, None, True)
     #sleep(10)
     Search_patterns.run()
 

@@ -18,7 +18,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 
 class Element_By_Element_Search_std_PK:
-    def __init__(self, RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, TIME_SAFETY_MARGIN = 3.0, STD_TRS = 0.08, STD_CHECK_ON = True, DEBUG_FLAG = False, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, TRACE_FILE = 'trace_file_group_mesures.csv', TIME_FILE = None):
+    def __init__(self, RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, TIME_SAFETY_MARGIN = 3.0, STD_TRS = 0.08, STD_CHECK_ON = True, DEBUG_FLAG = False, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, TRACE_FILE = 'trace_file_group_mesures.csv', TIME_FILE = None, ONLY_FIRST = False):
         self.RIS = RIS
         self.GENERATOR = GENERATOR
         self.ANALYZER = ANALYZER
@@ -47,6 +47,7 @@ class Element_By_Element_Search_std_PK:
         self.N_pts_delete = int(10) * self.N_SIGMA
         self.plots_list = []
         self.pdf_file = PdfPages(MEASURE_FILE.split('.')[0] + '.pdf')
+        self.ONLY_FIRST = ONLY_FIRST
 
     def run(self, new_mesure_file_no = None):
         if new_mesure_file_no:
@@ -181,6 +182,8 @@ class Element_By_Element_Search_std_PK:
                 if self.DEBUG_FLAG:
                     power_debug_shift.append(power_debug)
                     pattern_debug_shift.append(pattern_debug)
+                    power_debug = [-150] * len(self.POWER_REC)
+                    pattern_debug = [None] * len(self.POWER_REC)
         #znajdz max std z każdego shifta
         x = 0
         ### find max std from all shifts 
@@ -246,11 +249,18 @@ class Element_By_Element_Search_std_PK:
             if self.DEBUG_FLAG:
                 shift = 0
                 print(f"Pat:: {current_best_pattern}, Pow:: {current_best_power}")
-                for i in range(len(power_debug)):
-                    shift += 1
-                    power_debug_table = power_debug[i]
-                    pattern_debug_table = pattern_debug[i]
-                    self.write_debug_info(n, power_debug_table, pattern_debug_table, shift)
+                if self.ONLY_FIRST and n == 0:
+                    for i in range(len(power_debug)):
+                        shift += 1
+                        power_debug_table = power_debug[i]
+                        pattern_debug_table = pattern_debug[i]
+                        self.write_debug_info(n, power_debug_table, pattern_debug_table, shift)
+                elif not self.ONLY_FIRST:
+                    for i in range(len(power_debug)):
+                        shift += 1
+                        power_debug_table = power_debug[i]
+                        pattern_debug_table = pattern_debug[i]
+                        self.write_debug_info(n, power_debug_table, pattern_debug_table, shift)
             
             ### rol_patterns
             for i in range(len(self.pat_array)):
