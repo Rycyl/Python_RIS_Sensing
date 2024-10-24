@@ -277,3 +277,9 @@ class Element_By_Element_Search_std_PK:
         self.meas_file.close()
         self.pdf_file.close()
         return
+
+
+####    DODAC DEF zwracający shift
+###     Rodzielić obliczanie shifta i fukcje zwracania sredniej
+#       dodac funkcje z rysunku do sprawdzania akuratnosci wybranego minimum std
+#       

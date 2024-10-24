@@ -1,5 +1,25 @@
 from RsSmw import *
 
+class Generator_Virtual():
+    def __init__(self, resource_name: str, id_query: bool = True, reset: bool = False, options: str = None, direct_session: object = None):
+        self.visa_timeout = 500000  
+        self.opc_timeout = 3000 
+        return
+
+    def com_check(self):
+        print("Hello, I'm a virtual Generator")
+        return
+    
+    def meas_prep(self, set, mode, amplitude : int, freq : int):
+        print("set")
+        return
+
+
+
+
+
+
+
 class Generator(RsSmw):
 
     def __init__(self, config):
