@@ -117,7 +117,6 @@ class Element_By_Element_Search_std_PK:
                 shift -= int(self.point_range * 0.07)
             else:
                 shift += int(self.point_range * 0.03)
-        
         return shift
     
     def measure_patterns(self):
@@ -132,6 +131,7 @@ class Element_By_Element_Search_std_PK:
         stds_from_trace_shift = [[]]*len(self.pat_array)
         shift = 0
         start_end_for_patterns = []
+        ### init patrange
         for i in range(len(self.pat_array)):
             start = int(i * self.point_range)
             end = int((i + 1) * self.point_range)
@@ -139,11 +139,14 @@ class Element_By_Element_Search_std_PK:
         end_pat = 0
         start_pat = 0
 
+        ### iterate shift
         while end_pat<len(self.POWER_REC)-1:
             shift += 1
             print(shift, start_pat, end_pat, len(self.POWER_REC))
+            ### iterate patterns
             for i in range(len(self.pat_array)):
                 enum = 0
+                ## pętla ale po co
                 while True:
                     enum += 1
                     start_pat = max(0, int(self.point_range * i + shift)) # self.N_pts_delete ))
@@ -166,11 +169,10 @@ class Element_By_Element_Search_std_PK:
                     '''
                     
                     stds_from_trace_shift[i].append(std) #i-ty pattern, dodaj jego bierzące std
-                    
-
-
 
                     powers.append(mean)
+
+                    
                     if self.DEBUG_FLAG:
                         for xx in range(start_pat, end_pat):
                             power_debug[xx] = self.POWER_REC[xx]
@@ -180,6 +182,7 @@ class Element_By_Element_Search_std_PK:
             
         #znajdz max std z każdego shifta
         x = 0
+        ### find max std from all shifts 
         while (x < shift):
             stds = []
             for i in range(len(self.pat_array)):
@@ -217,12 +220,13 @@ class Element_By_Element_Search_std_PK:
         
         return
 
-
-    
     def search(self):
         n = 0
         power_write = []
         pattern_write = []
+
+        #### loop all ris elements
+
         while n < 256:
             if self.TIME_FILE:
                 self.t1.append(time.time())
@@ -231,11 +235,10 @@ class Element_By_Element_Search_std_PK:
                 self.t0.append(time.time())
                 
             best_idx, current_best_power, power_debug, pattern_debug, powers, stds_maxs, stds_all = self.measure_patterns()
-            
             current_best_pattern = self.pat_array_copy[best_idx]
-            
             power_write.extend(powers)
             
+            ### copy pat_array
             for pat in self.pat_array_copy:
                 pattern_write.append(pat.hex)
             
@@ -243,6 +246,7 @@ class Element_By_Element_Search_std_PK:
                 print(f"Pat:: {current_best_pattern}, Pow:: {current_best_power}")
                 self.write_debug_info(n, power_debug, pattern_debug)
             
+            ### rol_patterns
             for i in range(len(self.pat_array)):
                 self.pat_array[i].rol(self.N_ELEMENTS)
                 self.pat_array_copy[i] = self.pat_array[i] | current_best_pattern
@@ -255,12 +259,12 @@ class Element_By_Element_Search_std_PK:
         self.save_plots_to_pdf()
         
         if self.TIME_FILE:
+            ### zamienic na w funkcji
             with open (f"{self.TIME_FILE}.csv", 'a+') as timefile:
                 timefile.write(str(self.t0)[1:-1])
                 timefile.write('\n')
                 timefile.write(str(self.t1)[1:-1])
                 timefile.close()
-
         return
     
     def __del__(self):
