@@ -6,15 +6,51 @@ import numpy as np
 #import json
 #from enum import Enum
 
-
-class RIS:
+class Virtual_RIS():
     def __init__(self, port, id = 0, timeout = 10, baudrate = 115200):
-        self.ser = serial.Serial(port, baudrate = baudrate, timeout = timeout)
-        self.ser.flushInput()
-        self.ser.flushOutput()
         self.id = id
         self.timeout = timeout
         self.c_pattern = "0x0000000000000000000000000000000000000000000000000000000000000000"
+        return
+
+    def set_pattern(self, pattern, ack_on = True):
+        self.c_pattern = pattern
+        if ack_on:
+            time.sleep(0.22)
+        else:
+            pass
+        return
+    
+    def reset(self):
+        self.c_pattern = "0x0000000000000000000000000000000000000000000000000000000000000000"
+        sleep(0.5)
+        return
+
+    def read_pattern(self):
+        return self.c_pattern
+
+
+class RIS(Virtual_RIS):
+    def __init__(self, port, id = 0, timeout = 10, baudrate = 115200):
+        try:
+            self.ser = serial.Serial(port, baudrate = baudrate, timeout = timeout)
+            self.ser.flushInput()
+            self.ser.flushOutput()
+            self.id = id
+            self.timeout = timeout
+            self.c_pattern = "0x0000000000000000000000000000000000000000000000000000000000000000"
+        except:
+            i = True
+            while(i):
+                i = input("Create virtual analyzer? [Y/n]?")
+                if i == 'Y' or i == 'y':
+                    Virtual_RIS.__init__(self, port, id = 0, timeout = 10, baudrate = 115200)
+                    break
+                if i == 'N' or i == 'n':
+                    exit()
+                    break
+        return
+            
         
     def __repr__(self):
         return f"RIS zostal podlaczony do portu {self.ser.port} z id = {self.id}"

@@ -5,10 +5,6 @@ import numpy as np
 class Analyzer_virtual:
     def __init__(self, resource_name: str, id_query: bool = True, reset: bool = False, options: str = None, direct_session: object = None):
         # Inicjalizacja atrybutów symulowanego analizatora
-        self.visa_manufacturer = "Silent Analyzer"
-        self.visa_timeout = 100000
-        self.opc_timeout = 300000
-        self.instrument_status_checking = True
         print("Silent Analyzer initialized. No physical device is connected.")
 
     def com_check(self):
@@ -53,21 +49,23 @@ class Analyzer(RsInstrument, Analyzer_virtual):
 
     def __init__(self, config):
         self.resource = f'TCPIP::{config.IP_ADDRESS_ANALYZER}::{config.PORT_ANALYZER}::{config.CONNECTION_TYPE}'  # Resource string for the device
+        self.visa_timeout = 5000  # Ustaw timeout na 5 sekund
         try:
             RsInstrument.__init__(self, self.resource, True, True, "SelectVisa='socket'")
+            self.com_prep()
+            self.com_check()
         except:
             print("[TIMEOUT ERROR] Check is  computer and generator is connected to the same local network. Then try again.")
             i = True
             while(i):
                 i = input("Create virtual analyzer? [Y/n]?")
                 if i == 'Y' or i == 'y':
-                    RsInstrument.__init__(self, self.resource, True, True, "SelectVisa='socket'")
+                    Analyzer_virtual.__init__(self, self.resource, True, True, "SelectVisa='socket'")
                     break
                 if i == 'N' or i == 'n':
                     exit()
                     break
-        self.com_prep()
-        self.com_check()
+        
 
     def com_prep(self):
         print(f'VISA Manufacturer: {self.visa_manufacturer}')  
@@ -104,7 +102,7 @@ class Analyzer(RsInstrument, Analyzer_virtual):
         return trace_data   
         
     def trace_get_mean_and_csv_save_trace(self, trace_file = "trace_file.csv"):
-        trace_data = self.trace_get
+        trace_data = self.trace_get()
         trace_len = len(trace_data)
         with open(trace_file, 'a+') as file:
             writer = csv.writer(file)
