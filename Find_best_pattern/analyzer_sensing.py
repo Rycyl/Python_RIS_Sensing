@@ -47,24 +47,24 @@ class Analyzer_virtual:
 
 class Analyzer(RsInstrument, Analyzer_virtual):
 
-    def __init__(self, config):
+    def __init__(self, config, phy_device = True):
         self.resource = f'TCPIP::{config.IP_ADDRESS_ANALYZER}::{config.PORT_ANALYZER}::{config.CONNECTION_TYPE}'  # Resource string for the device
-        self.visa_timeout = 5000  # Ustaw timeout na 5 sekund
-        try:
-            RsInstrument.__init__(self, self.resource, True, True, "SelectVisa='socket'")
-            self.com_prep()
-            self.com_check()
-        except:
-            print("[TIMEOUT ERROR] Check is  computer and generator is connected to the same local network. Then try again.")
-            i = True
-            while(i):
-                i = input("Create virtual analyzer? [Y/n]?")
-                if i == 'Y' or i == 'y':
+        if phy_device:
+            try:
+                RsInstrument.__init__(self, self.resource, True, True, "SelectVisa='socket'", "VisaTimeout = 5000")
+                self.com_prep()
+                self.com_check()
+            except:
+                print("[TIMEOUT ERROR] Check is  computer and generator is connected to the same local network. Then try again.")
+                i = input("Create virtual device? [Y/n]")
+                if i in ['y', 'Y']:
                     Analyzer_virtual.__init__(self, self.resource, True, True, "SelectVisa='socket'")
-                    break
-                if i == 'N' or i == 'n':
-                    exit()
-                    break
+        else:
+            Analyzer_virtual.__init__(self, self.resource, True, True, "SelectVisa='socket'")
+        return
+
+
+            
         
 
     def com_prep(self):

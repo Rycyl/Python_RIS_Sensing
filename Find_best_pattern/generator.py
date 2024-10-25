@@ -24,21 +24,20 @@ class Generator(RsSmw):
     def __init__(self, config):
         RsSmw.assert_minimum_version('5.0.44')
         self.resource = f'TCPIP::{config.IP_ADDRESS_GENERATOR}::{config.PORT_GENERATOR}::{config.CONNECTION_TYPE}'  # Resource string for the device
-        self.visa_timeout = 5000  # Ustaw timeout na 5 sekund
-        try:
-            RsSmw.__init__(self, self.resource, True, True, "SelectVisa='socket'")
-            self.com_check()
-        except TimeoutError or ConnectionAbortedError:
-            print("[TIMEOUT ERROR] Check is  computer and generator is connected to the same local network. Then try again.")
-            i = True
-            while(i):
-                i = input("Create virtual generator? [Y/n]?")
-                if i == 'Y' or i == 'y':
-                    Generator_Virtual.__init__(self, self.resource, True, True, "SelectVisa='socket'")
-                    break
-                if i == 'N' or i == 'n':
-                    exit()
-                    break
+        i = True
+        while(i):
+            i = input("Create simulated device? [Y/n]?")
+            if i == 'Y' or i == 'y':
+                RsSmw.__init__(self, self.resource, True, True, "Simulate=True, DriverSetup=No, SelectVisa='socket'")
+                self.com_check()
+                break
+            if i == 'N' or i == 'n':
+                try:
+                    RsSmw.__init__(self, self.resource, True, True, "SelectVisa='socket'")
+                    self.com_check()
+                except TimeoutError or ConnectionAbortedError:
+                    print("[TIMEOUT ERROR] Check is  computer and generator is connected to the same local network. Then try again.")
+                break
         
 
 
