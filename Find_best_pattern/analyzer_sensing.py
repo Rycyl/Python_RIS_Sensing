@@ -1,13 +1,23 @@
 from RsInstrument import *
 import csv
 import numpy as np
-from Traces import Traces
+from Traces import Trace
+from Traces import read_all_SWT
 
 class Analyzer_virtual:
     def __init__(self, config):
         self.config = config
+        self.traces = [] #tablica obj Trace
+        traces_init()
         # Inicjalizacja atrybutów symulowanego analizatora
         print("Silent Analyzer initialized. No physical device is connected.")
+
+    def traces_init():
+        SWTs = read_all_SWT()
+        self.traces = []
+        for S in SWTs:
+            self.traces.append(Trace(S))
+        return
 
     def com_check(self):
         # Zamiast komunikacji z urządzeniem, po prostu symulujemy odpowiedź
