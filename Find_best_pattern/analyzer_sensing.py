@@ -1,9 +1,11 @@
 from RsInstrument import *
 import csv
 import numpy as np
+from Traces import Traces
 
 class Analyzer_virtual:
-    def __init__(self, resource_name: str, id_query: bool = True, reset: bool = False, options: str = None, direct_session: object = None):
+    def __init__(self, config):
+        self.config = config
         # Inicjalizacja atrybutów symulowanego analizatora
         print("Silent Analyzer initialized. No physical device is connected.")
 
@@ -16,32 +18,33 @@ class Analyzer_virtual:
         print(f'Measurement prepared (simulated). freq: {freq}, span: {span}, mode: {mode}, revlevel: {revlevel}, rbw: {rbw}, swepnt: {swepnt}, swtcnt: {swtcnt}')
         print('Measurement time: simulated value')
 
+    def trace_get(self):
+        # Symulacja pobierania danych
+        SWT = config.sweptime
+        simulated_trace_data = []
+        for T in traces:
+            if T.SWT == SWT:
+                simulated_trace_data = T.return_trace()
+            else:
+                print("Can't find trace for given SWT, exiting....")
+                exit()
+        return simulated_trace_data
+
     def trace_get_mean_and_csv_save_trace(self, trace_file="trace_file.csv"):
         # Symulacja pobierania danych i zapisywania ich do pliku
-        simulated_trace_data = np.random.rand(100)  # Symulowane dane
-        mean_value = np.mean(simulated_trace_data)
-        print(f'Simulated trace data mean: {mean_value}')
-        
+        simulated_trace_data = self.trace_get()
+        mean_value = np.mean(simulated_trace_data)        
         with open(trace_file, 'a+') as file:
             writer = csv.writer(file)
             writer.writerow(simulated_trace_data)
-        
         return mean_value
 
     def trace_get_mean(self):
         # Symulacja pobierania średniej z danych
-        simulated_trace_data = np.random.rand(100)  # Symulowane dane
+        simulated_trace_data = self.trace_get()
         mean_value = np.mean(simulated_trace_data)
         print(f'Simulated trace data mean: {mean_value}')
         return mean_value
-
-    def trace_get(self):
-        # Symulacja pobierania danych
-        simulated_trace_data = np.random.rand(100)  # Symulowane dane
-        print(f'Simulated trace data: {simulated_trace_data}')
-        return simulated_trace_data
-
-
 
 
 
@@ -58,9 +61,9 @@ class Analyzer(RsInstrument, Analyzer_virtual):
                 print("[TIMEOUT ERROR] Check is  computer and generator is connected to the same local network. Then try again.")
                 i = input("Create virtual device? [Y/n]")
                 if i in ['y', 'Y']:
-                    Analyzer_virtual.__init__(self, self.resource, True, True, "SelectVisa='socket'")
+                    Analyzer_virtual.__init__(self, config=config)
         else:
-            Analyzer_virtual.__init__(self, self.resource, True, True, "SelectVisa='socket'")
+            Analyzer_virtual.__init__(self, config=config)
         return
 
 
