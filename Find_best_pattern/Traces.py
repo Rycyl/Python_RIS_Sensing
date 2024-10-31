@@ -1,5 +1,5 @@
 import random
-
+import csv
 
 class Traces:
     def __init__(self, SWT=1.1):
@@ -15,13 +15,26 @@ class Traces:
             raise ValueError("Trace must be a list.")
 
     def return_trace(self):
-        n = random.randint(len(trace))
-        return trace[n]
+        n = random.randint(0, len(self.Trace_list)-1)
+        return self.Trace_list[n]
 
-    def load_traces(trace_file_name):
-        
+    def load_traces(self, trace_file_name):
+        with open(trace_file_name, 'r') as f:
+            trace_reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC, quotechar= '|')
+            found_swt = False
+            for row in trace_reader:
+                if found_swt and row[0] == 'SWT':
+                    break
+                elif row[0] == 'SWT' and row[1] == self.SWT:
+                    found_swt = True
+                    continue
+                if found_swt:
+                    self.add_trace(row)
+        return 1
+
 
 # Example usage:
 if __name__ == "__main__":
-    traces = Traces(SWT=5)
+    traces = Traces(SWT=1.1)
+    print(traces.return_trace())
     
