@@ -4,7 +4,7 @@ import numpy as np
 from Traces import Trace
 from Traces import read_all_SWT
 
-class Analyzer_virtual:
+class Analyzer_virtual():
     def __init__(self, config):
         self.config = config
         self.traces = [] #tablica obj Trace
@@ -76,53 +76,67 @@ class Analyzer(RsInstrument, Analyzer_virtual):
             Analyzer_virtual.__init__(self, config=config)
         return
 
-
-            
-        
-
     def com_prep(self):
-        print(f'VISA Manufacturer: {self.visa_manufacturer}')  
-        self.visa_timeout = 100000  
-        self.opc_timeout = 300000  
-        self.instrument_status_checking = True  
-        self.clear_status()  
+        try:
+            print(f'VISA Manufacturer: {self.visa_manufacturer}')  
+            self.visa_timeout = 100000  
+            self.opc_timeout = 300000  
+            self.instrument_status_checking = True  
+            self.clear_status()
+        except:
+            Analyzer_virtual.com_prep()
         
     def com_check(self):
-        idn_response = self.query_str('*IDN?')
-        print('Hello, I am ' + idn_response)
+        try:
+            idn_response = self.query_str('*IDN?')
+            print('Hello, I am ' + idn_response)
+        except:
+            Analyzer_virtual.com_check()
         
     def meas_prep(self, freq : int, swt : int, span : int, mode : str, detector : str, revlevel : int, rbw : str, swepnt : int, swtcnt : int = 1):
-        self.write_str_with_opc('*RST')
-        self.write_str_with_opc(f'FREQuency:CENTer {freq}')  
-        self.write_str_with_opc(f'FREQuency:SPAN {span}')  
-        self.write_str_with_opc(f'BAND {rbw}')  
-        self.write_str_with_opc(f'DISPlay:TRACe1:MODE {mode}')  
-        self.write_str_with_opc(f'DISPlay:WINDow:TRACe:Y:SCALe:RLEVel {revlevel}')
-        self.write_str_with_opc(f'DET {detector}')
-        self.write_str_with_opc(f'SWE:COUNT {swtcnt}')
-        self.write_str_with_opc(f'SWEep:TIME {swt}')
-        self.write_str_with_opc(f'SWEep:POINts {swepnt}')
-        self.write_str_with_opc('INITiate:CONTinuous OFF')
-        mst = self.query_float('SWEep:DUR?')
-        print('Measurement prepared. freq:', freq, 'span:', span, 'mode:', mode, 'revlevel:', revlevel, 'rbw:', rbw, 'swepnt:', swepnt, 'swtcnt:', swtcnt)
-        print(f'Measurement time: {mst} s')
+        try:
+            self.write_str_with_opc('*RST')
+            self.write_str_with_opc(f'FREQuency:CENTer {freq}')  
+            self.write_str_with_opc(f'FREQuency:SPAN {span}')  
+            self.write_str_with_opc(f'BAND {rbw}')  
+            self.write_str_with_opc(f'DISPlay:TRACe1:MODE {mode}')  
+            self.write_str_with_opc(f'DISPlay:WINDow:TRACe:Y:SCALe:RLEVel {revlevel}')
+            self.write_str_with_opc(f'DET {detector}')
+            self.write_str_with_opc(f'SWE:COUNT {swtcnt}')
+            self.write_str_with_opc(f'SWEep:TIME {swt}')
+            self.write_str_with_opc(f'SWEep:POINts {swepnt}')
+            self.write_str_with_opc('INITiate:CONTinuous OFF')
+            mst = self.query_float('SWEep:DUR?')
+            print('Measurement prepared. freq:', freq, 'span:', span, 'mode:', mode, 'revlevel:', revlevel, 'rbw:', rbw, 'swepnt:', swepnt, 'swtcnt:', swtcnt)
+            print(f'Measurement time: {mst} s')
+        except:
+            Analyzer_virtual.meas_prep(freq, swt, span, mode, detector, revlevel, rbw, swepnt, swtcnt)
 
     def trace_get(self):
-        self.write_str_with_opc('INIT;*WAI')  
-        # Get y data (amplitude for each point)
-        trace_data = self.query_bin_or_ascii_float_list_with_opc('FORM REAL,32;:TRAC:DATA? TRACe1') 
-        #trace_len = len(trace_data)
-        return trace_data   
+        try:
+            self.write_str_with_opc('INIT;*WAI')  
+            # Get y data (amplitude for each point)
+            trace_data = self.query_bin_or_ascii_float_list_with_opc('FORM REAL,32;:TRAC:DATA? TRACe1') 
+            #trace_len = len(trace_data)
+            return trace_data   
+        except:
+            Analyzer_virtual.trace_get()
         
     def trace_get_mean_and_csv_save_trace(self, trace_file = "trace_file.csv"):
-        trace_data = self.trace_get()
-        trace_len = len(trace_data)
-        with open(trace_file, 'a+') as file:
-            writer = csv.writer(file)
-            writer.writerow(trace_data)
-            file.close() 
-        return np.mean(trace_data)   
+        try:
+            trace_data = self.trace_get()
+            trace_len = len(trace_data)
+            with open(trace_file, 'a+') as file:
+                writer = csv.writer(file)
+                writer.writerow(trace_data)
+                file.close() 
+            return np.mean(trace_data)
+        except:
+            Analyzer_virtual.trace_get_mean_and_csv_save_trace(trace_file)
 
     def trace_get_mean(self):
-        x = np.mean(self.trace_get())
-        return x
+        try:
+            x = np.mean(self.trace_get())
+            return x
+        except:
+            super().trace_get_mean()
