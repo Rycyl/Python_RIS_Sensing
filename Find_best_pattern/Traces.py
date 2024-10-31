@@ -1,11 +1,15 @@
 import random
 import csv
 
-def read_all_SWT(self): #czyta wszystkie swt z pliku z tracami Virt_anal_trace_data.csv
+def read_all_SWT(virtual_trace_file = "Virt_anal_trace_data.csv"): #czyta wszystkie swt z pliku z tracami Virt_anal_trace_data.csv
     SWTs = []
+    trace_reader = csv.reader(open(virtual_trace_file, 'r'), quoting=csv.QUOTE_NONNUMERIC, quotechar= '|')
+    for row in trace_reader:
+        if row[0] == 'SWT':
+            SWTs.append(row[1])
     return SWTs #tablica wszystkich swt z pliku
 
-class Traces:
+class Trace:
     def __init__(self, SWT=1.1):
         self.SWT = SWT  # Initialize SWT with a default value of 1.1
         self.Trace_list = []  # Initialize an empty list of traces
@@ -40,6 +44,6 @@ class Traces:
 
 # Example usage:
 if __name__ == "__main__":
-    traces = Traces(SWT=1.1)
+    traces = Trace(SWT=1.1)
     print(traces.return_trace())
     
