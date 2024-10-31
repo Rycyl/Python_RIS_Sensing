@@ -8,11 +8,11 @@ class Analyzer_virtual():
     def __init__(self, config):
         self.config = config
         self.traces = [] #tablica obj Trace
-        traces_init()
+        self.traces_init()
         # Inicjalizacja atrybutów symulowanego analizatora
         print("Silent Analyzer initialized. No physical device is connected.")
 
-    def traces_init():
+    def traces_init(self):
         SWTs = read_all_SWT()
         self.traces = []
         for S in SWTs:
@@ -30,9 +30,9 @@ class Analyzer_virtual():
 
     def trace_get(self):
         # Symulacja pobierania danych
-        SWT = config.sweptime
+        SWT = self.config.sweptime
         simulated_trace_data = []
-        for T in traces:
+        for T in self.traces:
             if T.SWT == SWT:
                 simulated_trace_data = T.return_trace()
             else:
