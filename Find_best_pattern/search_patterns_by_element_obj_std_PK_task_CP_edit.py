@@ -36,7 +36,7 @@ class Element_By_Element_Search_std_PK:
         self.RIS_change_time = 0.022
         self.combinations = 2 ** self.N_ELEMENTS
         self.pat_array, self.pat_array_copy = self.prepare_patterns()
-        self.current_best_power = 1000.0 if self.FIND_MIN else -1000.0
+        self.self.best_power = 1000.0 if self.FIND_MIN else -1000.0
         self.update_config_sweep_time()
         self.GENERATOR.meas_prep(True, self.CONFIG.generator_mode, self.CONFIG.generator_amplitude, self.CONFIG.freq)
         self.ANALYZER.meas_prep(self.CONFIG.freq, self.CONFIG.sweptime, self.CONFIG.span, self.CONFIG.analyzer_mode, self.CONFIG.detector, self.CONFIG.revlevel, self.CONFIG.rbw, self.CONFIG.swepnt)
@@ -48,6 +48,19 @@ class Element_By_Element_Search_std_PK:
         self.plots_list = []
         self.pdf_file = PdfPages(MEASURE_FILE.split('.')[0] + '.pdf')
         self.ONLY_FIRST = ONLY_FIRST
+        self.powers = None
+        self.stds_from_trace_shift_maxs = None
+        self.stds_from_trace_shift = None
+        self.shift = None
+        self.end_pat = None
+        self.start_pat = None
+        self.best_idx = None
+        self.best_power  = None
+        self.power_debug_shift  = None
+        self.pattern_debug_shift  = None
+        self.powers = None
+        self.stds_from_trace_shift_maxs = None
+        self.stds_from_trace_shift = None
 
     def run(self, new_mesure_file_no = None):
         if new_mesure_file_no:
@@ -77,12 +90,12 @@ class Element_By_Element_Search_std_PK:
             return file, t0, t1
         return file, None, None
     
-    def write_debug_info(self, n, power_debug, pattern_debug, shift):
+    def write_debug_info(self, n, self.power_debug_shift, self.pattern_debug_shift, self.shift):
         with open (self.TRACE_FILE, 'a+') as trace_f:
-            trace_f.write(f'"Grupowy pomiar N_el{self.N_ELEMENTS} 1szy opt elem w sekwencji={n}||SWT = {self.CONFIG.sweptime}|| ||Shift = {shift}||"\n')
+            trace_f.write(f'"Grupowy pomiar N_el{self.N_ELEMENTS} 1szy opt elem w sekwencji={n}||SWT = {self.CONFIG.sweptime}|| ||Shift = {self.shift}||"\n')
             trace_f.write(f'{str(self.POWER_REC)[1:-1]}\n')
-            trace_f.write(f'{str(power_debug)[1:-1]}\n')
-            for napis in pattern_debug:
+            trace_f.write(f'{str(self.power_debug_shift)[1:-1]}\n')
+            for napis in self.pattern_debug_shift:
                 trace_f.write(f'"{str(napis)}",')
             trace_f.write('\n')
     
@@ -110,118 +123,119 @@ class Element_By_Element_Search_std_PK:
         
         if max_out:
             if power_slice.index(maxpow) < (self.point_range * 0.7):
-                shift -= int(self.point_range * 0.07)
+                self.shift -= int(self.point_range * 0.07)
             else:
-                shift += int(self.point_range * 0.03)
+                self.shift += int(self.point_range * 0.03)
         else:
             if power_slice.index(minpow) < (self.point_range * 0.3):
-                shift -= int(self.point_range * 0.07)
+                self.shift -= int(self.point_range * 0.07)
             else:
-                shift += int(self.point_range * 0.03)
-        return shift
+                self.shift += int(self.point_range * 0.03)
+        return self.shift
     
-    def measure_patterns(self):
-        if self.DEBUG_FLAG:
-            power_debug = [-150] * len(self.POWER_REC)
-            pattern_debug = [None] * len(self.POWER_REC)
-            power_debug_shift =[]
-            pattern_debug_shift = []
-        else:
-            power_debug = None
-            pattern_debug = None
-        powers = []
-        stds_from_trace_shift_maxs = []
-        stds_from_trace_shift = [[]]*len(self.pat_array)
-        shift = 0
-        end_pat = 0
-        start_pat = 0
 
-        ### iterate shift
-        while end_pat<len(self.POWER_REC)-1:
-            shift += 1
+
+    def iterate_by_group_of_patterns(self):
+        for i in range(len(self.pat_array)):
             enum = 0
-            print(shift, start_pat, end_pat, len(self.POWER_REC))
-            ### iterate patterns
-            for i in range(len(self.pat_array)):
-                enum = 0
-                ## pętla ale po co
-                while True:
-                    enum += 1
-                    start_pat = max(0, int(self.point_range * i + shift)) # self.N_pts_delete ))
-                    end_pat = min(len(self.POWER_REC), int(self.point_range * (i + 1) + shift )) #- self.N_pts_delete ))
-                    start_pat = min(start_pat, end_pat)
-                    power_slice = self.POWER_REC[start_pat:end_pat]
-                    if power_slice == []:
-                        break
-                    std = np.std(power_slice)
-                    mean = np.mean(power_slice)
-                    
-                    if self.DEBUG_FLAG:
-                        print(f"STD:: {std}, mean:: {mean}, enum:: {enum}, len_power_slice:: {len(power_slice)}")
-                    
-                    '''    
-                    if std > self.STD_TRS and self.STD_CHECK_ON and enum < 20 and i == 0 and len(power_slice)>20:
-                        shift = self.calculate_shift(power_slice, std, mean)
-                        print(f"shift:: {shift}")
-                        continue
-                    '''
-                    
-                    stds_from_trace_shift[i].append(std) #i-ty pattern, dodaj jego bierzące std
-                    
-                    print(f"start:: {start_pat}, end:: {end_pat}, shift:: {shift}, pat_no:: {i}")
-
-
-                    powers.append(mean)
-
-                    
-                    if self.DEBUG_FLAG:
-                        for xx in range(start_pat, end_pat):
-                            power_debug[xx] = self.POWER_REC[xx]
-                            pattern_debug[xx] = str(self.pat_array[i].hex)
-                    break #koniec while
+            ## pętla ale po co
+            while True:
+                enum += 1
+                self.start_pat = max(0, int(self.point_range * i + self.shift)) # self.N_pts_delete ))
+                self.end_pat = min(len(self.POWER_REC), int(self.point_range * (i + 1) + self.shift )) #- self.N_pts_delete ))
+                self.start_pat = min(self.start_pat, self.end_pat)
+                power_slice = self.POWER_REC[self.start_pat:self.end_pat]
+                if power_slice == []:
+                    break
+                std = np.std(power_slice)
+                mean = np.mean(power_slice)
+                
                 if self.DEBUG_FLAG:
-                    power_debug_shift.append(power_debug)
-                    pattern_debug_shift.append(pattern_debug)
-                    power_debug = [-150] * len(self.POWER_REC)
-                    pattern_debug = [None] * len(self.POWER_REC)
-        #znajdz max std z każdego shifta
+                    print(f"STD:: {std}, mean:: {mean}, enum:: {enum}, len_power_slice:: {len(power_slice)}")
+
+                self.stds_from_trace_shift[i].append(std) #i-ty pattern, dodaj jego bierzące std
+
+                print(f"start:: {self.start_pat}, end:: {self.end_pat}, self.shift:: {self.shift}, pat_no:: {i}")
+
+                self.powers.append(mean)
+                
+                if self.DEBUG_FLAG:
+                    for xx in range(self.start_pat, self.end_pat):
+                        self.power_debug_shift[xx] = self.POWER_REC[xx]
+                        self.pattern_debug_shift[xx] = str(self.pat_array[i].hex)
+                break #koniec while
+            if self.DEBUG_FLAG:
+                self.power_debug_shift.append(self.power_debug_shift)
+                self.pattern_debug_shift.append(self.pattern_debug_shift)
+                self.power_debug_shift = [-150] * len(self.POWER_REC)
+                self.pattern_debug_shift = [None] * len(self.POWER_REC)
+
+
+    def iterate_shift(self):
+        while self.end_pat<len(self.POWER_REC)-1:
+            self.shift += 1
+            enum = 0
+            print(self.shift, self.start_pat, self.end_pat, len(self.POWER_REC))
+            ### iterate patterns
+            iterate_by_group_of_patterns()
+            
+
+    def find_max_std_from_each_shift(self):
         x = 0
-        ### find max std from all shifts 
-        while (x < shift):
+        while (x < self.shift):
             stds = []
             for i in range(len(self.pat_array)):
-                stds.append(stds_from_trace_shift[i][x])                
-            stds_from_trace_shift_maxs.append(np.max(stds))
+                stds.append(self.stds_from_trace_shift[i][x])                
+            self.stds_from_trace_shift_maxs.append(np.max(stds))
             x+=1
-        #temp powers cut for std checkout##############33
-        powers = powers[0:len(self.pat_array)]
-        ###############################################33
-        best_power = np.min(powers) if self.FIND_MIN else np.max(powers)
-        best_idx = powers.index(best_power)
+        return
+
+    def measure_patterns(self):
+        if self.DEBUG_FLAG:
+            self.power_debug_shift = [-150] * len(self.POWER_REC)
+            self.pattern_debug_shift = [None] * len(self.POWER_REC)
+            self.power_debug_shift =[]
+            self.pattern_debug_shift = []
+        else:
+            self.power_debug_shift = None
+            self.pattern_debug_shift = None
+        self.powers = []
+        self.stds_from_trace_shift_maxs = []
+        self.stds_from_trace_shift = [[]]*len(self.pat_array)
+        self.shift = 0
+        self.end_pat = 0
+        self.start_pat = 0
+
+        ### iterate self.shift
+        iterate_shift()
         
-        return best_idx, best_power, power_debug_shift, pattern_debug_shift, powers, stds_from_trace_shift_maxs, stds_from_trace_shift
+        #znajdz max std z każdego shifta
+        find_max_std_from_each_shift()
+        
+        #temp self.powers cut for std checkout##############33
+        self.powers = self.powers[0:len(self.pat_array)]
+        ###############################################33
+        self.best_power = np.min(self.powers) if self.FIND_MIN else np.max(self.powers)
+        self.best_idx = self.powers.index(self.best_power)
+        
+        return
     
-    def plot_stds(self, stds_maxs, n):
-        lenght = len(stds_maxs)
+    def plot_stds(self, self.stds_from_trace_shift_maxs, n):
+        lenght = len(self.stds_from_trace_shift_maxs)
         shifts = np.arange(lenght)
         fig = plt.figure(layout= "constrained", figsize= (15, 7))
         plt.subplot(1, 1, 1)
         plt.grid()
         plt.xlabel('Delta_X')
         plt.ylabel('Max_sigma^2')
-        plt.title('Maximal std for eavry shift')
-        
-        plt.plot(shifts, stds_maxs, label = f"STDS for N = {n}")
-
+        plt.title('Maximal std for eavry self.shift')
+        plt.plot(shifts, self.stds_from_trace_shift_maxs, label = f"STDS for N = {n}")
         self.plots_list.append(fig)
-
         return
     
     def save_plots_to_pdf(self):
-
         for fig in self.plots_list:
             fig.savefig(self.pdf_file, format='pdf')
-        
         return
 
     def search(self):
@@ -238,36 +252,36 @@ class Element_By_Element_Search_std_PK:
             if self.TIME_FILE:
                 self.t0.append(time.time())
                 
-            best_idx, current_best_power, power_debug, pattern_debug, powers, stds_maxs, stds_all = self.measure_patterns()
-            current_best_pattern = self.pat_array_copy[best_idx]
-            power_write.extend(powers)
+            self.measure_patterns()
+            current_best_pattern = self.pat_array_copy[self.best_idx]
+            power_write.extend(self.powers)
             
             ### copy pat_array
             for pat in self.pat_array_copy:
                 pattern_write.append(pat.hex)
             
             if self.DEBUG_FLAG:
-                shift = 0
-                print(f"Pat:: {current_best_pattern}, Pow:: {current_best_power}")
+                self.shift = 0
+                print(f"Pat:: {current_best_pattern}, Pow:: {self.best_power}")
                 if self.ONLY_FIRST and n == 0:
-                    for i in range(len(power_debug)):
-                        shift += 1
-                        power_debug_table = power_debug[i]
-                        pattern_debug_table = pattern_debug[i]
-                        self.write_debug_info(n, power_debug_table, pattern_debug_table, shift)
+                    for i in range(len(self.power_debug_shift)):
+                        self.shift += 1
+                        power_debug_table = self.power_debug_shift[i]
+                        pattern_debug_table = self.pattern_debug_shift[i]
+                        self.write_debug_info(n, power_debug_table, pattern_debug_table, self.shift)
                 elif not self.ONLY_FIRST:
-                    for i in range(len(power_debug)):
-                        shift += 1
-                        power_debug_table = power_debug[i]
-                        pattern_debug_table = pattern_debug[i]
-                        self.write_debug_info(n, power_debug_table, pattern_debug_table, shift)
+                    for i in range(len(self.power_debug_shift)):
+                        self.shift += 1
+                        power_debug_table = self.power_debug_shift[i]
+                        pattern_debug_table = self.pattern_debug_shift[i]
+                        self.write_debug_info(n, power_debug_table, pattern_debug_table, self.shift)
             
             ### rol_patterns
             for i in range(len(self.pat_array)):
                 self.pat_array[i].rol(self.N_ELEMENTS)
                 self.pat_array_copy[i] = self.pat_array[i] | current_best_pattern
             
-            self.plot_stds(stds_maxs, n)
+            self.plot_stds(self.stds_from_trace_shift_maxs, n)
             
             n += self.N_ELEMENTS
         
