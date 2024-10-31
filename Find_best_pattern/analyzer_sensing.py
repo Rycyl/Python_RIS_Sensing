@@ -120,7 +120,7 @@ class Analyzer(RsInstrument, Analyzer_virtual):
             #trace_len = len(trace_data)
             return trace_data   
         except:
-            Analyzer_virtual.trace_get()
+            return super().trace_get()
         
     def trace_get_mean_and_csv_save_trace(self, trace_file = "trace_file.csv"):
         try:
