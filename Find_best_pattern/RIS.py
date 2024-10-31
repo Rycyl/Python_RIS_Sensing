@@ -6,8 +6,28 @@ import numpy as np
 #import json
 #from enum import Enum
 
+class Virtual_RIS():
+    def __init__(self, port, id = 0, timeout = 10, baudrate = 115200):
+        self.c_pattern = "0x0000000000000000000000000000000000000000000000000000000000000000"
+        return
 
-class RIS:
+    def set_pattern(self, pattern, ack_on = True):
+        self.c_pattern = pattern
+        if ack_on:
+            time.sleep(0.22)
+        else:
+            pass
+        return
+    
+    def reset(self):
+        self.c_pattern = "0x0000000000000000000000000000000000000000000000000000000000000000"
+        time.sleep(0.5)
+        return
+
+    def read_pattern(self):
+        return self.c_pattern
+
+class Physical_RIS():
     def __init__(self, port, id = 0, timeout = 10, baudrate = 115200):
         self.ser = serial.Serial(port, baudrate = baudrate, timeout = timeout)
         self.ser.flushInput()
@@ -15,6 +35,8 @@ class RIS:
         self.id = id
         self.timeout = timeout
         self.c_pattern = "0x0000000000000000000000000000000000000000000000000000000000000000"
+        return
+            
         
     def __repr__(self):
         return f"RIS zostal podlaczony do portu {self.ser.port} z id = {self.id}"
@@ -66,8 +88,23 @@ class RIS:
             if time.time() - start_time > self.timeout:
                 return "TIMEOUT"
 
-    #Reszta do dorobiena jak będzie czas / potrzeba
 
+
+class RIS(Virtual_RIS, Physical_RIS):
+    def __init__(self, port, id = 0, timeout = 10, baudrate = 115200):
+        try:
+            Physical_RIS.__init__(self, port, id = 0, timeout = 10, baudrate = 115200)
+        except:
+            i = True
+            while(i):
+                i = input("Create virtual RIS? [Y/n]?")
+                if i == 'Y' or i == 'y':
+                    Virtual_RIS.__init__(self, port, id = 0, timeout = 10, baudrate = 115200)
+                    break
+                if i == 'N' or i == 'n':
+                    exit()
+                    break
+        return
 
 
         

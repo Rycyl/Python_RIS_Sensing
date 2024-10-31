@@ -5,6 +5,7 @@ from RIS import RIS
 #import search_patterns
 from search_patterns_by_element_obj_std_PK_task_CP_edit import Element_By_Element_Search_std_PK
 import os
+import search_patterns 
 
 import numpy as np
 
@@ -36,14 +37,11 @@ if __name__ == "__main__":
                 trace_file = trace_file + f"_{str(i)}.csv"
                 no_file_set = False
                 break
-    # print(f"Filename: {filename}")
-    # print(f"Trace file: {trace_file}")
-    # sleep(10)
-    Search_patterns = Element_By_Element_Search_std_PK(RIS, generator, analyzer, config, 4, 3, 3.0, 0.08, True, True, filename, False, trace_file, None, True)
+    #Search_patterns = Element_By_Element_Search_std_PK(RIS, generator, analyzer, config, 4, 3, 3.0, 0.08, True, True, filename, False, trace_file, None)
     #sleep(10)
-    Search_patterns.run()
-
-    del Search_patterns
+    #Search_patterns.run()
+    search_patterns.find_best_pattern_codebook(RIS, generator, analyzer, config, 'test_virt.csv')
+    #del Search_patterns
     generator.close()
     analyzer.close()
     exit()
