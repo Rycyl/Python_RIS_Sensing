@@ -31,14 +31,20 @@ class Analyzer_virtual():
     def trace_get(self):
         # Symulacja pobierania danych
         SWT = self.config.sweptime
+        #print("------------------------")
+        #print(f"Aktualne SWT to {SWT}")
+        #print(type(SWT))
+        #print("------------------------")
         simulated_trace_data = []
         for T in self.traces:
+            #print(f"Znalezione SWT {T.SWT}")
+            #print(type(T.SWT))
+            #print("-----------------------")
             if T.SWT == SWT:
                 simulated_trace_data = T.return_trace()
-            else:
-                print("Can't find trace for given SWT, exiting....")
-                exit()
-        return simulated_trace_data
+                return simulated_trace_data
+        print("Can't find trace for given SWT, exiting....")
+        exit()
 
     def trace_get_mean_and_csv_save_trace(self, trace_file="trace_file.csv"):
         # Symulacja pobierania danych i zapisywania ich do pliku

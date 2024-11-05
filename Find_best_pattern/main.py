@@ -37,11 +37,11 @@ if __name__ == "__main__":
                 trace_file = trace_file + f"_{str(i)}.csv"
                 no_file_set = False
                 break
-    #Search_patterns = Element_By_Element_Search_std_PK(RIS, generator, analyzer, config, 4, 3, 3.0, 0.08, True, True, filename, False, trace_file, None)
+    Search_patterns = Element_By_Element_Search_std_PK(RIS, generator, analyzer, config, 4, 3, 3.0, 0.08, True, True, filename, False, trace_file, None)
     #sleep(10)
-    #Search_patterns.run()
-    search_patterns.find_best_pattern_codebook(RIS, generator, analyzer, config, 'test_virt.csv')
-    #del Search_patterns
+    Search_patterns.run()
+    #search_patterns.find_best_pattern_codebook(RIS, generator, analyzer, config, 'test_virt.csv')
+    del Search_patterns
     generator.close()
     analyzer.close()
     exit()
