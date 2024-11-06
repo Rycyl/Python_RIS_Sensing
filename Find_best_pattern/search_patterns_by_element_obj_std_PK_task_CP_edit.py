@@ -158,14 +158,9 @@ class Element_By_Element_Search_std_PK:
                 for xx in range(self.start_pat, self.end_pat):
                     power_debug_shift_local[xx] = self.POWER_REC[xx]
                     pattern_debug_shift_local[xx] = str(self.pat_array[i].hex)
-                print("-------iter_by_grup_debug----------")
-                print(f"Power debug: {power_debug_shift_local}")
-                print(f"Pattern debug: {pattern_debug_shift_local}")
-                print("------------------------------------")
-                self.power_debug_shift.append(self.power_debug_shift)
-                self.pattern_debug_shift.append(self.pattern_debug_shift)
-                power_debug_shift_local = [-150] * len(self.POWER_REC)
-                pattern_debug_shift_local = [None] * len(self.POWER_REC)
+        self.power_debug_shift.append(power_debug_shift_local)
+        self.pattern_debug_shift.append(pattern_debug_shift_local)
+        #print(f"Power_debug_shift_3:: {self.power_debug_shift}")
         return
 
 
@@ -175,6 +170,10 @@ class Element_By_Element_Search_std_PK:
             print(self.shift, self.start_pat, self.end_pat, len(self.POWER_REC))
             ### iterate patterns
             self.iterate_by_group_of_patterns()
+            #print("Exiting iterate_by_group_of_patterns")
+            #print(f"Power_debug_shift_4:: {self.power_debug_shift}")
+        #print(f"Shift:: {self.shift}")
+        #print("Exiting iterate_shift")
         return
 
     def find_max_std_from_each_shift(self):
@@ -190,16 +189,20 @@ class Element_By_Element_Search_std_PK:
     def measure_patterns(self):
         if self.DEBUG_FLAG:
             self.power_debug_shift =[]
+            #print("DEBUG_FLAG:: ", self.DEBUG_FLAG)
+            #print("POWER_DEBUG_SHIFT_1:: ", self.power_debug_shift)
             self.pattern_debug_shift = []
         self.powers = []
         self.stds_from_trace_shift_maxs = []
         self.stds_from_trace_shift = [[]]*len(self.pat_array)
-        self.shift = 0
+        self.shift = -1
         self.end_pat = 0
         self.start_pat = 0
 
         ### iterate self.shift
         self.iterate_shift()
+        #print("Exiting measure_patterns")
+        #print(f"Power_debug_shift_2:: {self.power_debug_shift}")
         
         #znajdz max std z każdego shifta
         self.find_max_std_from_each_shift()
@@ -254,31 +257,41 @@ class Element_By_Element_Search_std_PK:
             
             if self.DEBUG_FLAG:
                 shift_iter = 0
+                print("############################################################")
                 print(f"Pat:: {current_best_pattern}, Pow:: {self.best_power}")
+                #print("self.power_debug_shift")
+                #print(self.power_debug_shift)
+                print("############################################################")
                 if self.ONLY_FIRST and n == 0:
                     for i in range(len(self.power_debug_shift)):
                         shift_iter += 1
                         power_debug_table = self.power_debug_shift[i]
-                        print(f"Only first {self.ONLY_FIRST}")
-                        print("-----------------")
-                        print(f"Power debug: {power_debug_table}")
+                        #print(f"Only first {self.ONLY_FIRST}")
+                        #print("-----------------")
+                        #print(f"Power debug: {power_debug_table}")
                         pattern_debug_table = self.pattern_debug_shift[i]
-                        print(f"Pattern debug: {pattern_debug_table}")
-                        print("------------------")
+                        #print(f"Pattern debug: {pattern_debug_table}")
+                        #print("------------------")
                         self.write_debug_info(n, power_debug_table, pattern_debug_table, shift_iter)
                 elif not self.ONLY_FIRST:
                     for i in range(len(self.power_debug_shift)):
                         shift_iter += 1
                         power_debug_table = self.power_debug_shift[i]
-                        print(f"Only first {self.ONLY_FIRST}")
-                        print("-----------------")
-                        print(f"Power debug: {power_debug_table}")
-                        for power in power_debug_table:
-                            print(power)
-                        print(self.power_debug_shift)
+                        #print(f"Only first {self.ONLY_FIRST}")
+                        #print("-----------------")
+                        #print(f"Power debug: {power_debug_table}")
+                        # for power in power_debug_table:
+                        #     #print("Indent 1")
+                        #     #print(len(power))
+                        #     for p in power:
+                        #         #print("Indent 2")
+                        #         #print(p)
+                        #         #print(len(p))
+                        #print("------------------")
+                        #print(self.power_debug_shift)
                         pattern_debug_table = self.pattern_debug_shift[i]
-                        print(f"Pattern debug: {pattern_debug_table}")
-                        print("------------------")
+                        #print(f"Pattern debug: {pattern_debug_table}")
+                        ##print("------------------")
                         self.write_debug_info(n, power_debug_table, pattern_debug_table, shift_iter)
             
             ### rol_patterns

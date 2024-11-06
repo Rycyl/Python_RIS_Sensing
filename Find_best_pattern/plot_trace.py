@@ -93,13 +93,16 @@ def plot_trace(data):
     return 1
 
 
-def extract_trace(trace_file):
+def extract_trace(trace_file, only_full_trace=False):
     data = []
     with open(trace_file, 'r') as f:
         trace_reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
         for row in trace_reader:
             if len(data) == 4:
-                plot_trace(data)
+                if only_full_trace:
+                    plot_trace_no_pats(data)
+                else:
+                    plot_trace(data)
                 data = []
             data.append(row)
 
@@ -124,42 +127,40 @@ def run_all():
         save_plots_to_pdf(trace_file.split('.')[0] + '.pdf')
         plt.close('all')
 
+def plot_trace_no_pats(data):
+    header = data[0]
+    full_trace = data[1]
+    plt.rcParams["figure.figsize"] = (16, 9)
+    x = np.arange(len(full_trace))
+    plt.figure()
+    plt.grid()
+    plt.xlabel('Point')
+    plt.ylabel('Power')
+    plt.title('Full Trace')
+    plt.plot(x, full_trace, label='Full Trace')
+    plt.xlim(0, len(full_trace))
+
+    return 1
+
 
 if __name__ == '__main__':
-    # print(plt.rcParams["axes.prop_cycle"].by_key()['color'])
-    # exit()
     path = os.getcwd()
-    # filename = 'trace_file_group_444444'
-    # filename = 'trace_file_group_4'
-    # file_path = os.path.join(path, filename + '.csv')
-    # extract_trace(file_path)
-    # save_plots_to_pdf(filename + '.pdf')
-    # plt.close('all')
+    path = os.path.join(path, 'Wyniki_10do20_X')
+    trace_files = ['trace_file_group_mesures_PK_test_empty_room.csv']
     # trace_files = [f for f in os.listdir(path) if f.endswith('.csv') and f.startswith('trace_file_group')]
-    # for trace_file in trace_files:
-    #     file_path = os.path.join(path, trace_file)
-    #     extract_trace(file_path)
-    #     save_plots_to_pdf(trace_file.split('.')[0] + '.pdf')
-    #     plt.close('all')
-    #path = os.path.join(path, "Wyniki_TEAMS")
-    # filename = 'trace_file_group_444444'
-    # file_path = os.path.join(path, filename + '.csv')
-    # extract_trace(file_path)
-    # save_plots_to_pdf(filename + '.pdf')
-    # plt.close('all')
-    trace_files = [f for f in os.listdir(path) if f.endswith('.csv') and f.startswith('trace_file_group')]
-    pdf_files = [f for f in os.listdir(path) if f.endswith('.pdf') and f.startswith('trace_file_group')]
-    for pdf_file in pdf_files:
-        pdf_file_name = pdf_file.split('.')[0]
-        for trace_file in trace_files:
-            trace_name = trace_file.split('.')[0]
-            if trace_name == pdf_file_name:
-                trace_files.remove(trace_file)
+    # pdf_files = [f for f in os.listdir(path) if f.endswith('.pdf') and f.startswith('trace_file_group')]
+    # for pdf_file in pdf_files:
+    #     pdf_file_name = pdf_file.split('.')[0]
+    #     for trace_file in trace_files:
+    #         trace_name = trace_file.split('.')[0]
+    #         if trace_name == pdf_file_name:
+    #             trace_files.remove(trace_file)
     for trace_file in trace_files:
         print(trace_file)
         file_path = os.path.join(path, trace_file)
-        extract_trace(file_path)
-        pdf_file_path = os.path.join(path, trace_file.split('.')[0] + '.pdf')
+        extract_trace(file_path, only_full_trace=True)
+        pdf_file_path = os.path.join(path, trace_file.split('.')[0] + 'only_trace.pdf')
         save_plots_to_pdf(pdf_file_path)
         plt.close('all')
+    exit()
 
