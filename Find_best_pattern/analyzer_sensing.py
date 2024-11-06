@@ -62,6 +62,9 @@ class Analyzer_virtual():
         print(f'Simulated trace data mean: {mean_value}')
         return mean_value
 
+    def close(self):
+        print("Analyzer closed")
+
 
 
 class Analyzer(RsInstrument, Analyzer_virtual):
@@ -146,3 +149,9 @@ class Analyzer(RsInstrument, Analyzer_virtual):
             return x
         except:
             super().trace_get_mean()
+
+    def close(self):
+        try:
+            RsInstrument.close(self)
+        except:
+            Analyzer_virtual.close(self)
