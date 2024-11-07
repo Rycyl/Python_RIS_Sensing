@@ -14,6 +14,7 @@ class Virtual_RIS():
     def set_pattern(self, pattern, ack_on = True):
         self.c_pattern = pattern
         if ack_on:
+            print(f"Pattern {pattern} set")
             time.sleep(0.22)
         else:
             pass
@@ -35,6 +36,7 @@ class Physical_RIS():
         self.id = id
         self.timeout = timeout
         self.c_pattern = "0x0000000000000000000000000000000000000000000000000000000000000000"
+        print(f"RIS zostal podlaczony do portu {self.ser.port} z id = {self.id}")
         return
             
         
@@ -52,6 +54,7 @@ class Physical_RIS():
                 #print(response)
                 if response == "#OK":
                     self.c_pattern = pattern
+                    #print(f"Pattern {pattern} set")
                     return True
                 if time.time() - start_time > self.timeout:
                     return False
@@ -90,21 +93,26 @@ class Physical_RIS():
 
 
 
-class RIS(Virtual_RIS, Physical_RIS):
-    def __init__(self, port, id = 0, timeout = 10, baudrate = 115200):
+class RIS:
+    def __init__(self, port, id=0, timeout=10, baudrate=115200):
         try:
-            Physical_RIS.__init__(self, port, id = 0, timeout = 10, baudrate = 115200)
-        except:
-            i = True
-            while(i):
-                i = input("Create virtual RIS? [Y/n]?")
-                if i == 'Y' or i == 'y':
-                    Virtual_RIS.__init__(self, port, id = 0, timeout = 10, baudrate = 115200)
-                    break
-                if i == 'N' or i == 'n':
-                    exit()
-                    break
-        return
+            print("Attempting to connect to Physical RIS...")
+            self.ris = Physical_RIS(port, id=id, timeout=timeout, baudrate=baudrate)
+            self.is_physical = True
+            print("Connected to Physical RIS.")
+        except Exception as e:
+            print(f"Physical RIS connection failed: {e}")
+            choice = input("Create virtual RIS? [Y/n]: ")
+            if choice.lower() == 'y':
+                self.ris = Virtual_RIS(port, id=id, timeout=timeout, baudrate=baudrate)
+                self.is_physical = False
+                print("Virtual RIS created.")
+            else:
+                print("Exiting...")
+                exit()
+
+    def __getattr__(self, name):
+        return getattr(self.ris, name)
 
 
         

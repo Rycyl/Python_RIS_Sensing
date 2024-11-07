@@ -15,10 +15,6 @@ class Generator_Virtual():
 
 
 
-
-
-
-
 class Generator(RsSmw):
 
     def __init__(self, config):
@@ -56,3 +52,10 @@ class Generator(RsSmw):
         print(f'Channel 1 PEP level: {self.source.power.get_pep()} dBm')
         response = self.utilities.query_str('*IDN?')
         print(f'Direct SCPI response on *IDN?: {response}')
+
+
+# class Generator():
+#     def __init__(self, config):
+#         RsSmw.assert_minimum_version('5.0.44')
+#         self.resource = f'TCPIP::{config.IP_ADDRESS_GENERATOR}::{config.PORT_GENERATOR}::{config.CONNECTION_TYPE}'
+#         try:

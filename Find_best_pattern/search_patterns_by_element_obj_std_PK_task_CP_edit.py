@@ -15,6 +15,7 @@ import file_writer
 from copy import copy
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+import random
 
 
 class Element_By_Element_Search_std_PK:
@@ -68,6 +69,12 @@ class Element_By_Element_Search_std_PK:
         
     def prepare_patterns(self):
         pat_array = [BitArray(uint=x, length=256) for x in range(self.combinations)]
+        #print(pat_array)
+        return pat_array, copy(pat_array)
+    
+    def prepare_random_patterns(self):
+        random_range = 2**256 -1
+        pat_array = [BitArray(uint=random.randint(0, random_range), length=256) for x in range(self.combinations)]
         return pat_array, copy(pat_array)
     
     def update_config_sweep_time(self):
@@ -317,7 +324,7 @@ class Element_By_Element_Search_std_PK:
     
     def __del__(self):
         self.meas_file.close()
-        self.pdf_file.close()
+        #self.pdf_file.close()
         return
 
 
