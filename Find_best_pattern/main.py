@@ -30,8 +30,8 @@ if __name__ == "__main__":
     generator = Generator(config)
     RIS = RIS(port='/dev/ttyUSB0')
     RIS.reset()
-    filename = "pomiar_test_funkcji_std"
-    trace_file = 'trace_file_group_mesures_PK_test_empty_room'
+    filename = "pomiar_test_funkcji_std_with_n_points_delete"
+    trace_file = 'trace_file_group_mesures_PK_test_with_n_points_delete'
 
     filename = create_trace_file(filename)
     trace_file = create_trace_file(trace_file)

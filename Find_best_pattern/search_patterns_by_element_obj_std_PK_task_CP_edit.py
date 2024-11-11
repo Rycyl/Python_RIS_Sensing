@@ -45,7 +45,7 @@ class Element_By_Element_Search_std_PK:
         self.POWER_REC = None
         self.SLEEPTIME = (self.CONFIG.sweptime / len(self.pat_array) - self.RIS_change_time)
         self.point_range = int((self.CONFIG.sweptime - 2*self.RIS_change_time) /(1/int(self.CONFIG.rbw[0:-3]))) // len(self.pat_array)
-        self.N_pts_delete = int(10) * self.N_SIGMA
+        self.N_pts_delete = (int(10) * self.point_range) // 100
         self.plots_list = []
         self.pdf_file = PdfPages(MEASURE_FILE.split('.')[0] + '.pdf')
         self.powers = None
@@ -146,8 +146,8 @@ class Element_By_Element_Search_std_PK:
             power_debug_shift_local = [-150] * len(self.POWER_REC)
             pattern_debug_shift_local = [None] * len(self.POWER_REC)
         for i in range(len(self.pat_array)):
-            self.start_pat = max(0, int(self.point_range * i + self.shift)) # self.N_pts_delete ))
-            self.end_pat = min(len(self.POWER_REC), int(self.point_range * (i + 1) + self.shift )) #- self.N_pts_delete ))
+            self.start_pat = max(0, int(self.point_range * i + self.shift)) + self.N_pts_delete
+            self.end_pat = min(len(self.POWER_REC), int(self.point_range * (i + 1) + self.shift )) - self.N_pts_delete
             self.start_pat = min(self.start_pat, self.end_pat)
             power_slice = self.POWER_REC[self.start_pat:self.end_pat]
             if power_slice == []:
@@ -182,7 +182,7 @@ class Element_By_Element_Search_std_PK:
 
 
     def iterate_shift(self):
-        while self.end_pat<len(self.POWER_REC)-1:
+        while self.end_pat<len(self.POWER_REC)-self.N_pts_delete:
             self.shift += 1
             print(self.shift, self.start_pat, self.end_pat, len(self.POWER_REC))
             ### iterate patterns
