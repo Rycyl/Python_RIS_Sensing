@@ -19,7 +19,7 @@ import random
 
 
 class Element_By_Element_Search_std_PK:
-    def __init__(self, RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, TIME_SAFETY_MARGIN = 3.0, STD_TRS = 0.08, STD_CHECK_ON = True, DEBUG_FLAG = False, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, TRACE_FILE = 'trace_file_group_mesures.csv', TIME_FILE = None, ONLY_FIRST = False):
+    def __init__(self, RIS, GENERATOR, ANALYZER, CONFIG, N_ELEMENTS = 4, N_SIGMA = 3, TIME_SAFETY_MARGIN = 3.0, STD_TRS = 0.08, STD_CHECK_ON = True, DEBUG_FLAG = False, MEASURE_FILE = 'find_best_pattern_element_wise_by_group_measures_v2.csv', FIND_MIN = False, TRACE_FILE = 'trace_file_group_mesures.csv', TIME_FILE = None,):
         self.RIS = RIS
         self.GENERATOR = GENERATOR
         self.ANALYZER = ANALYZER
@@ -48,7 +48,6 @@ class Element_By_Element_Search_std_PK:
         self.N_pts_delete = int(10) * self.N_SIGMA
         self.plots_list = []
         self.pdf_file = PdfPages(MEASURE_FILE.split('.')[0] + '.pdf')
-        self.ONLY_FIRST = ONLY_FIRST
         self.powers = None
         self.stds_from_trace_shift_maxs = None
         self.stds_from_trace_shift = None
@@ -58,6 +57,8 @@ class Element_By_Element_Search_std_PK:
         self.best_idx = None
         self.power_debug_shift  = None
         self.pattern_debug_shift  = None
+        self.stds_max_over_sum = []
+        self.best_shift = None
 
     def run(self, new_mesure_file_no = None):
         if new_mesure_file_no:
@@ -139,6 +140,8 @@ class Element_By_Element_Search_std_PK:
 
 
     def iterate_by_group_of_patterns(self):
+        temp_stds_table = []
+        temp_powers_table = []
         if self.DEBUG_FLAG:
             power_debug_shift_local = [-150] * len(self.POWER_REC)
             pattern_debug_shift_local = [None] * len(self.POWER_REC)
@@ -155,18 +158,25 @@ class Element_By_Element_Search_std_PK:
             if self.DEBUG_FLAG:
                 print(f"STD:: {std}, mean:: {mean}, len_power_slice:: {len(power_slice)}")
 
-            self.stds_from_trace_shift[i].append(std) #i-ty pattern, dodaj jego bierzące std
-
+            # self.stds_from_trace_shift[i].append(std) #i-ty pattern, dodaj jego bierzące std ###old version###
+            temp_stds_table.append(std)
             print(f"start:: {self.start_pat}, end:: {self.end_pat}, shift:: {self.shift}, pat_no:: {i}")
 
-            self.powers.append(mean)
+            #self.powers.append(mean)
+            temp_powers_table.append(mean)
             
             if self.DEBUG_FLAG:
                 for xx in range(self.start_pat, self.end_pat):
                     power_debug_shift_local[xx] = self.POWER_REC[xx]
                     pattern_debug_shift_local[xx] = str(self.pat_array[i].hex)
-        self.power_debug_shift.append(power_debug_shift_local)
-        self.pattern_debug_shift.append(pattern_debug_shift_local)
+        self.stds_from_trace_shift.append(temp_stds_table)
+        self.powers.append(temp_powers_table)
+        # print("/////////////////////////////////////////////////////")
+        # print(f"STDs_table:: {self.stds_from_trace_shift}")
+        # print("/////////////////////////////////////////////////////")
+        if self.DEBUG_FLAG:            
+            self.power_debug_shift.append(power_debug_shift_local)
+            self.pattern_debug_shift.append(pattern_debug_shift_local)
         #print(f"Power_debug_shift_3:: {self.power_debug_shift}")
         return
 
@@ -182,16 +192,29 @@ class Element_By_Element_Search_std_PK:
         #print(f"Shift:: {self.shift}")
         #print("Exiting iterate_shift")
         return
+    ### OLD VERSION ###
+    # def find_max_std_from_each_shift(self):
+    #     x = 0
+    #     while (x < self.shift):
+    #         stds = []
+    #         for i in range(len(self.pat_array)):
+    #             stds.append(self.stds_from_trace_shift[i][x])                
+    #         self.stds_from_trace_shift_maxs.append(np.max(stds))
+
+    #         x+=1
+    #     return
 
     def find_max_std_from_each_shift(self):
-        x = 0
-        while (x < self.shift):
-            stds = []
-            for i in range(len(self.pat_array)):
-                stds.append(self.stds_from_trace_shift[i][x])                
-            self.stds_from_trace_shift_maxs.append(np.max(stds))
-            x+=1
+        stds_max_over_sum = []
+        for shift_table in self.stds_from_trace_shift:
+            stds = shift_table[:]
+            max_std = np.max(stds)
+            self.stds_from_trace_shift_maxs.append(max_std)
+            stds_sum = sum(stds)
+            stds_max_over_sum.append(max_std/stds_sum) #czy to na pewno musi być self??
+        self.best_shift = stds_max_over_sum.index(min(stds_max_over_sum))
         return
+   
 
     def measure_patterns(self):
         if self.DEBUG_FLAG:
@@ -201,7 +224,8 @@ class Element_By_Element_Search_std_PK:
             self.pattern_debug_shift = []
         self.powers = []
         self.stds_from_trace_shift_maxs = []
-        self.stds_from_trace_shift = [[]]*len(self.pat_array)
+        # self.stds_from_trace_shift = [[]]*len(self.pat_array) old version
+        self.stds_from_trace_shift = []
         self.shift = -1
         self.end_pat = 0
         self.start_pat = 0
@@ -215,10 +239,14 @@ class Element_By_Element_Search_std_PK:
         self.find_max_std_from_each_shift()
         
         #temp self.powers cut for std checkout##############33
+        self.powers = self.powers[self.best_shift]
         self.powers = self.powers[0:len(self.pat_array)]
         ###############################################33
         self.best_power = np.min(self.powers) if self.FIND_MIN else np.max(self.powers)
         self.best_idx = self.powers.index(self.best_power)
+        if self.DEBUG_FLAG:
+            self.power_debug_shift = self.power_debug_shift[self.best_shift]
+            self.pattern_debug_shift = self.pattern_debug_shift[self.best_shift]
         
         return
     
@@ -255,51 +283,21 @@ class Element_By_Element_Search_std_PK:
                 self.t0.append(time.time())
                 
             self.measure_patterns()
+            print("############################################################")
+            print("############################################################")
+            print(f"Best power:: {self.best_power}, Best_idx:: {self.best_idx}, Best_shift:: {self.best_shift}")
+            print(f"Best pattern:: {self.pat_array_copy[self.best_idx].hex}")
+            print("############################################################")
+            print("############################################################")
             current_best_pattern = self.pat_array_copy[self.best_idx]
             power_write.extend(self.powers)
             
             ### copy pat_array
             for pat in self.pat_array_copy:
                 pattern_write.append(pat.hex)
-            
+
             if self.DEBUG_FLAG:
-                shift_iter = 0
-                print("############################################################")
-                print(f"Pat:: {current_best_pattern}, Pow:: {self.best_power}")
-                #print("self.power_debug_shift")
-                #print(self.power_debug_shift)
-                print("############################################################")
-                if self.ONLY_FIRST and n == 0:
-                    for i in range(len(self.power_debug_shift)):
-                        shift_iter += 1
-                        power_debug_table = self.power_debug_shift[i]
-                        #print(f"Only first {self.ONLY_FIRST}")
-                        #print("-----------------")
-                        #print(f"Power debug: {power_debug_table}")
-                        pattern_debug_table = self.pattern_debug_shift[i]
-                        #print(f"Pattern debug: {pattern_debug_table}")
-                        #print("------------------")
-                        self.write_debug_info(n, power_debug_table, pattern_debug_table, shift_iter)
-                elif not self.ONLY_FIRST:
-                    for i in range(len(self.power_debug_shift)):
-                        shift_iter += 1
-                        power_debug_table = self.power_debug_shift[i]
-                        #print(f"Only first {self.ONLY_FIRST}")
-                        #print("-----------------")
-                        #print(f"Power debug: {power_debug_table}")
-                        # for power in power_debug_table:
-                        #     #print("Indent 1")
-                        #     #print(len(power))
-                        #     for p in power:
-                        #         #print("Indent 2")
-                        #         #print(p)
-                        #         #print(len(p))
-                        #print("------------------")
-                        #print(self.power_debug_shift)
-                        pattern_debug_table = self.pattern_debug_shift[i]
-                        #print(f"Pattern debug: {pattern_debug_table}")
-                        ##print("------------------")
-                        self.write_debug_info(n, power_debug_table, pattern_debug_table, shift_iter)
+                self.write_debug_info(n, self.power_debug_shift, self.pattern_debug_shift, self.best_shift)            
             
             ### rol_patterns
             for i in range(len(self.pat_array)):
@@ -324,7 +322,8 @@ class Element_By_Element_Search_std_PK:
     
     def __del__(self):
         self.meas_file.close()
-        #self.pdf_file.close()
+        self.pdf_file.close()
+        plt.close('all')
         return
 
 

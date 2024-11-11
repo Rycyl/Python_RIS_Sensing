@@ -14,7 +14,7 @@ class Virtual_RIS():
     def set_pattern(self, pattern, ack_on = True):
         self.c_pattern = pattern
         if ack_on:
-            print(f"Pattern {pattern} set")
+            #print(f"Pattern {pattern} set")
             time.sleep(0.22)
         else:
             pass

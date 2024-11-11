@@ -6,6 +6,7 @@ from RIS import RIS
 from search_patterns_by_element_obj_std_PK_task_CP_edit import Element_By_Element_Search_std_PK
 import os
 import search_patterns 
+from plot_trace import run_all, run_main
 
 import numpy as np
 
@@ -14,6 +15,16 @@ from bitstring import Bits, BitArray, BitStream, pack
 
 config = Config()
 
+def create_trace_file(trace_file_name):
+    i = 1
+    while True:
+        filename = f"{trace_file_name}_{i}.csv"
+        if not os.path.exists(filename):
+            with open(filename, 'w') as file:
+                file.close()
+            return filename
+        else:
+            i += 1
 if __name__ == "__main__":
     analyzer = Analyzer(config)
     generator = Generator(config)
@@ -21,22 +32,9 @@ if __name__ == "__main__":
     RIS.reset()
     filename = "pomiar_test_funkcji_std"
     trace_file = 'trace_file_group_mesures_PK_test_empty_room'
-    path = os.getcwd()
-    no_file_set = True
-    i = 1
-    while no_file_set:
-        files = [f for f in os.listdir(path) if f.endswith('.csv')]
-        for f in files:
-            #print(filename + f"_{str(i)}" + '.csv')
-            if filename + f"_{str(i)}" + '.csv' == f or trace_file + f"_{str(i)}" + '.csv' == f:
-                print(f"File {f} already exists")
-                i += 1
-                continue
-            else:
-                filename = filename + f"_{str(i)}.csv"
-                trace_file = trace_file + f"_{str(i)}.csv"
-                no_file_set = False
-                break
+
+    filename = create_trace_file(filename)
+    trace_file = create_trace_file(trace_file)
     Search_patterns = Element_By_Element_Search_std_PK(RIS, generator, analyzer, config, 4, 3, 3.0, 0.08, True, True, filename, False, trace_file, None)
     #sleep(10)
     Search_patterns.run()
@@ -44,6 +42,7 @@ if __name__ == "__main__":
     del Search_patterns
     generator.close()
     analyzer.close()
+    run_main(trace_file)
     exit()
 
 # ### CHYBA ZROBIONE, NO ALE TO SIĘ OKAŻE PO ODPALENIU, składniowo mi nie krzyczy jak uruchamiam
