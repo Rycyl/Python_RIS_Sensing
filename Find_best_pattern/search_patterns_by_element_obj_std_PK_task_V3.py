@@ -147,7 +147,7 @@ class Element_By_Element_Search_std_PK:
         n_points_range = self.N_pts_delete #Temporary value, find better solution
         self.start_pat = 0
         self.end_pat = n_points_range
-        while self.end_pat < len(self.POWER_REC-1):
+        while self.end_pat < len(self.POWER_REC)-1:
             power_slice = self.POWER_REC[self.start_pat:self.end_pat]
             if power_slice == []:
                 break
@@ -156,8 +156,8 @@ class Element_By_Element_Search_std_PK:
                 prev_std.append(std)
                 c_segment_starts.append(self.start_pat)
                 c_segment_ends.append(self.end_pat)
-                if len(prev_std) == 3:
-                    print("Add later")
+                # if len(prev_std) == 3:
+                #     print("Add later")
             else:
                 if std <= self.STD_TRS:
                     prev_std.pop(0)
@@ -172,6 +172,7 @@ class Element_By_Element_Search_std_PK:
                     prev_std = []
             self.start_pat += n_points_range
             self.end_pat += n_points_range
+        print(f"Beginings Len:: {len(beginings)}, Ends Len:: {len(ends)}")
         return self.calculate_power_from_slices(beginings, ends)
 
     def calculate_power_from_slices(self, beginings, ends):
@@ -180,6 +181,7 @@ class Element_By_Element_Search_std_PK:
             power_slice = self.POWER_REC[beginings[i]:ends[i]]
             mean = np.mean(power_slice)
             powers.append(mean)
+        print(f"Powers Len:: {len(powers)}")
         return powers
                     
                         
@@ -288,12 +290,13 @@ class Element_By_Element_Search_std_PK:
         # self.powers = self.powers[self.best_shift]
         # self.powers = self.powers[0:len(self.pat_array)]
         ###############################################33
-        self.best_power = self.iterate_by_group_of_patterns()
+        self.powers = self.iterate_by_group_of_patterns()
         self.best_power = np.min(self.powers) if self.FIND_MIN else np.max(self.powers)
         self.best_idx = self.powers.index(self.best_power)
         if self.DEBUG_FLAG:
-            self.power_debug_shift = self.power_debug_shift[self.best_shift]
-            self.pattern_debug_shift = self.pattern_debug_shift[self.best_shift]
+            print(f"Best_power:: {self.best_power}, Best_idx:: {self.best_idx}")
+            # self.power_debug_shift = self.power_debug_shift[self.best_shift]
+            # self.pattern_debug_shift = self.pattern_debug_shift[self.best_shift]
         
         return
     
@@ -343,15 +346,15 @@ class Element_By_Element_Search_std_PK:
             for pat in self.pat_array_copy:
                 pattern_write.append(pat.hex)
 
-            if self.DEBUG_FLAG:
-                self.write_debug_info(n, self.power_debug_shift, self.pattern_debug_shift, self.best_shift)            
+            # if self.DEBUG_FLAG:
+            #     self.write_debug_info(n, self.power_debug_shift, self.pattern_debug_shift, self.best_shift)            
             
             ### rol_patterns
             for i in range(len(self.pat_array)):
                 self.pat_array[i].rol(self.N_ELEMENTS)
                 self.pat_array_copy[i] = self.pat_array[i] | current_best_pattern
             
-            self.plot_stds(n)
+            # self.plot_stds(n)
             
             n += self.N_ELEMENTS
         

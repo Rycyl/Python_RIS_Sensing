@@ -3,7 +3,8 @@ from generator import Generator
 from config_obj import Config
 from RIS import RIS
 #import search_patterns
-from search_patterns_by_element_obj_std_PK_task_CP_edit import Element_By_Element_Search_std_PK
+#from search_patterns_by_element_obj_std_PK_task_CP_edit import Element_By_Element_Search_std_PK
+from search_patterns_by_element_obj_std_PK_task_V3 import Element_By_Element_Search_std_PK
 import os
 import search_patterns 
 from plot_trace import run_all, run_main
@@ -30,8 +31,8 @@ if __name__ == "__main__":
     generator = Generator(config)
     RIS = RIS(port='/dev/ttyUSB0')
     RIS.reset()
-    filename = "pomiar_test_funkcji_std_with_n_points_delete"
-    trace_file = 'trace_file_group_mesures_PK_test_with_n_points_delete'
+    filename = "Test_nowej_funkcji_synchronizacji"
+    trace_file = 'trace_file_group_mesures_Nowa_funkcja_synchronizacji'
 
     filename = create_trace_file(filename)
     trace_file = create_trace_file(trace_file)
