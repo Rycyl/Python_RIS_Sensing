@@ -17,24 +17,19 @@ class Generator_Virtual():
 
 class Generator(RsSmw):
 
-    def __init__(self, config):
+    def __init__(self, config, phy_device = True):
         RsSmw.assert_minimum_version('5.0.44')
         self.resource = f'TCPIP::{config.IP_ADDRESS_GENERATOR}::{config.PORT_GENERATOR}::{config.CONNECTION_TYPE}'  # Resource string for the device
-        i = True
-        while(i):
-            i = input("Create simulated device? [Y/n]?")
-            if i == 'Y' or i == 'y':
-                RsSmw.__init__(self, self.resource, True, True, "Simulate=True, DriverSetup=No, SelectVisa='socket'")
+        if phy_device:
+            try:
+                RsSmw.__init__(self, self.resource, True, True, "SelectVisa='socket'")
                 self.com_check()
-                break
-            if i == 'N' or i == 'n':
-                try:
-                    RsSmw.__init__(self, self.resource, True, True, "SelectVisa='socket'")
-                    self.com_check()
-                except TimeoutError or ConnectionAbortedError:
-                    print("[TIMEOUT ERROR] Check is  computer and generator is connected to the same local network. Then try again.")
-                break
-        
+            except TimeoutError or ConnectionAbortedError:
+                print("[TIMEOUT ERROR] Check is  computer and generator is connected to the same local network. Then try again.")
+                exit()
+        else:
+            RsSmw.__init__(self, self.resource, True, True, "Simulate=True, DriverSetup=No, SelectVisa='socket'")
+            self.com_check()      
 
 
     def com_check(self):
@@ -59,3 +54,9 @@ class Generator(RsSmw):
 #         RsSmw.assert_minimum_version('5.0.44')
 #         self.resource = f'TCPIP::{config.IP_ADDRESS_GENERATOR}::{config.PORT_GENERATOR}::{config.CONNECTION_TYPE}'
 #         try:
+
+if __name__ == "__main__":
+    from config_obj import Config
+    config = Config()
+    Generator = Generator(config, False)
+    print(Succed)
