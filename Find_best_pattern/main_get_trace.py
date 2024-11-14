@@ -17,8 +17,9 @@ config = Config()
 
 if __name__ == "__main__":
     start = time()
-    file_name = "Trace_for_virtual_analyzer"
+    file_name = "Trace_for_setup_test"
     n_elemets = 4
+    no_of_traces = 1
     analyzer = Analyzer(config)
     generator = Generator(config)
     ris = RIS(port='/dev/ttyUSB0')
@@ -27,7 +28,7 @@ if __name__ == "__main__":
     swt = Search_patterns.CONFIG.sweptime
     created_filename = create_trace_file_header(file_name, swt, n_elemets)
     #Search_patterns.prepare_patterns()
-    for i in range(10):
+    for i in range(no_of_traces):
         #sleep(10)
         Search_patterns.pat_array, Search_patterns.pat_array_copy = Search_patterns.prepare_random_patterns()
         Search_patterns.measure_thread_with_RIS_changes()

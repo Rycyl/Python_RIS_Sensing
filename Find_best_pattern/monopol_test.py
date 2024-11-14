@@ -19,10 +19,10 @@ if __name__ == "__main__":
     analyzer = Analyzer(config)
     generator = Generator(config)
 
-    mes_file = 'anntena_test_14_11_directional'
-
-    for i in range(1, 4):
-        mes_file = mes_file + str(i) + '.csv'
+    mes_file_name = 'anntena_test_14_11_omni_no_LOS_pos_2'
+    sleep(60)
+    for i in range(1, 8):
+        mes_file = mes_file_name + '_' + str(i) + '.csv'
 
         best_pattern, best_power = search_patterns.find_best_pattern_element_wise(ris, generator, analyzer, config, MEASURE_FILE =  mes_file, FIND_MIN = False)
 
@@ -45,7 +45,8 @@ if __name__ == "__main__":
             file.write(str(best_pattern_min))
             file.write('\n')
             file.close()
-
+        sleep(600) # 10 min
+        #break
 
     generator.close()
     analyzer.close()

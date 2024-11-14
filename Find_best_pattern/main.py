@@ -43,7 +43,7 @@ if __name__ == "__main__":
     del Search_patterns
     generator.close()
     analyzer.close()
-    run_main(trace_file)
+    #run_main(trace_file)
     exit()
 
 # ### CHYBA ZROBIONE, NO ALE TO SIĘ OKAŻE PO ODPALENIU, składniowo mi nie krzyczy jak uruchamiam

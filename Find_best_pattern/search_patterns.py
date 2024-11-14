@@ -155,13 +155,20 @@ def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1
 
     #print(timings)
     #print("ŚREDNI CZAS ODPOWIEDZI - set pattern:trace_get_mean = ", np.mean(timings))
-    
-    best_pow = -220.0
-    best_pattern = None
-    for p, pattern in power_pattern:
-        if p[0] > best_pow:
-            best_pattern = pattern[0]
-            best_pow = p[0]
+    if not FIND_MIN:
+        best_pow = -220.0
+        best_pattern = None
+        for p, pattern in power_pattern:
+            if p[0] > best_pow:
+                best_pattern = pattern[0]
+                best_pow = p[0]
+    else:
+        best_pow = 220.0
+        best_pattern = None
+        for p, pattern in power_pattern:
+            if p[0] < best_pow:
+                best_pattern = pattern[0]
+                best_pow = p[0]
 
     return best_pattern, best_pow
 
