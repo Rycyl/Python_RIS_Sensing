@@ -94,22 +94,27 @@ class Physical_RIS():
 
 
 class RIS:
-    def __init__(self, port, id=0, timeout=10, baudrate=115200):
-        try:
-            print("Attempting to connect to Physical RIS...")
-            self.ris = Physical_RIS(port, id=id, timeout=timeout, baudrate=baudrate)
-            self.is_physical = True
-            print("Connected to Physical RIS.")
-        except Exception as e:
-            print(f"Physical RIS connection failed: {e}")
-            choice = input("Create virtual RIS? [Y/n]: ")
-            if choice.lower() == 'y':
-                self.ris = Virtual_RIS(port, id=id, timeout=timeout, baudrate=baudrate)
-                self.is_physical = False
-                print("Virtual RIS created.")
-            else:
-                print("Exiting...")
-                exit()
+    def __init__(self, port, id=0, timeout=10, baudrate=115200, phy_device = True):
+        if phy_device:
+            try:
+                print("Attempting to connect to Physical RIS...")
+                self.ris = Physical_RIS(port, id=id, timeout=timeout, baudrate=baudrate)
+                self.is_physical = True
+                print("Connected to Physical RIS.")
+            except Exception as e:
+                print(f"Physical RIS connection failed: {e}")
+                choice = input("Create virtual RIS? [Y/n]: ")
+                if choice.lower() == 'y':
+                    self.ris = Virtual_RIS(port, id=id, timeout=timeout, baudrate=baudrate)
+                    self.is_physical = False
+                    print("Virtual RIS created.")
+                else:
+                    print("Exiting...")
+                    exit()
+        else:
+            self.ris = Virtual_RIS(port, id=id, timeout=timeout, baudrate=baudrate)
+            self.is_physical = False
+            print("Virtual RIS created.")
 
     def __getattr__(self, name):
         return getattr(self.ris, name)
