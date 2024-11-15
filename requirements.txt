@@ -3,3 +3,5 @@ RsSmw
 pyserial
 numpy
 matplotlib
+bitarray
+bitstring

@@ -24,5 +24,5 @@
     "GENERATOR_AMPLITUDE" : 0,
     "GENERATOR_MODE" : "CW",
     "DETECTOR" : "SAMP",
-    "SWEEP_TIME" : 0.05
+    "SWEEP_TIME" : 1.1
 }
