@@ -55,8 +55,8 @@ class Element_By_Element_Search_std_PK:
         self.end_pat = None
         self.start_pat = None
         self.best_idx = None
-        self.power_debug_shift  = None
-        self.pattern_debug_shift  = None
+        self.power_debug  = None
+        self.pattern_debug  = None
         self.stds_max_over_sum = []
         self.best_shift = None
 
@@ -153,11 +153,19 @@ class Element_By_Element_Search_std_PK:
                 break
             std = np.std(power_slice)
             if prev_std == [] or len(prev_std) < 3:
-                prev_std.append(std)
-                c_segment_starts.append(self.start_pat)
-                c_segment_ends.append(self.end_pat)
+                if std > self.STD_TRS:
+                    pass
+                # prev_std.append(std)
+                # c_segment_starts.append(self.start_pat)
+                # c_segment_ends.append(self.end_pat)
                 # if len(prev_std) == 3:
-                #     print("Add later")
+                #     if np.mean(prev_std) > self.STD_TRS:
+                #         for s in range(len(prev_std)):
+                #             if prev_std[s] > self.STD_TRS:
+                #                 prev_std.pop(s)
+                #                 c_segment_starts.pop(s)
+                #                 c_segment_ends.pop(s)
+                    #print("Add later")
             else:
                 if std <= self.STD_TRS:
                     prev_std.pop(0)
@@ -181,76 +189,20 @@ class Element_By_Element_Search_std_PK:
             power_slice = self.POWER_REC[beginings[i]:ends[i]]
             mean = np.mean(power_slice)
             powers.append(mean)
+            if self.DEBUG_FLAG:
+                for xx in range(beginings[i], ends[i]):
+                    self.power_debug.append(self.POWER_REC[xx])
         print(f"Powers Len:: {len(powers)}")
         return powers
                     
-                        
-
-
-    # def iterate_by_group_of_patterns(self):
-    #     temp_stds_table = []
-    #     temp_powers_table = []
-    #     if self.DEBUG_FLAG:
-    #         power_debug_shift_local = [-150] * len(self.POWER_REC)
-    #         pattern_debug_shift_local = [None] * len(self.POWER_REC)
-    #     for i in range(len(self.pat_array)):
-    #         self.start_pat = max(0, int(self.point_range * i + self.shift)) + self.N_pts_delete
-    #         self.end_pat = min(len(self.POWER_REC), int(self.point_range * (i + 1) + self.shift )) - self.N_pts_delete
-    #         self.start_pat = min(self.start_pat, self.end_pat)
-    #         power_slice = self.POWER_REC[self.start_pat:self.end_pat]
-    #         if power_slice == []:
-    #             break
-    #         std = np.std(power_slice)
-    #         mean = np.mean(power_slice)
-            
-    #         if self.DEBUG_FLAG:
-    #             print(f"STD:: {std}, mean:: {mean}, len_power_slice:: {len(power_slice)}")
-
-    #         # self.stds_from_trace_shift[i].append(std) #i-ty pattern, dodaj jego bierzące std ###old version###
-    #         temp_stds_table.append(std)
-    #         print(f"start:: {self.start_pat}, end:: {self.end_pat}, shift:: {self.shift}, pat_no:: {i}")
-
-    #         #self.powers.append(mean)
-    #         temp_powers_table.append(mean)
-            
-    #         if self.DEBUG_FLAG:
-    #             for xx in range(self.start_pat, self.end_pat):
-    #                 power_debug_shift_local[xx] = self.POWER_REC[xx]
-    #                 pattern_debug_shift_local[xx] = str(self.pat_array[i].hex)
-    #     self.stds_from_trace_shift.append(temp_stds_table)
-    #     self.powers.append(temp_powers_table)
-        # # print("/////////////////////////////////////////////////////")
-        # # print(f"STDs_table:: {self.stds_from_trace_shift}")
-        # # print("/////////////////////////////////////////////////////")
-        # if self.DEBUG_FLAG:            
-        #     self.power_debug_shift.append(power_debug_shift_local)
-        #     self.pattern_debug_shift.append(pattern_debug_shift_local)
-        # #print(f"Power_debug_shift_3:: {self.power_debug_shift}")
-        # return
-
 
     def iterate_shift(self):
         while self.end_pat<len(self.POWER_REC)-self.N_pts_delete:
             self.shift += 1
             print(self.shift, self.start_pat, self.end_pat, len(self.POWER_REC))
-            ### iterate patterns
             self.iterate_by_group_of_patterns()
-            #print("Exiting iterate_by_group_of_patterns")
-            #print(f"Power_debug_shift_4:: {self.power_debug_shift}")
-        #print(f"Shift:: {self.shift}")
-        #print("Exiting iterate_shift")
         return
-    ### OLD VERSION ###
-    # def find_max_std_from_each_shift(self):
-    #     x = 0
-    #     while (x < self.shift):
-    #         stds = []
-    #         for i in range(len(self.pat_array)):
-    #             stds.append(self.stds_from_trace_shift[i][x])                
-    #         self.stds_from_trace_shift_maxs.append(np.max(stds))
-
-    #         x+=1
-    #     return
+    
 
     def find_max_std_from_each_shift(self):
         stds_max_over_sum = []
@@ -274,22 +226,10 @@ class Element_By_Element_Search_std_PK:
         self.stds_from_trace_shift_maxs = []
         # self.stds_from_trace_shift = [[]]*len(self.pat_array) old version
         self.stds_from_trace_shift = []
-        self.shift = -1
-        self.end_pat = 0
-        self.start_pat = 0
+        # self.shift = -1
+        # self.end_pat = 0
+        # self.start_pat = 0
 
-        ### iterate self.shift
-        #self.iterate_shift()
-        #print("Exiting measure_patterns")
-        #print(f"Power_debug_shift_2:: {self.power_debug_shift}")
-        
-        #znajdz max std z każdego shifta
-        #self.find_max_std_from_each_shift()
-        
-        #temp self.powers cut for std checkout##############33
-        # self.powers = self.powers[self.best_shift]
-        # self.powers = self.powers[0:len(self.pat_array)]
-        ###############################################33
         self.powers = self.iterate_by_group_of_patterns()
         self.best_power = np.min(self.powers) if self.FIND_MIN else np.max(self.powers)
         self.best_idx = self.powers.index(self.best_power)
