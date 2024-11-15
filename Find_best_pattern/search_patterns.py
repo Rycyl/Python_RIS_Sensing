@@ -64,7 +64,7 @@ def find_best_pattern_codebook(RIS, GENERATOR, ANALYZER, CONFIG, MEASURE_FILE = 
     print(worst_pattern["DESC"], min(power))
     return best_pattern["HEX"], worst_pattern["HEX"]
 
-def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1', MEASURE_FILE = 'find_best_pattern_element_wise.csv', FIND_MIN=False):
+def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1', MEASURE_FILE = 'find_best_pattern_element_wise.csv', FIND_MIN=False, START_PAT=False):
     ### MASKA MUSI BYĆ BINARNA!!! ###
     '''
         maska - jakim mini patternem przesuwamy sie po RIS
@@ -92,9 +92,14 @@ def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1
     GENERATOR.meas_prep(True, CONFIG.generator_mode, CONFIG.generator_amplitude, CONFIG.freq)
     ANALYZER.meas_prep(CONFIG.freq, CONFIG.sweptime, CONFIG.span, CONFIG.analyzer_mode, CONFIG.detector, CONFIG.revlevel, CONFIG.rbw, CONFIG.swepnt)
     power_pattern = [] ###lista do zbierania wyników
+    if START_PAT:
+        current_pattern = copy(START_PAT)
+        previous_pattern = copy(START_PAT)
+    else:
+        current_pattern = BitArray(length=256)  ## all zeros
+        previous_pattern = BitArray(length=256) ## all zeros
 
-    current_pattern = BitArray(length=256)  ## all zeros
-    previous_pattern = BitArray(length=256) ## all zeros
+    mask_pattern = BitArray(length=256)  ## all zeros
 
     RIS.set_pattern('0x'+current_pattern.hex)
     pow_max = ANALYZER.trace_get_mean()
@@ -103,30 +108,44 @@ def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1
     
     timings = []
     
+
+    # XY - def pozycji, IJ - end case
     y = 0
     i = 1
     while(y<16):
         x = 0
         j = 1
         while(x<16):
+            ## WRITE MASK TO CURRENT BITS
+            mask_pattern = BitArray(length=256)
             current_element = 16*y + x
-            current_pattern.overwrite(MASK, current_element)
-            current_pattern |= previous_pattern
+            mask_pattern.overwrite(MASK, current_element)
+            current_pattern ^= mask_pattern
+            #
+            ## MAGIA raczej niepotrzebna - - legacy
+            #current_pattern |= previous_pattern
+
             #t1 = time.time()
+
+            ##SET PAT AND MEASURE
             RIS.set_pattern('0x'+current_pattern.hex)
             pp = ANALYZER.trace_get()
             p = np.mean(pp)
             #t2 = time.time()
             #timings.append(t2-t1)
             power_pattern.append([[p],[current_pattern.hex]])
-            print("pattern:: ", "0x",current_pattern.hex, " = ", p)
-            
+            print("pattern:: ", "0x",current_pattern.bin, " = ", p)
+            ###
+
+            ## WRITE TO FILE
             with open(MEASURE_FILE, 'a+') as file:
                 file.write(str(p) + ",")
                 file.write("0x" + current_pattern.hex)
                 file.write('\n')
                 file.close()  # CLose the file
-            
+            ###
+
+            ### LOGIKA MAX MIN pattern i głębiej wybor czy element zostaje zmieniony czy wracamy do prev pat
             if(FIND_MIN):
                 if (p<pow_max): ### < min find
                     pow_max=p
