@@ -55,7 +55,8 @@ class Physical_RIS():
                 if response == "#OK":
                     self.c_pattern = pattern
                     #print(f"Pattern {pattern} set")
-                    return True
+                    #return True
+                    return time.time() - start_time
                 if time.time() - start_time > self.timeout:
                     return False
         else:

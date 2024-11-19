@@ -82,7 +82,7 @@ def plot_hamming_vs_power(meas_file_max: str, meas_file_min: str):
     ax3.set_title('Power Minimization to Maximization')
     
     fig.legend(loc = 'outside right upper')
-    fig.suptitle(meas_file_max.split('\\')[-1])
+    fig.suptitle(meas_file_max.split('/')[-1])
 
     return "PAIN"
 
@@ -100,13 +100,17 @@ def save_plots_to_pdf(filename: str):
 
 
 if __name__ == '__main__':
-    path = os.getcwd()
+    #path = os.getcwd()
+    path = '/home/kiril/Documents/GitHub/Python_RIS_Sensing/Find_best_pattern/Wyniki_14_11'
     meas_file_name = 'anntena_test_14_11'
     meas_files_min = [f for f in os.listdir(path) if f.endswith('.csv') and f.startswith(meas_file_name) and 'min' in f]
     meas_files_max = [f for f in os.listdir(path) if f.endswith('.csv') and f.startswith(meas_file_name) and not f in meas_files_min]
+    meas_files_min.sort()
+    meas_files_max.sort()
     for i in range(len(meas_files_min)):
         meas_file_min = os.path.join(path, meas_files_min[i])
         meas_file_max = os.path.join(path, meas_files_max[i])
+        #print(f"Max file:: {meas_file_max.split('/')[-1]}      Min file:: {meas_file_min.split('/')[-1]}")
         plot_hamming_vs_power(meas_file_max, meas_file_min)
         #plt.show()
     save_plots_to_pdf(meas_file_name + '.pdf')
