@@ -29,6 +29,9 @@ class Config:
                 self.DETECTOR = config["DETECTOR"]
                 self.IP_ADDRESS_GENERATOR = config["IP_ADDRESS_GENERATOR"]
                 self.PORT_GENERATOR = config["PORT"]
+                self.azimuth_step_time = config["AZIMUTH_STEP_TIME"]
+                self.elevation_step_time = config["ELEVATION_STEP_TIME"]
+                self.step_resolution = config["STEP_RESOLUTION"]
         except FileNotFoundError:
             print("File with configuration doesn't exist.")
             exit()

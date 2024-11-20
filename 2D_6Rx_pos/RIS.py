@@ -36,6 +36,7 @@ class Physical_RIS():
         self.id = id
         self.timeout = timeout
         self.c_pattern = "0x0000000000000000000000000000000000000000000000000000000000000000"
+        self.reset()
         print(f"RIS zostal podlaczony do portu {self.ser.port} z id = {self.id}")
         return
             
