@@ -59,4 +59,4 @@ if __name__ == "__main__":
     from config_obj import Config
     config = Config()
     Generator = Generator(config, False)
-    print(Succed)
+    print("Succeeded")

@@ -1,4 +1,6 @@
 import os
+from datetime import datetime
+
 
 def create_results_folder(base_path='Wyniki'):
     """Create a subfolder in the specified base path with the current date."""

@@ -4,4 +4,3 @@ pyserial
 numpy
 matplotlib
 python-periphery
-tkinter

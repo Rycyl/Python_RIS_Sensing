@@ -30,7 +30,7 @@ def making_measures_in_lab():
     return
 
 
-def measure_do(filename):
+def measure_do(filename, results_path, Ris, Generator, Analyzer, Config):
     filename = create_csv_file(filename)
     file_path = os.path.join(results_path, filename)
     # perform measure
@@ -48,8 +48,8 @@ def main():
     #phy_device_input = True # dla pomiarów
 
     # Initialize devices
-    Analyzer = Analyzer(config, phy_device_input)
-    Generator = Generator(config, phy_device_input)
+    Analyzer = Analyzer(Config, phy_device_input)
+    Generator = Generator(Config, phy_device_input)
     Ris = RIS(port='/dev/ttyUSB0', phy_device=phy_device_input)
     Remote_Head = Remote_Head(Config)
 
@@ -67,15 +67,15 @@ def main():
 
     #rotate 1_right
     Remote_Head.rotate_right(10)
-    measure_do(filename)
+    measure_do(filename + "1.csv", results_path, Ris, Generator, Analyzer, Config)
 
     #1 left
     Remote_Head.rotate_left(10)
-    measure_do(filename)
+    measure_do(filename + "2.csv", results_path, Ris, Generator, Analyzer, Config)
 
     #1 left
     Remote_Head.rotate_left(10)
-    measure_do(filename)
+    measure_do(filename + "3.csv", results_path, Ris, Generator, Analyzer, Config)
 
     #back head do origin
     #1 right

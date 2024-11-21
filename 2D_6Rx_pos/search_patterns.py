@@ -6,12 +6,12 @@ import numpy as np
 from RsSmw import *
 import time
 from time import sleep
-import def_pattern
+#import def_pattern
 from bitstring import Bits, BitArray, BitStream, pack
 from copy import copy, deepcopy
 import threading
 from config_obj import Config
-import file_writer
+#import file_writer
 from copy import copy
 
 try:
