@@ -19,6 +19,8 @@ def create_csv_filename(trace_file_name):
     while True:
         filename = f"{trace_file_name}_{i}.csv"
         if not os.path.exists(filename):
+            with open(filename, 'w') as file:
+                file.close()
             return filename
         else:
             i += 1
@@ -29,13 +31,13 @@ def create_csv_file(fil):
     return
 
 def making_measures_in_lab():
-    time.sleep(60) #wait a minute to let us go away
+    time.sleep(10) #wait a minute to let us go away
     return
 
 
 def measure_do(filename, results_path, ris, generator, analyzer, conf):
-    filename = create_csv_filename(filename)
     file_path = os.path.join(results_path, filename)
+    file_path = create_csv_filename(file_path)
     create_csv_file(file_path)
     print(file_path)
     # perform measure
