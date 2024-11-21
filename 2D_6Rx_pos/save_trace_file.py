@@ -6,10 +6,10 @@ def create_results_folder(base_path='Wyniki'):
     """Create a subfolder in the specified base path with the current date."""
     # Get the current date in day-month format
     current_date = datetime.now().strftime("%d-%m")
-    
+    path = os.getcwd()
+
     # Create the full path for the new folder
-    results_folder = os.path.join(base_path, current_date)
-    
+    results_folder = os.path.join(path, base_path, current_date)
     # Create the directory if it doesn't exist
     os.makedirs(results_folder, exist_ok=True)
     

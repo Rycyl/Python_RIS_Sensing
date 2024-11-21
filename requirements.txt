@@ -4,3 +4,4 @@ pyserial
 numpy
 matplotlib
 python-periphery
+bitstring

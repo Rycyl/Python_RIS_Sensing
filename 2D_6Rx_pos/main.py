@@ -14,33 +14,38 @@ from save_trace_file import create_results_folder
 import os
 import time
 
-def create_csv_file(trace_file_name):
+def create_csv_filename(trace_file_name):
     i = 1
     while True:
         filename = f"{trace_file_name}_{i}.csv"
         if not os.path.exists(filename):
-            with open(filename, 'w') as file:
-                file.close()
             return filename
         else:
             i += 1
+
+def create_csv_file(fil):
+    with open(fil, 'w') as f:
+        f.close()
+    return
 
 def making_measures_in_lab():
     time.sleep(60) #wait a minute to let us go away
     return
 
 
-def measure_do(filename, results_path, Ris, Generator, Analyzer, Config):
-    filename = create_csv_file(filename)
+def measure_do(filename, results_path, ris, generator, analyzer, conf):
+    filename = create_csv_filename(filename)
     file_path = os.path.join(results_path, filename)
+    create_csv_file(file_path)
+    print(file_path)
     # perform measure
-    search_patterns.find_best_pattern_element_wise(Ris, Generator, Analyzer, Config, MEASURE_FILE=filename, FIND_MIN=True)
-    search_patterns.find_best_pattern_element_wise(Ris, Generator, Analyzer, Config, MEASURE_FILE=filename, FIND_MIN=False)
+    search_patterns.find_best_pattern_element_wise(ris, generator, analyzer, conf, MEASURE_FILE=file_path, FIND_MIN=True)
+    search_patterns.find_best_pattern_element_wise(ris, generator, analyzer, conf, MEASURE_FILE=file_path, FIND_MIN=False)
     return
 
 
 def main():
-    Config = Config()
+    conf = Config()
     Header_Steps = 10 # chyba 9 stopni
 
     # Check if physical devices are connected
@@ -48,13 +53,13 @@ def main():
     #phy_device_input = True # dla pomiarów
 
     # Initialize devices
-    Analyzer = Analyzer(Config, phy_device_input)
-    Generator = Generator(Config, phy_device_input)
-    Ris = RIS(port='/dev/ttyUSB0', phy_device=phy_device_input)
-    Remote_Head = Remote_Head(Config)
+    analyzer = Analyzer(conf, phy_device_input)
+    generator = Generator(conf, phy_device_input)
+    ris = RIS(port='/dev/ttyUSB0', phy_device=phy_device_input)
+    RH = Remote_Head(conf)
 
     ##SETUP REMOTE HEAD
-    Remote_Head.resolution(2)
+    RH.resolution(2)
 
     # Create results folder
     results_path = create_results_folder()
@@ -66,20 +71,20 @@ def main():
     #making_measures_in_lab()
 
     #rotate 1_right
-    Remote_Head.rotate_right(10)
-    measure_do(filename + "1.csv", results_path, Ris, Generator, Analyzer, Config)
+    RH.rotate_right(Header_Steps)
+    measure_do(filename, results_path, ris, generator, analyzer, conf)
 
     #1 left
-    Remote_Head.rotate_left(10)
-    measure_do(filename + "2.csv", results_path, Ris, Generator, Analyzer, Config)
+    RH.rotate_left(Header_Steps)
+    measure_do(filename, results_path, ris, generator, analyzer, conf)
 
     #1 left
-    Remote_Head.rotate_left(10)
-    measure_do(filename + "3.csv", results_path, Ris, Generator, Analyzer, Config)
+    RH.rotate_left(Header_Steps)
+    measure_do(filename, results_path, ris, generator, analyzer, conf)
 
     #back head do origin
     #1 right
-    Remote_Head.rotate_right(10)
+    RH.rotate_right(Header_Steps)
     return
 
 if __name__ == "__main__":
