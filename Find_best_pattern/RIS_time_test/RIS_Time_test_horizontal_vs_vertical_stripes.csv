@@ -1,3 +1,9 @@
+Mean time: 0.021986855925882565
+Std time: 0.0003370258766225121
+Max time: 0.026332855224609375
+Min time: 0.021181106567382812
+
+START
 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,0.0218508243560791
 0xffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000,0.021721839904785156
 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,0.02214646339416504
@@ -27199,5 +27205,3 @@
 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,0.021839618682861328
 0xffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000,0.022159099578857422
 END
-Mean time: 0.021986855925882565
-Std time: 0.0003370258766225121
