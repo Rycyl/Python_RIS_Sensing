@@ -1,0 +1,6 @@
+Pliki pomiarowe mają format:
+2D_meas_Rx_1_RISpos_
+
+Gdzie liczba po Rx to kolejne pozycje anteny (opisane na png / jpeg)
+
+A liczba po RISpos to obroty RIS (1 to wychył w prawo, 2 mid, 3 w lewo)
