@@ -1,27 +1,59 @@
-# import os
-# import csv
+import math
+
+import matplotlib.pyplot as plt
+
+import matplotlib.colors as mcolors
+from matplotlib.patches import Rectangle
 
 
-# file_name = "Virt_anal_trace_data.csv"
-# save_file = "Example_trace.csv"
+def plot_colortable(colors, *, ncols=4, sort_colors=True):
 
-# with open(file_name, 'r') as f:
-#     csv_reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC, quotechar= '|')
-#     x = 0
-#     for row in csv_reader:
-#         x +=1
-#         if x == 4:
-#             with open("Example_trace.csv", "w+") as sf:
-#                 sf.write(str(row)[1:-1])
-#                 sf.close()
-#             break
-#     f.close()
+    cell_width = 212
+    cell_height = 22
+    swatch_width = 48
+    margin = 12
 
-# print("Done")
+    # Sort colors by hue, saturation, value and name.
+    if sort_colors is True:
+        names = sorted(
+            colors, key=lambda c: tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(c))))
+    else:
+        names = list(colors)
 
-from bitstring import BitArray
+    n = len(names)
+    nrows = math.ceil(n / ncols)
 
-ver_1 = BitArray(hex="0x7c037e007c00f8017c037807fc0ff003f807f80ffc0ff007f807f0077c01f007")
-ver_2 = BitArray(hex="7c037e007c00f8017c037807fc0ff003f807f80ffc0ff007f807f0077c01f007")
+    width = cell_width * ncols + 2 * margin
+    height = cell_height * nrows + 2 * margin
+    dpi = 72
 
-print((ver_1 ^ ver_2).count(1))
+    fig, ax = plt.subplots(figsize=(width / dpi, height / dpi), dpi=dpi)
+    fig.subplots_adjust(margin/width, margin/height,
+                        (width-margin)/width, (height-margin)/height)
+    ax.set_xlim(0, cell_width * ncols)
+    ax.set_ylim(cell_height * (nrows-0.5), -cell_height/2.)
+    ax.yaxis.set_visible(False)
+    ax.xaxis.set_visible(False)
+    ax.set_axis_off()
+
+    for i, name in enumerate(names):
+        row = i % nrows
+        col = i // nrows
+        y = row * cell_height
+
+        swatch_start_x = cell_width * col
+        text_pos_x = cell_width * col + swatch_width + 7
+
+        ax.text(text_pos_x, y, name, fontsize=14,
+                horizontalalignment='left',
+                verticalalignment='center')
+
+        ax.add_patch(
+            Rectangle(xy=(swatch_start_x, y-9), width=swatch_width,
+                      height=18, facecolor=colors[name], edgecolor='0.7')
+        )
+
+    return fig
+
+plot_colortable(mcolors.TABLEAU_COLORS, ncols=2, sort_colors=False)
+plt.show()
