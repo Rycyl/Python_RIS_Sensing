@@ -12,7 +12,8 @@ if __name__ == "__main__":
     socket = sockets.server_open_socket(ip_server, port)
     
     while True:
-        command = sockets.server_get_command(socket)
+        command, client_socket = sockets.server_get_command(socket)
         RH.steering_command(command=command)
+        sockets.send_ack(socket=client_socket, data=command)
 
     close_socket(socket)

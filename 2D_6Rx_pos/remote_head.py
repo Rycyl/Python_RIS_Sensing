@@ -121,27 +121,35 @@ class Remote_Head:
         self.STEP_AZ_GPIO.write(True)
         time.sleep(self.azimuth_step_time)
         self.STEP_AZ_GPIO.write(False)
-        time
+        time.sleep(self.azimuth_step_time)
 
-    def rotate_left(self, step_number = self.header_steps_az):
+    def rotate_left(self, step_number = None):
+        if step_number == None:
+            step_number = self.header_steps_az
         print("[Obrót w lewo o]: " + str(step_number * (1 / self.step_resolution) * 1.8))
         self.DIR_AZ_GPIO.write(False)  # left
         for _ in range(step_number):
             self.step_left_right()
 
-    def rotate_right(self, step_number = self.header_steps_az):
+    def rotate_right(self, step_number = None):
+        if step_number == None:
+            step_number = self.header_steps_az
         print("[Obrót w prawo o]: " + str(step_number * (1 / self.step_resolution) * 1.8))
         self.DIR_AZ_GPIO.write(True)  # right
         for _ in range(step_number):
             self.step_left_right()
 
-    def rotate_down(self, step_number = self.header_steps_el):
+    def rotate_down(self, step_number = None):
+        if step_number == None:
+            step_number = self.header_steps_az
         print("[Obrót w dół o]: " + str(step_number * (1 / self.step_resolution) * 1.8))
         self.DIR_EL_GPIO.write(False)  # up
         for _ in range(step_number):
             self.step_up_down()
 
-    def rotate_up(self, step_number = self.header_steps_el):
+    def rotate_up(self, step_number = None):
+        if step_number == None:
+            step_number = self.header_steps_az
         print("[Obrót w górę o]: " + str(step_number * (1 / self.step_resolution) * 1.8))
         self.DIR_EL_GPIO.write(True)  # down
         for _ in range(step_number):
@@ -149,12 +157,12 @@ class Remote_Head:
 
     def steering_command(self, command):
         if command=='l':
-            rotate_left(header_steps_az)
+            self.rotate_left(self.header_steps_el)
         elif command=='r':
-            rotate_right(steps_number_ssh)
+            self.rotate_right(self.header_steps_el)
         elif command=='u':
-            rotate_up(steps_number_ssh)
+            self.rotate_up(self.header_steps_el)
         elif command=='d':
-            rotate_down(steps_number_ssh)
+            self.rotate_down(self.header_steps_el)
         else:
             print("Błędny lub brak argumentu (cmd == )" + str(command))

@@ -18,7 +18,7 @@
     "RIS_PORT" : "/dev/ttyUSB0", 
     "SPAN" : 0,
     "ANALYZER_MODE":"WRITe",
-    "REVLEVEL" : -30,
+    "REVLEVEL" : -50,
     "RBW" : "2000 Hz",
     "GENERATOR_AMPLITUDE" : 0,
     "GENERATOR_MODE" : "CW",
