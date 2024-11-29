@@ -32,6 +32,8 @@ class Config:
                 self.azimuth_step_time = config["AZIMUTH_STEP_TIME"]
                 self.elevation_step_time = config["ELEVATION_STEP_TIME"]
                 self.step_resolution = config["STEP_RESOLUTION"]
+                self.header_steps_az = config["HEADER_STEPS_AZ"]
+                self.header_steps_el = config["HEADER_STEPS_EL"]
         except FileNotFoundError:
             print("File with configuration doesn't exist.")
             exit()

@@ -3,16 +3,23 @@ from analyzer_sensing import Analyzer
 from generator import Generator
 from config_obj import Config
 from RIS import RIS
-from remote_head import Remote_Head
 
 #import our libs:
 import search_patterns 
 from plot_trace import run_all, run_main
 from save_trace_file import create_results_folder
+import sockets
 
 #import 3rd party libs
 import os
 import time
+from bitstring import BitArray
+import numpy as np
+
+def get_random_pattern():
+    random_range = 2**256 -1
+    return BitArray(uint=random.randint(0, random_range), length=256)
+
 
 def create_csv_filename(trace_file_name):
     i = 1
@@ -41,28 +48,27 @@ def measure_do(filename, results_path, ris, generator, analyzer, conf):
     create_csv_file(file_path)
     print(file_path)
     # perform measure
-    search_patterns.find_best_pattern_element_wise(ris, generator, analyzer, conf, MEASURE_FILE=file_path, FIND_MIN=True)
-    search_patterns.find_best_pattern_element_wise(ris, generator, analyzer, conf, MEASURE_FILE=file_path, FIND_MIN=False)
+    start_pattern = get_random_pattern()
+    search_patterns.find_best_pattern_element_wise(ris, generator, analyzer, conf, START_PAT=start_pattern, MEASURE_FILE=file_path, FIND_MIN=True)
+    search_patterns.find_best_pattern_element_wise(ris, generator, analyzer, conf, START_PAT=start_pattern, MEASURE_FILE=file_path, FIND_MIN=False)
     return
 
 
 def main():
+    ip_server = '192.168.8.0'  # Server address
+    port = 13245
+
     conf = Config()
-    Header_Steps = 10 # chyba 9 stopni
 
     # Check if physical devices are connected
-    phy_device_input = bool(input("Czy podłączono fizyczne urządzenia (RIS, Analizator, Generator)? [y=1 / n=0]: "))
+    phy_device_input = int(input("Czy podłączono fizyczne urządzenia (RIS, Analizator, Generator)? [y=1 / n=0]: "))
     #phy_device_input = True # dla pomiarów
 
-    # Initialize devices
+    # Initialize devices and obj
     analyzer = Analyzer(conf, phy_device_input)
     generator = Generator(conf, phy_device_input)
     ris = RIS(port='/dev/ttyUSB0', phy_device=phy_device_input)
-    RH = Remote_Head(conf)
-
-    ##SETUP REMOTE HEAD
-    RH.resolution(2)
-
+    socket = sockets.client_open_socket(ip_server, port)
     # Create results folder
     results_path = create_results_folder()
     print(f"Results will be saved in: {results_path}")
@@ -73,20 +79,24 @@ def main():
     #making_measures_in_lab()
 
     #rotate 1_right
-    RH.rotate_right(Header_Steps)
+    #RH.rotate_right(Header_Steps)
+    sockets.client_send_message(socket, message="r")
     measure_do(filename, results_path, ris, generator, analyzer, conf)
 
     #1 left
-    RH.rotate_left(Header_Steps)
+    #RH.rotate_left(Header_Steps)
+    sockets.client_send_message(socket, message="l")
     measure_do(filename, results_path, ris, generator, analyzer, conf)
 
     #1 left
-    RH.rotate_left(Header_Steps)
+    #RH.rotate_left(Header_Steps)
+    sockets.client_send_message(socket, message="l")
     measure_do(filename, results_path, ris, generator, analyzer, conf)
 
     #back head do origin
     #1 right
-    RH.rotate_right(Header_Steps)
+    #RH.rotate_right(Header_Steps)
+    sockets.client_send_message(socket, message="r")
     return
 
 if __name__ == "__main__":
