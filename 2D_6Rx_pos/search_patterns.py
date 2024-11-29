@@ -103,6 +103,11 @@ def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1
 
     RIS.set_pattern('0x'+current_pattern.hex)
     pow_max = ANALYZER.trace_get_mean()
+    with open(MEASURE_FILE, 'a+') as file:
+                file.write(str(pow_max) + ",")
+                file.write("0x" + current_pattern.hex)
+                file.write('\n')
+                file.close()  # CLose the file
     #print("current amp:: ", pow_max)
     ### func definition ###
     
@@ -129,7 +134,7 @@ def find_best_pattern_element_wise(RIS, GENERATOR, ANALYZER, CONFIG, MASK = '0b1
 
             ##SET PAT AND MEASURE
             RIS.set_pattern('0x'+current_pattern.hex)
-            pp = ANALYZER.trace_get()
+            pp = ANALYZER.trace_get_mean()
             p = np.mean(pp)
             #t2 = time.time()
             #timings.append(t2-t1)

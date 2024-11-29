@@ -82,17 +82,17 @@ def main():
     #rotate 1_right
     #RH.rotate_right(Header_Steps)
     sockets.client_send_message(socket, message="r")
-    #measure_do(filename, results_path, ris, generator, analyzer, conf)
+    measure_do(filename, results_path, ris, generator, analyzer, conf)
 
     #1 left
     #RH.rotate_left(Header_Steps)
     sockets.client_send_message(socket, message="l")
-    #measure_do(filename, results_path, ris, generator, analyzer, conf)
+    measure_do(filename, results_path, ris, generator, analyzer, conf)
 
     #1 left
     #RH.rotate_left(Header_Steps)
     sockets.client_send_message(socket, message="l")
-    #measure_do(filename, results_path, ris, generator, analyzer, conf)
+    measure_do(filename, results_path, ris, generator, analyzer, conf)
 
     #back head do origin
     #1 right

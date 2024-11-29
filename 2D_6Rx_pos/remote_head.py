@@ -157,9 +157,9 @@ class Remote_Head:
 
     def steering_command(self, command):
         if command=='l':
-            self.rotate_left(self.header_steps_el)
+            self.rotate_left(self.header_steps_az)
         elif command=='r':
-            self.rotate_right(self.header_steps_el)
+            self.rotate_right(self.header_steps_az)
         elif command=='u':
             self.rotate_up(self.header_steps_el)
         elif command=='d':
