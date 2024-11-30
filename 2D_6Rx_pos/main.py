@@ -39,17 +39,20 @@ def create_csv_file(fil):
     return
 
 def making_measures_in_lab():
-    time.sleep(10) #wait a minute to let us go away
+    time.sleep(20) #wait a minute to let us go away
     return
 
 
-def measure_do(filename, results_path, ris, generator, analyzer, conf):
+def measure_do(filename, results_path, ris, generator, analyzer, conf, rand_start = True):
     file_path = os.path.join(results_path, filename)
     file_path = create_csv_filename(file_path)
     create_csv_file(file_path)
     print(file_path)
     # perform measure
-    start_pattern = get_random_pattern()
+    if rand_start:
+        start_pattern = get_random_pattern()
+    else:
+        start_pattern = BitArray(length=256)
     search_patterns.find_best_pattern_element_wise(ris, generator, analyzer, conf, START_PAT=start_pattern, MEASURE_FILE=file_path, FIND_MIN=True)
     search_patterns.find_best_pattern_element_wise(ris, generator, analyzer, conf, START_PAT=start_pattern, MEASURE_FILE=file_path, FIND_MIN=False)
     return
@@ -62,8 +65,8 @@ def main():
     conf = Config()
 
     # Check if physical devices are connected
-    phy_device_input = int(input("Czy podłączono fizyczne urządzenia (RIS, Analizator, Generator)? [y=1 / n=0]: "))
-    #phy_device_input = True # dla pomiarów
+    #phy_device_input = int(input("Czy podłączono fizyczne urządzenia (RIS, Analizator, Generator)? [y=1 / n=0]: "))
+    phy_device_input = True # dla pomiarów
 
     # Initialize devices and obj
     analyzer = Analyzer(conf, phy_device_input)
@@ -75,24 +78,28 @@ def main():
     print(f"Results will be saved in: {results_path}")
 
     # Define the filename and create the full path
-    filename = "2D_meas_Rx_1_RISpos_"
+    filename = "2D_meas_rand_omni_start_Rx_5_RISpos_"
+    #filename = "2D_meas_rand_start_omni_Rx_5_ref_RISpos_"
+    #filename = "Test"
     
-    #making_measures_in_lab()
+    start_rand = 1
+
+    making_measures_in_lab()
 
     #rotate 1_right
     #RH.rotate_right(Header_Steps)
     sockets.client_send_message(socket, message="r")
-    measure_do(filename, results_path, ris, generator, analyzer, conf)
+    measure_do(filename, results_path, ris, generator, analyzer, conf, start_rand)
 
     #1 left
     #RH.rotate_left(Header_Steps)
     sockets.client_send_message(socket, message="l")
-    measure_do(filename, results_path, ris, generator, analyzer, conf)
+    measure_do(filename, results_path, ris, generator, analyzer, conf, start_rand)
 
     #1 left
     #RH.rotate_left(Header_Steps)
     sockets.client_send_message(socket, message="l")
-    measure_do(filename, results_path, ris, generator, analyzer, conf)
+    measure_do(filename, results_path, ris, generator, analyzer, conf, start_rand)
 
     #back head do origin
     #1 right
