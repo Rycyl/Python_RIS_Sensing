@@ -78,11 +78,11 @@ def main():
     print(f"Results will be saved in: {results_path}")
 
     # Define the filename and create the full path
-    filename = "2D_meas_rand_omni_start_Rx_5_RISpos_"
-    #filename = "2D_meas_rand_start_omni_Rx_5_ref_RISpos_"
+    #filename = "2D_meas_rand_omni_start_Rx_5_RISpos_"
+    filename = "2D_meas_rand_start_omni_Rx_5_ref_RISpos_"
     #filename = "Test"
     
-    start_rand = 1
+    start_rand = 0
 
     making_measures_in_lab()
 
