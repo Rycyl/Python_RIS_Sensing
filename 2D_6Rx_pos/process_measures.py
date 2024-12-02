@@ -90,8 +90,8 @@ def plot_hamming_vs_power(file_names: list):
     j=0
     colors = ['b', 'r', 'c', 'm', 'g', 'y']
     for i in range(lenght):
-        fin_ax.scatter(data_for_plots[i+j][0], data_for_plots[i+j][1], label='Min power', marker='o', color=colors[i+j])
-        fin_ax.scatter(data_for_plots[i+j+1][0], data_for_plots[i+j+1][1], label='Max power', marker='x', color=colors[i+j+1])
+        fin_ax.scatter(data_for_plots[i+j][0], data_for_plots[i+j][1], label=f'Min power for pos {i}', marker='o', color=colors[i+j])
+        fin_ax.scatter(data_for_plots[i+j+1][0], data_for_plots[i+j+1][1], label=f'Max power for pos {i}', marker='x', color=colors[i+j+1])
         j+=1
         fin_ax.set_xlabel('Hamming distance')
         fin_ax.set_ylabel('Power')
@@ -114,13 +114,36 @@ def save_plots_to_pdf(filename: str):
 if __name__ == '__main__':
     #############################################
     date = "21-11"
+    file_name = "2D_meas_Rx"
     #############################################
     
     path = os.getcwd()
     path = os.path.join(path, 'Wyniki', date)
-    mes_file_list = ['2D_meas_Rx_1_RISpos__1.csv', '2D_meas_Rx_1_RISpos__2.csv', '2D_meas_Rx_1_RISpos__3.csv']
-    mes_file_list = [os.path.join(path, file) for file in mes_file_list]
-    mes_file_list.sort()
-    plot_hamming_vs_power(mes_file_list)
-    save_plots_to_pdf('2D_meas_Rx_1.pdf')
+    mes_file_list_1 = [file for file in os.listdir(path) if file_name + "_1" in file and file.endswith(".csv")]
+    mes_file_list_1 = [os.path.join(path, file) for file in mes_file_list_1]
+    mes_file_list_1.sort()
+    mes_file_list_2 = [file for file in os.listdir(path) if file_name + "_2" in file and file.endswith(".csv")]
+    mes_file_list_2 = [os.path.join(path, file) for file in mes_file_list_2]
+    mes_file_list_2.sort()
+    mes_file_list_3 = [file for file in os.listdir(path) if file_name + "_3" in file and file.endswith(".csv")]
+    mes_file_list_3 = [os.path.join(path, file) for file in mes_file_list_3]
+    mes_file_list_3.sort()
+    mes_file_list_4 = [file for file in os.listdir(path) if file_name + "_4" in file and file.endswith(".csv")]
+    mes_file_list_4 = [os.path.join(path, file) for file in mes_file_list_4]
+    mes_file_list_4.sort()
+    mes_file_list_5 = [file for file in os.listdir(path) if file_name + "_5" in file and file.endswith(".csv")]
+    mes_file_list_5 = [os.path.join(path, file) for file in mes_file_list_5]
+    mes_file_list_5.sort()
+    mes_file_list_6 = [file for file in os.listdir(path) if file_name + "_6" in file and file.endswith(".csv")]
+    mes_file_list_6 = [os.path.join(path, file) for file in mes_file_list_6]
+    mes_file_list_6.sort()
+    mes_file_lists = [mes_file_list_1, mes_file_list_2, mes_file_list_3, mes_file_list_4, mes_file_list_5, mes_file_list_6]
+    #mes_file_list = [os.path.join(path, file) for file in mes_file_list]
+    #mes_file_list.sort()
+    for file_list in mes_file_lists:
+        plot_hamming_vs_power(file_list)
+    pdf_file = file_name + ".pdf"
+    pdf_file = os.path.join(path, pdf_file)
+    #print(pdf_file)
+    save_plots_to_pdf(pdf_file)
     exit()
