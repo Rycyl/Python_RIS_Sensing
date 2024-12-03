@@ -2,7 +2,19 @@ from bitstring import BitArray
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.gridspec import GridSpec
+import matplotlib.colors as mcolors
 import os
+
+def get_n(hamming_dist):
+    n = max(hamming_dist)
+    plus_n = []
+    for H in hamming_dist:
+        plus_n.append(n-H)
+    return plus_n
+
+
+def aprox_fun()
+
 
 def hamming_distance(pat_one: BitArray, pat_two: BitArray):
     hamming_distance = (pat_one ^ pat_two).count(1)
@@ -71,7 +83,7 @@ def plot_hamming_vs_power(file_names: list):
         data_for_plots.append((hamming_for_max ,max_powers))
     
     lenght = int(len(data_for_plots)//2)
-    fig = plt.figure(figsize=(15, 7))
+    fig = plt.figure(figsize=(20, 11))
     gs = GridSpec(2, lenght, figure=fig)
     axs = []
     j = 0
@@ -88,8 +100,9 @@ def plot_hamming_vs_power(file_names: list):
     fin_ax = fig.add_subplot(gs[1, :])
     fin_ax.grid()
     j=0
-    colors = ['b', 'r', 'c', 'm', 'g', 'y']
+    colors = ['tab:blue', 'tab:red', 'tab:cyan', 'tab:pink', 'tab:green', 'tab:orange', 'tab:olive', 'tab:purple', 'tab:gray', 'tab:brown', 'm', 'k', 'teal', 'crimson' ]
     for i in range(lenght):
+        #print(i+j)
         fin_ax.scatter(data_for_plots[i+j][0], data_for_plots[i+j][1], label=f'Min power for pos {i}', marker='o', color=colors[i+j])
         fin_ax.scatter(data_for_plots[i+j+1][0], data_for_plots[i+j+1][1], label=f'Max power for pos {i}', marker='x', color=colors[i+j+1])
         j+=1
@@ -113,8 +126,8 @@ def save_plots_to_pdf(filename: str):
 
 if __name__ == '__main__':
     #############################################
-    date = "21-11"
-    file_name = "2D_meas_Rx"
+    date = "30-11"
+    file_name = "2D_meas_rand_start_omni_Rx"
     #############################################
     
     path = os.getcwd()
@@ -141,6 +154,7 @@ if __name__ == '__main__':
     #mes_file_list = [os.path.join(path, file) for file in mes_file_list]
     #mes_file_list.sort()
     for file_list in mes_file_lists:
+        #print(file_list)
         plot_hamming_vs_power(file_list)
     pdf_file = file_name + ".pdf"
     pdf_file = os.path.join(path, pdf_file)
