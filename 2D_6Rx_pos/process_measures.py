@@ -13,7 +13,7 @@ def get_n(hamming_dist):
     return plus_n
 
 
-def aprox_fun()
+#def aprox_fun():
 
 
 def hamming_distance(pat_one: BitArray, pat_two: BitArray):
@@ -75,7 +75,7 @@ def extract_from_file(file_name: str):
         hamming_for_max.append(hamming_max)
     return min_powers, hamming_for_min, max_powers, hamming_for_max
 
-def plot_hamming_vs_power(file_names: list):
+def plot_hamming_vs_power(file_names: list, test = False):
     data_for_plots = []
     for file_name in file_names:
         min_powers, hamming_for_min, max_powers, hamming_for_max = extract_from_file(file_name)
@@ -87,11 +87,21 @@ def plot_hamming_vs_power(file_names: list):
     gs = GridSpec(2, lenght, figure=fig)
     axs = []
     j = 0
+
+    if test:
+        xdata = []
+        for x in data_for_plots:
+            xdata.append(get_n(x[0]))
+    else:
+        xdata = []
+        for x in data_for_plots:
+            xdata.append(x[0])
+
     for i in range(lenght):
         axs.append(fig.add_subplot(gs[0, i]))
         axs[i].grid()
-        axs[i].scatter(data_for_plots[i+j][0], data_for_plots[i+j][1], label='Min power', marker='o', color='b')
-        axs[i].scatter(data_for_plots[i+j+1][0], data_for_plots[i+j+1][1], label='Max power', marker='x', color='r')
+        axs[i].scatter(xdata[i+j], data_for_plots[i+j][1], label='Min power', marker='o', color='b')
+        axs[i].scatter(xdata[i+j+1], data_for_plots[i+j+1][1], label='Max power', marker='x', color='r')
         j+=1
         axs[i].set_xlabel('Hamming distance')
         axs[i].set_ylabel('Power')
@@ -155,8 +165,8 @@ if __name__ == '__main__':
     #mes_file_list.sort()
     for file_list in mes_file_lists:
         #print(file_list)
-        plot_hamming_vs_power(file_list)
-    pdf_file = file_name + ".pdf"
+        plot_hamming_vs_power(file_list, test=True)
+    pdf_file = file_name + "_test.pdf"
     pdf_file = os.path.join(path, pdf_file)
     #print(pdf_file)
     save_plots_to_pdf(pdf_file)

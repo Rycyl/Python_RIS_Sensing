@@ -31,8 +31,8 @@ if __name__ == "__main__":
     generator = Generator(config)
     RIS = RIS(port='/dev/ttyUSB0')
     RIS.reset()
-    filename = "Test_nowej_funkcji_synchronizacji"
-    trace_file = 'trace_file_group_mesures_Nowa_funkcja_synchronizacji'
+    filename = "Test_opóźnień"
+    trace_file = 'trace_file_group_mesures_test_opóźnień'
 
     filename = create_trace_file(filename)
     trace_file = create_trace_file(trace_file)
