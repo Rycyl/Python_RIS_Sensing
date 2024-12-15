@@ -5,3 +5,4 @@ numpy
 matplotlib
 python-periphery
 bitstring
+scipy
