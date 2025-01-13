@@ -46,6 +46,8 @@ class Config:
     def update_swt(self, swt):
         self.sweptime = swt
         self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3])))
+        if self.swepnt < 101:
+            self.swepnt = 101
         return
 
         

@@ -16,6 +16,8 @@ from bitstring import Bits, BitArray, BitStream, pack
 
 config = Config()
 
+config.update_swt(0.06)
+
 def create_trace_file(trace_file_name):
     i = 1
     while True:
@@ -34,13 +36,13 @@ if __name__ == "__main__":
     filename = "Test_opóźnień"
     trace_file = 'trace_file_group_mesures_test_opóźnień'
 
-    filename = create_trace_file(filename)
-    trace_file = create_trace_file(trace_file)
-    Search_patterns = Element_By_Element_Search_std_PK(RIS, generator, analyzer, config, 4, 3, 3.0, 0.08, True, True, filename, False, trace_file, None)
-    #sleep(10)
-    Search_patterns.run()
-    #search_patterns.find_best_pattern_codebook(RIS, generator, analyzer, config, 'test_virt.csv')
-    del Search_patterns
+    # filename = create_trace_file(filename)
+    # trace_file = create_trace_file(trace_file)
+    # Search_patterns = Element_By_Element_Search_std_PK(RIS, generator, analyzer, config, 4, 3, 3.0, 0.08, True, True, filename, False, trace_file, None)
+    # #sleep(10)
+    # Search_patterns.run()
+    search_patterns.find_best_pattern_codebook(RIS, generator, analyzer, config, 'tset.csv')
+    # del Search_patterns
     generator.close()
     analyzer.close()
     #run_main(trace_file)

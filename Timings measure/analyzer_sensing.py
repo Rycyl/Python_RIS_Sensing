@@ -105,7 +105,8 @@ class Analyzer(RsInstrument, Analyzer_virtual):
             Analyzer_virtual.com_check()
         
     def meas_prep(self, freq : int, swt : float, span : int, mode : str, detector : str, revlevel : int, rbw : str, swepnt : int, swtcnt : int = 1):
-        try:
+        # try:
+            # print("correct")
             self.write_str_with_opc('*RST')
             self.write_str_with_opc(f'FREQuency:CENTer {freq}')  
             self.write_str_with_opc(f'FREQuency:SPAN {span}')  
@@ -118,10 +119,11 @@ class Analyzer(RsInstrument, Analyzer_virtual):
             self.write_str_with_opc(f'SWEep:POINts {swepnt}')
             self.write_str_with_opc('INITiate:CONTinuous OFF')
             mst = self.query_float('SWEep:DUR?')
-            print('Measurement prepared. freq:', freq, 'span:', span, 'mode:', mode, 'revlevel:', revlevel, 'rbw:', rbw, 'swepnt:', swepnt, 'swtcnt:', swtcnt)
+            print('Measurement prepared. freq:', freq, 'span:', span, 'mode:', mode, 'revlevel:', revlevel, 'rbw:', rbw, 'swepnt:', swepnt, 'swtcnt:', swtcnt, 'swt:', swt)
             print(f'Measurement time: {mst} s')
-        except:
-            Analyzer_virtual.meas_prep(freq, swt, span, mode, detector, revlevel, rbw, swepnt, swtcnt)
+        # except:
+        #     print("error")
+        #     Analyzer_virtual.meas_prep(freq, swt, span, mode, detector, revlevel, rbw, swepnt, swtcnt)
 
     def trace_get(self):
         try:
