@@ -5,7 +5,7 @@ from config_obj import Config
 import csv
 from bitstring import BitArray
 import threading
-
+import time
 
 
 class sing_pat_per_run():
@@ -34,11 +34,16 @@ class sing_pat_per_run():
         return self.Mes_pow
     
     def start_measure(self):
-        Do_Measure = threading.Thread(target = self.do_measure)
+        
         self.All_measured = {}
         for pattern in self.Codebook:
+            Do_Measure = threading.Thread(target = self.do_measure)
             Do_Measure.start()
+            print("settin pattern")
+            t_1 = time.time()
             self.Ris.set_pattern('0x' + pattern.hex)
+            print(time.time() - t_1)
+            print("pattern set")
             Do_Measure.join()
             self.All_measured['0x' + pattern.hex] = self.Mes_pow
         return self.save_to_file()
