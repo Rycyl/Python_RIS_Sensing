@@ -5,9 +5,7 @@ def create_file(common_name: str, directory = 'wyniki', use_date_in_name = True)
     exit_directory = os.getcwd()
     exit_directory = os.path.join(exit_directory, directory)
     if use_date_in_name:
-        date = time.ctime()
-        date = date.replace(" ", "_")
-        date = date.replace(":", "_")
+        date = time.strftime("%d_%b_%Y")
         common_name += f"_{date}"
     existing_files_csv = os.listdir(exit_directory)
     existing_files = []

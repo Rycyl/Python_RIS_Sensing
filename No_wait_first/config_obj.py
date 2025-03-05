@@ -19,7 +19,7 @@ class Config:
                 self.generator_amplitude = config["GENERATOR_AMPLITUDE"]
                 self.detector = config["DETECTOR"]
                 self.sweptime = config["SWEEP_TIME"]
-                self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3])))
+                self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3]))) if (int(self.sweptime/(1/int(self.rbw[0:-3])))>=101) else 101
                 self.generator_mode = enums.FreqMode.CW if config["GENERATOR_MODE"] == "CW" else enums.FreqMode.CW
                 self.IP_ADDRESS_ANALYZER = config["IP_ADDRESS_ANALYZER"]
                 self.PORT_ANALYZER = config["PORT"]
@@ -40,12 +40,12 @@ class Config:
 
     def update_rbw(self, rbw):
         self.rbw = rbw
-        self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3])))
+        self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3]))) if (int(self.sweptime/(1/int(self.rbw[0:-3])))>=101) else 101
         return
 
     def update_swt(self, swt):
         self.sweptime = swt
-        self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3])))
+        self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3]))) if (int(self.sweptime/(1/int(self.rbw[0:-3])))>=101) else 101
         return
 
         

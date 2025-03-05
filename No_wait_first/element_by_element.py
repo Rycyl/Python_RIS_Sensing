@@ -33,12 +33,13 @@ class sing_pat_per_run():
         self.Mes_pow = self.Anal.trace_get_mean
         return self.Mes_pow
     
-    def start_measure(self):
-        
+    def start_measure(self):       
         self.All_measured = {}
         for pattern in self.Codebook:
             Do_Measure = threading.Thread(target = self.do_measure)
             Do_Measure.start()
+            print(pattern)
+            print(pattern.hex)
             print("settin pattern")
             t_1 = time.time()
             self.Ris.set_pattern('0x' + pattern.hex)
