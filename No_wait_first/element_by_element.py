@@ -55,7 +55,7 @@ class sing_pat_per_run():
             csvfile.write("Pattern, Power")
             csvfile.write("\n")
             for key in keys:
-                text = f"{key}: {self.All_measured[key]},"
+                text = f"{key}, {self.All_measured[key]},"
                 csvfile.write(text)
                 csvfile.write("\n")
             csvfile.close()
