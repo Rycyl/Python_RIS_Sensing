@@ -13,17 +13,13 @@ def create_file(common_name: str, directory = 'wyniki', use_date_in_name = True)
         file = file.split(".")[0]
         existing_files.append(file)
     
-    i = 1
+    i = 1 
 
-    for i in range(1, len(existing_files)):
-        if "_".join([common_name, str(i)]) in existing_files:
-            i += 1
-        else:
-            #existing_files = "_".join([existing_files[i], str(i)])
-            break
-    
-    
+    while f"{common_name}_{i}" in existing_files:
+        i += 1
+
     file_name = f"{common_name}_{i}.csv"
+    file_name = os.path.join(exit_directory, file_name)
 
     file_name = os.path.join(exit_directory, file_name)
 
