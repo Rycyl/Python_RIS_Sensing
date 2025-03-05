@@ -30,7 +30,7 @@ class sing_pat_per_run():
         return codes
     
     def do_measure(self):
-        self.Mes_pow = self.Anal.trace_get_mean
+        self.Mes_pow = self.Anal.trace_get_mean()
         return self.Mes_pow
     
     def start_measure(self):       
@@ -53,9 +53,11 @@ class sing_pat_per_run():
         with open(self.file, 'w+') as csvfile:
             keys = self.All_measured.keys()
             csvfile.write("Pattern, Power")
+            csvfile.write("\n")
             for key in keys:
-                text = f"{key}: {self.All_measured[key]}"
+                text = f"{key}: {self.All_measured[key]},"
                 csvfile.write(text)
+                csvfile.write("\n")
             csvfile.close()
         return self.All_measured
 

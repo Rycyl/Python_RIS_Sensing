@@ -16,10 +16,10 @@ def create_file(common_name: str, directory = 'wyniki', use_date_in_name = True)
     i = 1
 
     for i in range(1, len(existing_files)):
-        if "_".join([existing_files[i], str(i)]) in existing_files:
+        if "_".join([common_name, str(i)]) in existing_files:
             i += 1
         else:
-            existing_files = "_".join([existing_files[i], str(i)])
+            #existing_files = "_".join([existing_files[i], str(i)])
             break
     
     

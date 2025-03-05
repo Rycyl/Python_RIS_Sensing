@@ -9,7 +9,7 @@ import time
 
 if __name__ == "__main__":
     Conf = Config()
-    phy_device_input = False
+    phy_device_input = True
 
     analyzer = Analyzer(Conf, phy_device_input)
     generator = Generator(Conf, phy_device_input)
