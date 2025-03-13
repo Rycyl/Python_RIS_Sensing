@@ -6,7 +6,7 @@ import csv
 from bitstring import BitArray
 import threading
 import time
-
+from copy import copy
 
 class sing_pat_per_run():
     def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, exit_file: str, codebook: str):
@@ -118,7 +118,36 @@ class sing_pat_per_run_w_wait():
         return self.All_measured
 
 
+class element_by_element():
+    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, exit_file: str, mask = '0b1', find_min = False, no_start_from_zero = False):
+        self.Ris = ris
+        self.Anal = anal
+        self.Gen = gen
+        self.Meas_File = exit_file
+        self.Mask = mask
+        self.Find_Min = find_min
+        #self.No_start_from_zero = no_start_from_zero
+        self.Code_list = [(None, 'N/A', "NaN") for i in range(257)]
+        #For now use only mask size == 1
+        self.Current_pattern = copy(no_start_from_zero) if no_start_from_zero else BitArray(length=256)
+        self.Mes_pow = None
+        self.Best_pow = 100000 if find_min else -100000
+        self.All_measured = []
 
-    
+    def do_measure(self):
+        self.Mes_pow = self.Anal.trace_get_mean()
+        return self.Mes_pow
 
+    def start_measure(self):
+        self.All_measured = []
+        current_element = 1
+        for Code in self.Code_list:
+            Do_measure = threading.Thread(target=self.do_measure)
+            pat = ('0x' + self.Current_pattern.hex)
+            #self.Ris.set_pattern('0x' + C_pat[0].hex)
+            Do_measure.start()
+            self.Ris.set_pattern(pat)
+            Do_measure.join()
+            all_data = ()
+            self.All_measured.append()
             

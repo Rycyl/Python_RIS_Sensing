@@ -8,7 +8,7 @@
     "RIS_SET_TIME" : 0.01,
     "START_FREQ": 5.4E9,
     "END_FREQ":   5.4E9,
-    "CENTRAL_FREQ": 5.4E9,
+    "CENTRAL_FREQ": 5.53E9,
     "STEP_FREQ":  30E6, 
     "STEP_COMMENT" : "Do wartości poniżej (kroki silnika) 1-krok 1.8stopnia, 2-0.9, 4-0.45, 8-0.225, 16-0.1125",
     "STEP_TIME" : 0.1,
