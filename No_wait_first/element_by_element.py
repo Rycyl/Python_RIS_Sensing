@@ -123,31 +123,118 @@ class element_by_element():
         self.Ris = ris
         self.Anal = anal
         self.Gen = gen
-        self.Meas_File = exit_file
+        self.file = exit_file
         self.Mask = mask
         self.Find_Min = find_min
         #self.No_start_from_zero = no_start_from_zero
-        self.Code_list = [(None, 'N/A', "NaN") for i in range(257)]
+        #self.Code_list = [(None, 'N/A', "NaN") for i in range(257)]
         #For now use only mask size == 1
         self.Current_pattern = copy(no_start_from_zero) if no_start_from_zero else BitArray(length=256)
+        #self.Code_list[0][0] = copy(no_start_from_zero) if no_start_from_zero else BitArray(length=256)
         self.Mes_pow = None
         self.Best_pow = 100000 if find_min else -100000
         self.All_measured = []
+        self.Best_pattern = BitArray(length=256)
 
     def do_measure(self):
         self.Mes_pow = self.Anal.trace_get_mean()
         return self.Mes_pow
+    
+    def check_if_better(self):
+        if self.Find_Min:
+            if self.Mes_pow < self.Best_pow:
+                self.Best_pattern = copy(self.Current_pattern)
+                self.Best_pow = self.Mes_pow
+        elif self.Mes_pow > self.Best_pow:
+            self.Best_pattern = copy(self.Current_pattern)
+            self.Best_pow = self.Mes_pow
+        return
 
     def start_measure(self):
         self.All_measured = []
-        current_element = 1
-        for Code in self.Code_list:
+        for c in range(257):
+            c_datum = (None, 'N/A', "NaN")
             Do_measure = threading.Thread(target=self.do_measure)
-            pat = ('0x' + self.Current_pattern.hex)
-            #self.Ris.set_pattern('0x' + C_pat[0].hex)
             Do_measure.start()
-            self.Ris.set_pattern(pat)
+            self.Ris.set_pattern('0x'+self.Current_pattern)
+            c_datum[0] = copy(self.Current_pattern)
+            mask_pattern = BitArray(length=256)
+            mask_pattern.overwrite(self.Mask, c)
             Do_measure.join()
-            all_data = ()
-            self.All_measured.append()
-            
+            self.check_if_better()
+            c_datum[2] = self.Mes_pow
+            self.All_measured.append(c_datum)
+            self.Current_pattern ^= mask_pattern
+        return self.All_measured
+    
+    def save_to_file(self):
+        with open(self.file, 'w+') as csvfile:
+            csvfile.write("Pattern, Angle, Power")
+            csvfile.write("\n")
+            for datum in self.All_measured:
+                text = f"{datum[0]}; {datum[1]}; {datum[2]}"
+                csvfile.write(text + "\n")
+            csvfile.close()
+        return self.All_measured
+                    
+    def ret_best(self):
+        return self.Best_pattern, self.Best_pow
+    
+class stripe_by_stripe():
+    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, exit_file: str, find_min = False, no_start_from_zero = False):
+        self.Ris = ris
+        self.Anal = anal
+        self.Gen = gen
+        self.file = exit_file
+        self.Mask = '0b10000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000'
+        self.Find_Min = find_min
+        self.Current_pattern = copy(no_start_from_zero) if no_start_from_zero else BitArray(length=256)
+        self.Mes_pow = None
+        self.Best_pow = 100000 if find_min else -100000
+        self.All_measured = []
+        self.Best_pattern = BitArray(length=256)
+
+    def do_measure(self):
+        self.Mes_pow = self.Anal.trace_get_mean()
+        return self.Mes_pow
+    
+    def check_if_better(self):
+        if self.Find_Min:
+            if self.Mes_pow < self.Best_pow:
+                self.Best_pattern = copy(self.Current_pattern)
+                self.Best_pow = self.Mes_pow
+        elif self.Mes_pow > self.Best_pow:
+            self.Best_pattern = copy(self.Current_pattern)
+            self.Best_pow = self.Mes_pow
+        return
+    
+    def start_measure(self):
+        self.All_measured = []
+        for c in range(16):
+            c_datum = (None, 'N/A', "NaN")
+            Do_measure = threading.Thread(target=self.do_measure)
+            Do_measure.start()
+            self.Ris.set_pattern('0x'+self.Current_pattern)
+            c_datum[0] = copy(self.Current_pattern)
+            mask_pattern = BitArray(length=256)
+            mask_pattern.overwrite(self.Mask, c)
+            mask_pattern = mask_pattern[:256]
+            Do_measure.join()
+            self.check_if_better()
+            c_datum[2] = self.Mes_pow
+            self.All_measured.append(c_datum)
+            self.Current_pattern ^= mask_pattern
+        return self.All_measured
+    
+    def save_to_file(self):
+        with open(self.file, 'w+') as csvfile:
+            csvfile.write("Pattern, Angle, Power")
+            csvfile.write("\n")
+            for datum in self.All_measured:
+                text = f"{datum[0]}; {datum[1]}; {datum[2]}"
+                csvfile.write(text + "\n")
+            csvfile.close()
+        return self.All_measured
+                    
+    def ret_best(self):
+        return self.Best_pattern, self.Best_pow
