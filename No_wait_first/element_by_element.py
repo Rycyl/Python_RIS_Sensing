@@ -142,29 +142,44 @@ class element_by_element():
     
     def check_if_better(self):
         if self.Find_Min:
+            #print(self.Find_Min)
             if self.Mes_pow < self.Best_pow:
                 self.Best_pattern = copy(self.Current_pattern)
                 self.Best_pow = self.Mes_pow
         elif self.Mes_pow > self.Best_pow:
+            #print(self.Mes_pow)
+            #print(self.Best_pow)
             self.Best_pattern = copy(self.Current_pattern)
             self.Best_pow = self.Mes_pow
+            
         return
 
     def start_measure(self):
         self.All_measured = []
-        for c in range(257):
+        print(self.Current_pattern)
+        print(len(self.Current_pattern))
+        for c in range(256):
+            #print("Iteration: ", c)
+            #print("Current pattern: ", self.Current_pattern)
             Do_measure = threading.Thread(target=self.do_measure)
+            s_time = time.time()
             Do_measure.start()
-            self.Ris.set_pattern('0x'+self.Current_pattern.bin)
+            
+            self.Ris.set_pattern('0x'+self.Current_pattern.hex)
+            
             c_datum_0 = copy(self.Current_pattern)
+            
             mask_pattern = BitArray(length=256)
+            
             mask_pattern.overwrite(self.Mask, c)
+            #print("Inside: ",time.time() - s_time)
             Do_measure.join()
+            #print(time.time() - s_time)
             self.check_if_better()
             c_datum_2 = self.Mes_pow
             c_datum = (c_datum_0, 'N/A', c_datum_2)
             self.All_measured.append(c_datum)
-            self.Current_pattern ^= mask_pattern
+            self.Current_pattern = self.Best_pattern ^ mask_pattern
         return self.All_measured
     
     def save_to_file(self):
@@ -186,7 +201,7 @@ class stripe_by_stripe():
         self.Anal = anal
         self.Gen = gen
         self.file = exit_file
-        self.Mask = '0b10000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000'
+        self.Mask = '0x8000800080008000800080008000800080008000800080008000800080008000'
         self.Find_Min = find_min
         self.Current_pattern = copy(no_start_from_zero) if no_start_from_zero else BitArray(length=256)
         self.Mes_pow = None
@@ -211,9 +226,11 @@ class stripe_by_stripe():
     def start_measure(self):
         self.All_measured = []
         for c in range(17):
+            #print("Iteration: ", c)
+            #print("Pattern: ", self.Current_pattern)
             Do_measure = threading.Thread(target=self.do_measure)
             Do_measure.start()
-            self.Ris.set_pattern('0x'+self.Current_pattern.bin)
+            self.Ris.set_pattern('0x'+self.Current_pattern.hex)
             c_datum_0 = copy(self.Current_pattern)
             mask_pattern = BitArray(length=256)
             mask_pattern.overwrite(self.Mask, c)
@@ -223,7 +240,7 @@ class stripe_by_stripe():
             c_datum_2 = self.Mes_pow
             c_datum = (c_datum_0, 'N/A', c_datum_2)
             self.All_measured.append(c_datum)
-            self.Current_pattern ^= mask_pattern
+            self.Current_pattern = self.Best_pattern ^ mask_pattern
         return self.All_measured
     
     def save_to_file(self):
