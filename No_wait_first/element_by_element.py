@@ -153,16 +153,16 @@ class element_by_element():
     def start_measure(self):
         self.All_measured = []
         for c in range(257):
-            c_datum = (None, 'N/A', "NaN")
             Do_measure = threading.Thread(target=self.do_measure)
             Do_measure.start()
             self.Ris.set_pattern('0x'+self.Current_pattern.bin)
-            c_datum[0] = copy(self.Current_pattern)
+            c_datum_0 = copy(self.Current_pattern)
             mask_pattern = BitArray(length=256)
             mask_pattern.overwrite(self.Mask, c)
             Do_measure.join()
             self.check_if_better()
-            c_datum[2] = self.Mes_pow
+            c_datum_2 = self.Mes_pow
+            c_datum = (c_datum_0, 'N/A', c_datum_2)
             self.All_measured.append(c_datum)
             self.Current_pattern ^= mask_pattern
         return self.All_measured
@@ -210,18 +210,18 @@ class stripe_by_stripe():
     
     def start_measure(self):
         self.All_measured = []
-        for c in range(16):
-            c_datum = (None, 'N/A', "NaN")
+        for c in range(17):
             Do_measure = threading.Thread(target=self.do_measure)
             Do_measure.start()
             self.Ris.set_pattern('0x'+self.Current_pattern.bin)
-            c_datum[0] = copy(self.Current_pattern)
+            c_datum_0 = copy(self.Current_pattern)
             mask_pattern = BitArray(length=256)
             mask_pattern.overwrite(self.Mask, c)
             mask_pattern = mask_pattern[:256]
             Do_measure.join()
             self.check_if_better()
-            c_datum[2] = self.Mes_pow
+            c_datum_2 = self.Mes_pow
+            c_datum = (c_datum_0, 'N/A', c_datum_2)
             self.All_measured.append(c_datum)
             self.Current_pattern ^= mask_pattern
         return self.All_measured
