@@ -2,7 +2,7 @@ import serial
 
 
 class UWB_module():
-    def __init__(self, port = '/dev/ttyACM0', b_rate = 115200, no_of_lines = 10, max_attempts = 20):
+    def __init__(self, port = '/dev/ttyACM0', b_rate = 115200, no_of_lines = 10, max_attempts = 40):
         self.uwb_dev = serial.Serial(port, b_rate)
         self.uwb_dev.reset_input_buffer()
         self.uwb_dev.reset_output_buffer()
@@ -11,26 +11,37 @@ class UWB_module():
         self.max_attempts = max_attempts
 
 
-    def get_data(self):
-        self.uwb_dev.reset_input_buffer()
-        lines = []
+    def get_uwb_data(self):
+        #self.uwb_dev.reset_input_buffer()
+        mr = []
+        ma = []
         attempts = 0
-        while len(lines) < self.no_of_lines and attempts < self.max_attempts:
+        while True:
             read = self.uwb_dev.readline().decode('utf-8', errors='ignore').strip()
-            if read.startswith("mc"):
-                lines.append(read)
+            if read.startswith('mr') and len(mr) < self.no_of_lines:
+                mr.append(read)
+            elif read.startswith('ma') and len(ma) < self.no_of_lines:
+                ma.append(read)
             attempts += 1
-        return lines
+            if (len(mr) == self.no_of_lines and len(ma) == self.no_of_lines):
+                break
+        return mr, ma
+    
+    def process_data(self, data):
+        ret_data = [[], [], [], []]
+        # [RANGE0[], RANGE1[], RANGE2[], RANGE3[]]
+        for datum in data:
+            segmented_datum = datum.split(" ")
+            for i in range(4):
+                ret_data[i].append(float('0x' + segmented_datum[i+2]))
+        return ret_data
+    
 
     def get_distances(self):
-        lines = self.get_data()
-        distances = []
-        for line in lines:
-            data = line.split(" ")
-            data = data[2:6]
-            data = [int('0x'+d) for d in data]
-            distances.append(data)
-        calc_dist = [sum(sorted(values)[1:-1]) for values in zip(*distances)]
-        return calc_dist
+        mr, ma = self.get_uwb_data()
+        tag_distances_lists, anchor_distances_lists = (self.process_data(mr), self.process_data(ma))
+        calc_dist_tag = [sum(sorted(values)[1:-1]) for values in zip(*tag_distances_lists)]
+        calc_dist_anchor = [sum(sorted(values)[1:-1]) for values in zip(*anchor_distances_lists)]
+        return calc_dist_tag, calc_dist_anchor
         
     
