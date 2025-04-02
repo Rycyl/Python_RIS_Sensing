@@ -7,9 +7,10 @@ from bitstring import BitArray
 import threading
 import time
 from copy import copy
+from get_angle import Antenna_Geometry
 
 class sing_pat_per_run():
-    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, exit_file: str, codebook: str):
+    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, geometry_obj: Antenna_Geometry, exit_file: str, codebook: str):
         self.Ris = ris
         self.Anal = anal
         self.Gen = gen
@@ -18,6 +19,7 @@ class sing_pat_per_run():
         self.No_of_pats = len(self.Codebook)
         self.Mes_pow = None
         self.All_measured = {}
+        self.Geometry = geometry_obj
 
 
     def load_code_book(self, codebook):
@@ -25,8 +27,8 @@ class sing_pat_per_run():
         with open(codebook, "r") as f:
             lines = f.readlines()
             for line in lines:
-                pattern, angle = line.split(";")
-                datum = (BitArray(hex=pattern), angle.strip("\n"), "NaN")
+                n, pattern, angles = line.split(";")
+                datum = (n, BitArray(hex=pattern), "Power", angles.strip("\n"), "Tx", "Rx")
                 codes.append(datum)
                 #codes.append(BitArray(hex=line))
             f.close()
@@ -36,29 +38,38 @@ class sing_pat_per_run():
         self.Mes_pow = self.Anal.trace_get_mean()
         return self.Mes_pow
     
+    def do_get_angles(self):
+        while True:
+            try:
+                angles = self.Geometry.get_angles()
+                print(angles)
+                return angles
+            except Exception as e:
+                print(e)
+                pass
+        return
+    
     def start_measure(self):       
         self.All_measured = []
+        print("Get geometry")
+        Tx_angle, Rx_angle, a, c, x, y, b = self.do_get_angles()
+        print("Doing Measures")
         for datum in self.Codebook:
             Do_Measure = threading.Thread(target = self.do_measure)
             Do_Measure.start()
-            # print(pattern)
-            # print(pattern.hex)
-            # print("settin pattern")
-            #t_1 = time.time()
-            self.Ris.set_pattern('0x' + datum[0].hex)
-            # print(time.time() - t_1)
-            # print("pattern set")
+            self.Ris.set_pattern('0x' + datum[1].hex)
             Do_Measure.join()
-            self.All_measured.append((datum[0],datum[1],self.Mes_pow))
-        return self.save_to_file()
+            self.All_measured.append([datum[0],datum[1],self.Mes_pow, Tx_angle, Rx_angle, a, c, x, y, b])
+        return self.All_measured#self.save_to_file()
     
     def save_to_file(self):
         with open(self.file, 'w+') as csvfile:
-            csvfile.write("Pattern, Angle, Power")
+            csvfile.write("N; Pattern; Power; Tx Angle; Rx Angle; a; c; x; y; b")
             csvfile.write("\n")
             for datum in self.All_measured:
-                text = f"{datum[0]}; {datum[1]}; {datum[2]}"
-                csvfile.write(text + "\n")
+                for d in datum:
+                    csvfile.write(str(d)+";")
+                csvfile.write("\n")
             csvfile.close()
         return self.All_measured
     
@@ -196,7 +207,7 @@ class element_by_element():
         return self.Best_pattern, self.Best_pow
     
 class stripe_by_stripe():
-    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, exit_file: str, find_min = False, no_start_from_zero = False):
+    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, geometry_obj: Antenna_Geometry, exit_file: str, find_min = False, no_start_from_zero = False):
         self.Ris = ris
         self.Anal = anal
         self.Gen = gen
@@ -208,6 +219,7 @@ class stripe_by_stripe():
         self.Best_pow = 100000 if find_min else -100000
         self.All_measured = []
         self.Best_pattern = BitArray(length=256)
+        self.Geometry = geometry_obj
 
     def do_measure(self):
         self.Mes_pow = self.Anal.trace_get_mean()
@@ -223,8 +235,24 @@ class stripe_by_stripe():
             self.Best_pow = self.Mes_pow
         return
     
+    def do_get_angles(self):
+        while True:
+            try:
+                angles = self.Geometry.get_angles()
+                print(angles)
+                return angles
+            except Exception as e:
+                print(e)
+                pass
+        return
+
     def start_measure(self):
         self.All_measured = []
+        Tx_angle, Rx_angle, a, cc, x, y, b = self.do_get_angles()
+        if self.Find_Min:
+            n = 2000
+        else:
+            n = 1000
         for c in range(17):
             #print("Iteration: ", c)
             #print("Pattern: ", self.Current_pattern)
@@ -238,9 +266,15 @@ class stripe_by_stripe():
             Do_measure.join()
             self.check_if_better()
             c_datum_2 = self.Mes_pow
-            c_datum = (c_datum_0, 'N/A', c_datum_2)
+            c_datum = [n, c_datum_0, c_datum_2, Tx_angle, Rx_angle, a, cc, x, y, b]
             self.All_measured.append(c_datum)
             self.Current_pattern = self.Best_pattern ^ mask_pattern
+            n += 1
+        negated = ~self.Best_pattern
+        self.Ris.set_pattern('0x'+negated.hex)
+        self.do_measure()
+        negated_measure = [n, negated, self.Mes_pow, Tx_angle, Rx_angle, a, cc, x, y, b]
+        self.All_measured.append(negated_measure)
         return self.All_measured
     
     def save_to_file(self):
@@ -248,8 +282,11 @@ class stripe_by_stripe():
             csvfile.write("Pattern, Angle, Power")
             csvfile.write("\n")
             for datum in self.All_measured:
-                text = f"{datum[0]}; {datum[1]}; {datum[2]}"
-                csvfile.write(text + "\n")
+                csvfile.write(n+";")
+                for d in datum:
+                    csvfile.write(str(d)+";")
+                csvfile.write("\n")
+                n+=1
             csvfile.close()
         return self.All_measured
                     

@@ -20,7 +20,7 @@
     "ANALYZER_MODE":"WRITe",
     "REVLEVEL" : -50,
     "RBW" : "2000 Hz",
-    "GENERATOR_AMPLITUDE" : 0,
+    "GENERATOR_AMPLITUDE" : 10,
     "GENERATOR_MODE" : "CW",
     "DETECTOR" : "SAMP",
     "SWEEP_TIME" : 0.064,
