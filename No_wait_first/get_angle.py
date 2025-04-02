@@ -4,7 +4,7 @@ from get_distances import UWB_module
 class Antenna_Geometry():
     def __init__(self, Anchor: UWB_module, ris_dist):
         self.Anchor = Anchor
-        self.ris_dist = ris_dist*1000
+        self.ris_dist = ris_dist
         self.Anchor_dists = None
         self.Tag_dist = None
     
@@ -52,8 +52,7 @@ class Antenna_Geometry():
         kappa = self.calc_kappa(a, half_of_b, alpha)
         theta = self.calc_theta(x, half_of_b, gamma)
         omega = self.calc_omega(a, half_of_b, kappa)
-        Rx, Tx = degrees((pi/2) - theta), degrees((pi/2) - omega) 
-        return Rx, Tx
+        return degrees((pi/2) - theta), ((pi/2) - omega)
 
 
 # class Antenna_Geometry():
