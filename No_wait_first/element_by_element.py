@@ -7,9 +7,10 @@ from bitstring import BitArray
 import threading
 import time
 from copy import copy
+from get_angle import Antenna_Geometry
 
 class sing_pat_per_run():
-    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, exit_file: str, codebook: str):
+    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, geometry_obj: Antenna_Geometry, exit_file: str, codebook: str):
         self.Ris = ris
         self.Anal = anal
         self.Gen = gen
@@ -18,6 +19,7 @@ class sing_pat_per_run():
         self.No_of_pats = len(self.Codebook)
         self.Mes_pow = None
         self.All_measured = {}
+        self.Geometry = geometry_obj
 
 
     def load_code_book(self, codebook):
@@ -25,8 +27,8 @@ class sing_pat_per_run():
         with open(codebook, "r") as f:
             lines = f.readlines()
             for line in lines:
-                pattern, angle = line.split(";")
-                datum = (BitArray(hex=pattern), angle.strip("\n"), "NaN")
+                n, pattern, angles, rotation = line.split(";")
+                datum = (n, BitArray(hex=pattern), "Power", angles.strip("\n"), "Tx", "Rx")
                 codes.append(datum)
                 #codes.append(BitArray(hex=line))
             f.close()
@@ -41,15 +43,10 @@ class sing_pat_per_run():
         for datum in self.Codebook:
             Do_Measure = threading.Thread(target = self.do_measure)
             Do_Measure.start()
-            # print(pattern)
-            # print(pattern.hex)
-            # print("settin pattern")
-            #t_1 = time.time()
-            self.Ris.set_pattern('0x' + datum[0].hex)
-            # print(time.time() - t_1)
-            # print("pattern set")
+            self.Ris.set_pattern('0x' + datum[1].hex)
+            Tx_angle, Rx_angle = self.Geometry.get_angles()
             Do_Measure.join()
-            self.All_measured.append((datum[0],datum[1],self.Mes_pow))
+            self.All_measured.append((datum[0],datum[1],self.Mes_pow, datum[3], Tx_angle, Rx_angle))
         return self.save_to_file()
     
     def save_to_file(self):
