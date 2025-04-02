@@ -4,7 +4,7 @@ from RIS import RIS
 from element_by_element import sing_pat_per_run, element_by_element, stripe_by_stripe
 from config_obj import Config
 from file_creator import create_file
-from time import time
+from time import time, sleep
 from search_patterns import find_best_pattern_element_wise
 from get_distances import UWB_module
 from get_angle import Antenna_Geometry
@@ -12,7 +12,7 @@ from get_angle import Antenna_Geometry
 if __name__ == "__main__":
     Conf = Config()
     phy_device_input = True
-    ris_dist = 0.4
+    ris_dist = 0.26
 
     analyzer = Analyzer(Conf, phy_device_input)
     generator = Generator(Conf, phy_device_input)
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     geometry_obj = Antenna_Geometry(UWB_A0, ris_dist)
     meas_obj = sing_pat_per_run(ris, analyzer, generator, geometry_obj, meas_file, code_book_file)
 
-    time.sleep(10)
+    sleep(10)
     start_time = time()
     meas_obj.start_measure()
     print(f"Done, time taken {time()-start_time}")

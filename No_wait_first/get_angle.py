@@ -71,56 +71,19 @@ class Antenna_Geometry():
         n = self.calc_n(a=a, b=self.half_of_b, alpha=alpha)
         theta = self.calc_theta(x=x, b=self.half_of_b, m=m)
         omega = self.calc_omega(a=a, b=self.half_of_b, n=n)
-        Rx, Tx = degrees((pi/2) - theta), degrees((pi/2) - omega)
+        Rx, Tx = degrees((pi/2) - theta), degrees((pi/2) - omega)*(-1)
         if Print_vals:
             print(f"Tx Dystance a = {a/1000} \nTx Dystance c = {c/1000} \nRx Dystance  x = {x/1000} \nRx Dystance  y = {y/1000}\nTx angle = {Tx} \nRx angle = {Rx}\n\n")
-        return Rx, Tx
+        return Rx, Tx, a, c, y, x, self.ris_dist
     
 
 
-# class Antenna_Geometry():
-#     def __init__(self, Anchor_1: UWB_module, Anchor_2: UWB_module, ris_dist, no_of_tags = 2):
-#         self.Anchor_1 = Anchor_1
-#         self.Anchor_2 = Anchor_2
-#         self.ris_dist = ris_dist
-#         self.no_of_tags = 2
-
-#     def calc_alpha(self, a, d):
-#         #d^2 = a^2 + b^2 - 2*a*b*cos(alpha)
-#         #2*a*b*cos(alpha) = a^2 + b^2 - d^2 -> cos(alpha) = (a^2 + b^2 - d^2)/2ab
-#         b = self.ris_dist
-#         alpha_arg = (a**2 + b**2 - d**2)/(2*a*b)
-#         return acos(alpha_arg)
-    
-#     def calc_c(self, a, alpha):
-#         b = self.ris_dist/2
-#         #c^2 = a^2 + b^2 - a*b*cos(alpha)
-#         c = sqrt(a**2 + b**2 - a*b*cos(alpha))
-#         return c
-
-#     def calc_beta(self, c, d):
-#         b = self.ris_dist/2
-#         # d^2 = b^2 + c^2 - 2*b*d*cos(beta) -> 2*b*d*cos(beta) = b^2 + c^2 - d^2
-#         # cos(beta) = (b^2 + c^2 - d^2)/2*b*d
-#         beta_arg = (b**2 + c**2 - d**2)/(2*b*d)
-#         return acos(beta_arg)
-
-#     def calc_angle(self):
-#         Anchor_1_dist = input("distance 1 ")#self.Anchor_1.get_distances()[:2]
-#         Anchor_2_dist = input("distance 2 ") #self.Anchor_2.get_distances()[:2]
-#         a = float(Anchor_1_dist)#[0]
-#         d = float(Anchor_2_dist)#[1]
-#         alpha = self.calc_alpha(a, d)
-#         print(degrees(alpha))
-#         c = self.calc_c(a, alpha)
-#         beta = self.calc_beta(c, d)
-#         m = pi/2 - pi - beta
-#         return m
     
 
 if __name__ == "__main__":
-    uwb = UWB_module()
-    geo = Antenna_Geometry(uwb, 0.26)
+    uwb = UWB_module(no_of_lines=20)
+    geo = Antenna_Geometry(uwb, 0.8425
+                           )
     while True:
         try:
             geo.get_angles(Print_vals=True)

@@ -2,7 +2,7 @@ import serial
 from numpy import average
 
 class UWB_module():
-    def __init__(self, port = '/dev/ttyACM0', b_rate = 115200, no_of_lines = 10, max_attempts = 40):
+    def __init__(self, port = '/dev/ttyACM0', b_rate = 115200, no_of_lines = 20, max_attempts = 500):
         self.uwb_dev = serial.Serial(port, b_rate)
         self.uwb_dev.reset_input_buffer()
         self.uwb_dev.reset_output_buffer()
@@ -44,7 +44,7 @@ class UWB_module():
         ret = []
         for datum in data:
             dat = sorted(datum)
-            dat = dat[1:-1]
+            dat = dat[2:-2]
             dat = average(dat)
             ret.append(dat)
         return ret
