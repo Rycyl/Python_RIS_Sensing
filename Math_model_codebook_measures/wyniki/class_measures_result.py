@@ -3,6 +3,7 @@ import time
 import pickle
 from bitstring import BitArray
 import os
+import numpy as np
 
 class Result:
     def __init__(self, idx, pattern):
@@ -50,6 +51,28 @@ class Results:
             pickle.dump(self, file)
         print("Results class dumpted to a file: ", dumpfile)
 
+    def calc_angle_distances(self, filename): #np.average(data, axis=1)
+        ret = []
+        with open(filename, 'r', encoding='utf-8') as file:
+            # Wczytaj wszystkie linie z pliku
+            lines = file.readlines()
+        # Przetwórz każdą linię, dzieląc dane na podstawie znaku ';'
+        data = [line.strip().split(';') for line in lines]
+        #print(data)
+        for line in lines:
+            #make a list from file data
+            data = line.strip().split(';')
+            if data[0] == "N":
+                continue     
+            #split for idx and pat | the rest                   
+            rest_data = data[3:-1]
+            for i in range(len(rest_data)):
+                rest_data[i] = float(rest_data[i])
+            if rest_data not in ret:
+                ret.append(rest_data)
+        ret_vals = np.average(ret, axis=0)
+        return ret_vals
+
     def load_results(self, dumpfile, resultfilename):
         print("results loading....")
         try:
@@ -67,6 +90,8 @@ class Results:
                     file_path = os.path.join(directory_path, filename)
                     # Otwórz wyniki
                     print("Reading: ",file_path)
+                    angles_distances = self.calc_angle_distances(file_path)
+                    print(angles_distances)
                     with open(file_path, 'r', encoding='utf-8') as file:
                         # Wczytaj wszystkie linie z pliku
                         lines = file.readlines()
@@ -80,7 +105,7 @@ class Results:
                             continue     
                         #split for idx and pat | the rest                   
                         core_data = [data[0], data[1]]
-                        rest_data = data[2:-1]
+                        rest_data = [data[2], *angles_distances]
                         #check if pattern exist in results   
                         result_founded_in_results = False                     
                         for i in range(len(self.results)):
@@ -100,5 +125,5 @@ class Results:
         return
             
 # Create class instance
-#results_instance = Results()
+results_instance = Results()
 ############################################
