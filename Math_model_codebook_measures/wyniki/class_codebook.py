@@ -53,6 +53,6 @@ class Codebook:
         return
             
 # Create class instance and load the data
-codebook_instance  = Codebook()
-print(codebook_instance.patterns[1])
-print(len(codebook_instance.patterns))
+# codebook_instance  = Codebook()
+# print(codebook_instance.patterns[1])
+# print(len(codebook_instance.patterns))
