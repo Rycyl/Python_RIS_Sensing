@@ -20,8 +20,8 @@ class Result:
 
     def add_measure(self, power, tx_angle, rx_angle, a, b, c, x, y):
         self.powers.append(float(power))  # Add power measurement
-        self.Tx_Angle.append(float(tx_angle))  # Add transmission angle
-        self.Rx_Angle.append(float(rx_angle))  # Add reception angle
+        self.Rx_Angle.append(float(tx_angle))  # Add transmission angle
+        self.Tx_Angle.append(float(rx_angle))  # Add reception angle
         self.a_values.append(float(a))  # Add value of a
         self.b_values.append(float(b))  # Add value of b
         self.c_values.append(float(c))  # Add value of c
@@ -109,7 +109,7 @@ class Results:
                         #check if pattern exist in results   
                         result_founded_in_results = False                     
                         for i in range(len(self.results)):
-                            if self.results[i].idx == float(data[0]):
+                            if self.results[i].idx == int(data[0]):
                                 #only add measure
                                 self.results[i].add_measure(*rest_data)
                                 result_founded_in_results = True
@@ -126,4 +126,5 @@ class Results:
             
 # Create class instance
 results_instance = Results()
+print(results_instance)
 ############################################
