@@ -14,7 +14,7 @@ from get_angle import Antenna_Geometry
 if __name__ == "__main__":
     Conf = Config()
     phy_device_input = True
-    ris_dist = 0.8425
+    ris_dist = 0.845
 
     analyzer = Analyzer(Conf, phy_device_input)
     generator = Generator(Conf, phy_device_input)
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     # GENERATOR.meas_prep(True, Conf.generator_mode, Conf.generator_amplitude, Conf.freq)
     # ANALYZER.meas_prep(Conf.freq, Conf.sweptime, Conf.span, Conf.analyzer_mode, Conf.detector, Conf.revlevel, Conf.rbw, Conf.swepnt)
 
-    meas_file_name = "Big_codebook_measure_pos_"
+    meas_file_name = "Big_codebook_measure_pos_w_grid"
     #meas_file_name = 'test'
     code_book_file = "Codebook.csv"
     meas_file = create_file(meas_file_name)
