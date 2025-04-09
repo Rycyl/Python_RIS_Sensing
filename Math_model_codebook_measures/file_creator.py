@@ -37,7 +37,7 @@ def save_to_file(file, data):
     empty_file = is_file_empty(file)
     with open(file, 'a+') as csvfile:
         if empty_file:
-            csvfile.write("N; Pattern; Power; Tx Angle; Rx Angle; a; c; x; y; b")
+            csvfile.write("N; Pattern; Power; Rx Angle; Tx Angle; a; c; x; y; b")
             csvfile.write("\n")
         for datum in data:
             for d in datum:
