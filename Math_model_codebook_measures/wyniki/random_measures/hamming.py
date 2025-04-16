@@ -19,18 +19,15 @@ def mw_to_dbm(x):
 results = Results()
 powers   = []
 patterns = []
-max_pat = None
-min_pat = None
+max_pat = results.maxs[-1].pattern
+min_pat = results.mins[-1].pattern
 
 for result in results.results:
     if result.idx < 1000:
         patterns.append(result.pattern)
         pow = result.powers
         powers.append(pow)
-    elif result.idx == 1016:
-        max_pat = result.pattern
-    elif result.idx == 2016:
-        min_pat = result.pattern
+
 #change axis
 powers_np_array = np.array(powers)
 data = powers_np_array.T #transpose
@@ -44,18 +41,20 @@ os.makedirs(plots_folder, exist_ok=True)
 
 # Rysowanie każdego wiersza na osobnym wykresie i zapisywanie do plików
 for i in range(data.shape[0]):
+    sorted_indices = None
     pats = copy.deepcopy(patterns)
-    sorted_indices = np.argsort(data[i])
+    sorted_indices = np.argsort(data[i])[::-1]  # Reverse the sort order
     pats = [pats[j] for j in sorted_indices]
     hamming_distances = []
     for x in pats:
-        hamming_distances.append(hamming_distance(x, max_pat))
+        hamming_distances.append(hamming_distance(x, max_pat[i])/16)
     plt.figure()  # Utwórz nową figurę dla każdego wykresu
     plt.plot(hamming_distances, label=f'Wiersz {i+1}')
 
     plt.title(f'Tx {int(results.results[0].Tx_Angle[i])}, Rx {int(results.results[0].Rx_Angle[i])}')
     plt.xlabel('N-ty_pattern')
     plt.ylabel('Hamming distance')
+    plt.ylim(0, 16)  # Ustawienie stałego zakresu osi Y
     #plt.ylim(-95, -50)  # Ustawienie stałego zakresu osi Y
     plt.grid(True)  # Włączenie linii pomocniczych
     plt.legend()
