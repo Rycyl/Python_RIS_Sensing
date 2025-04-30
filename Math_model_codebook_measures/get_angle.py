@@ -18,6 +18,7 @@ class Antenna_Geometry():
             c == A1 do A2        '''
         alpha_arg = (a**2 + self.b**2 -c**2)/(2*a*self.b)
         # print("alfa")
+        #print(f"Alpha arg:: {alpha_arg}")
         return acos(alpha_arg)
 
     def calc_beta(self, x, y):
@@ -26,6 +27,7 @@ class Antenna_Geometry():
             y == A0 do T        '''
         beta_arg = (x**2 + self.b**2 - y**2)/(2*x*self.b)
         # print("beta")
+        #print(f"Beta arg:: {beta_arg}")
         return acos(beta_arg)
     
     def calc_m(self, x, b, beta):
@@ -37,11 +39,13 @@ class Antenna_Geometry():
     def calc_theta(self, x, b, m):
         theta_arg = (m**2 + b**2 - x**2)/(2*m*b)
         # print("teta")
+        #print(f"theta_arg:: {theta_arg}")
         return acos(theta_arg)
     
     def calc_omega(self, a, b, n):
         omega_arg = (n**2 + b**2 - a**2)/(2*n*b)
         # print("omega")
+        #print(f"Omega_arg:: {omega_arg}")
         return acos(omega_arg)
     
     def get_distances(self):
@@ -53,6 +57,7 @@ class Antenna_Geometry():
 
     def calc_triangle_angle(a,b,c):
         arg = (a**2 + b**2 - c**2)/(2*a*b)
+        #print(f"ARG:: {arg}")
         return acos(arg)
 
     def get_angles(self, Print_vals = False):
@@ -82,7 +87,7 @@ class Antenna_Geometry():
 
 if __name__ == "__main__":
     uwb = UWB_module(no_of_lines=10)
-    geo = Antenna_Geometry(uwb, 0.8425
+    geo = Antenna_Geometry(uwb, 0.815
                            )
     while True:
         try:

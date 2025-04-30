@@ -3,14 +3,17 @@ from bitstring import BitArray
 
 #Mask = '0b10000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000'
 
-Mask = '0x8000800080008000800080008000800080008000800080008000800080008000'
+# Mask = '0x8000800080008000800080008000800080008000800080008000800080008000'
 
-test_pat = BitArray(length=256)
+# test_pat = BitArray(length=256)
 
-for c in range(16):
-    mask_pattern = BitArray(length=256)
-    mask_pattern.overwrite(Mask, c)
-    mask_pattern = mask_pattern[:256]
-    print(mask_pattern)
-    test_pat ^= mask_pattern
-    print(test_pat)
+# for c in range(16):
+#     mask_pattern = BitArray(length=256)
+#     mask_pattern.overwrite(Mask, c)
+#     mask_pattern = mask_pattern[:256]
+#     print(mask_pattern)
+#     test_pat ^= mask_pattern
+#     print(test_pat)
+one = BitArray(hex='0x011110')
+one.invert()
+print(one)

@@ -9,6 +9,11 @@ import time
 from copy import copy
 from get_angle import Antenna_Geometry
 
+# def negate(bits):
+#     ones = BitArray(hex='F' * 64)
+#     bits = bits ^ ones
+#     return bits
+
 class sing_pat_per_run():
     def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, geometry_obj: Antenna_Geometry, exit_file: str, codebook: str):
         self.Ris = ris
@@ -270,7 +275,8 @@ class stripe_by_stripe():
             self.All_measured.append(c_datum)
             self.Current_pattern = self.Best_pattern ^ mask_pattern
             n += 1
-        negated = ~self.Best_pattern
+        negated = copy(self.Best_pattern)
+        negated.invert()
         self.Ris.set_pattern('0x'+negated.hex)
         self.do_measure()
         negated_measure = [n, negated, self.Mes_pow, Tx_angle, Rx_angle, a, cc, x, y, b]

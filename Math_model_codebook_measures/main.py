@@ -14,7 +14,10 @@ from get_angle import Antenna_Geometry
 if __name__ == "__main__":
     Conf = Config()
     phy_device_input = True
-    ris_dist = 0.845
+    ris_dist = 0.815
+    custom_sweptime = 0
+    if custom_sweptime:
+        Conf.update_swt(custom_sweptime)
 
     analyzer = Analyzer(Conf, phy_device_input)
     generator = Generator(Conf, phy_device_input)
@@ -25,24 +28,33 @@ if __name__ == "__main__":
     # GENERATOR.meas_prep(True, Conf.generator_mode, Conf.generator_amplitude, Conf.freq)
     # ANALYZER.meas_prep(Conf.freq, Conf.sweptime, Conf.span, Conf.analyzer_mode, Conf.detector, Conf.revlevel, Conf.rbw, Conf.swepnt)
 
-    meas_file_name = "Big_codebook_measure_pos_w_grid"
+    meas_file_name = "Big_codebook_measure_pos_w_grid_sec_run"
     #meas_file_name = 'test'
+    #meas_file_name = "Ref_power_no_ris"
     code_book_file = "Codebook.csv"
     meas_file = create_file(meas_file_name)
     print("Measure initated")
     UWB_A0 = UWB_module()
-    print("UWB gothered")
+    #print("UWB gothered")
     print("Calculating geometry")
     geometry_obj = Antenna_Geometry(UWB_A0, ris_dist)
+    # while True:
+    #     try:
+    #         geometry = geometry_obj.get_angles()
+    #         break
+    #     except:
+    #         pass
     print("Geometry obrained")
     print("creating obj...")
     meas_obj = sing_pat_per_run(ris, analyzer, generator, geometry_obj, meas_file, code_book_file)
     stripes_max = stripe_by_stripe(ris, analyzer, generator, geometry_obj, meas_file, False)
     stripes_min = stripe_by_stripe(ris, analyzer, generator, geometry_obj, meas_file, True)
 
-    sleep(10)
+    #sleep(10)
     start_time = time()
     print("Measuring....")
+    # power = analyzer.trace_get_mean()
+    # data_to_save = [[0, "N/A", power, geometry[0], geometry[1], geometry[2], geometry[3], geometry[4], geometry[5], geometry[6],]]
     codebook_data = meas_obj.start_measure()
     stripes_max_data =  stripes_max.start_measure()
     stripes_min_data = stripes_min.start_measure()
@@ -50,6 +62,8 @@ if __name__ == "__main__":
     save_to_file(meas_file, codebook_data)
     save_to_file(meas_file, stripes_max_data)
     save_to_file(meas_file, stripes_min_data)
+    # save_to_file(meas_file, data_to_save)
+    print("All Done :)")
     exit()
 
 
