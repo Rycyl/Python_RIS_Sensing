@@ -14,8 +14,25 @@ def mw_to_dbm(x):
 
 powers   = []
 
-maxs = results.maxs[-1].powers
-mins = results.mins[-1].powers
+ma1 = (results.maxs[-3].powers)
+ma2 = (results.maxs[-2].powers)
+mi1 = (results.mins[-3].powers)
+mi2 = (results.mins[-2].powers)
+
+maxs = []
+for i in range(len(ma1)):
+    if ma1[i]>ma2[i]:
+        maxs.append(ma1[i])
+    else:
+        maxs.append(ma2[i])
+
+mins = []
+for i in range(len(mi1)):
+    if mi1[i]<mi2[i]:
+        mins.append(mi1[i])
+    else:
+        mins.append(mi2[i])
+
 
 for result in results.results:
     if result.idx < 1000:
