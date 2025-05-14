@@ -1,0 +1,73 @@
+DWM1001 serial HELP
+
+Usage: <command> [arg0] [arg1] ...
+Build-in commands:
+
+** Command group: Base **
+?: this help
+help: this help
+quit: quit
+
+** Command group: GPIO **
+gc: GPIO clear
+gg: GPIO get
+gs: GPIO set
+gt: GPIO toggle
+
+** Command group: SYS **
+f: Show free memory on the heap
+reset: Reboot the system
+si: System info
+ut: Show device uptime
+frst: Factory reset
+
+** Command group: SENS **
+twi: General purpose TWI read
+aid: Read ACC device ID
+av: Read ACC values
+scs: Stationary config set
+scg: Stationary config get
+
+** Command group: LE **
+les: Show meas. and pos.
+lec: Show meas. and pos. in CSV
+lep: Show pos. in CSV
+
+** Command group: UWB **
+utpg: Get TxPwr
+utps: Set TxPwr
+
+** Command group: UWBMAC **
+nmg: Get node mode
+nmp: Set UWB mode to passive
+nmo: Set UWB mode to off
+nma: Set mode to AN
+nmi: Set mode to ANI
+nmt: Set mode to TN
+nmtl: Set mode to TN-LP
+nmb: Set mode to BN
+la: Show AN list
+lb: Show BN list
+nis: Set Network ID
+nls: Set node label
+udi: Show incoming IoT data
+uui: Send IoT data
+stg: Get stats
+stc: Clear stats
+
+** Command group: API **
+tlv: Send TLV frame
+aurs: Set upd rate
+aurg: Get upd rate
+apg: Get pos
+aps: Set pos
+acas: Set anchor config
+acts: Set tag config
+aks: Set encryption key
+akc: Clear encryption key
+ans: Set NVM usr data
+anc: Clear NVM usr data
+ang: Get NVM usr data
+
+** Tips **
+Press Enter to repeat the last command
