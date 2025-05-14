@@ -71,5 +71,5 @@ for i in range(data.shape[0]):
     plt.legend()
     
     # Zapisz wykres do pliku w folderze "plots"
-    plt.savefig(os.path.join(plots_folder, f'wykres_pos_pow_wiersz_{i+1}.png'))
+    # plt.savefig(os.path.join(plots_folder, f'wykres_pos_pow_wiersz_{i+1}.png'))
     plt.close()  # Zamknij figurę, aby nie pokazywać podglądu
