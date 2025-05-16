@@ -52,10 +52,9 @@ for i in range(data.shape[0]):
     plt.plot(hamming_distances, label=f'Wiersz {i+1}')
 
     plt.title(f'Tx {int(results.results[0].Tx_Angle[i])}, Rx {int(results.results[0].Rx_Angle[i])}')
-    plt.xlabel('N-ty_pattern')
-    plt.ylabel('Hamming distance')
+    plt.xlabel('N\'th pattern in recieved power',)
+    plt.ylabel('Hamming distance to opt best')
     plt.ylim(0, 16)  # Ustawienie stałego zakresu osi Y
-    #plt.ylim(-95, -50)  # Ustawienie stałego zakresu osi Y
     plt.grid(True)  # Włączenie linii pomocniczych
     plt.legend()
     
