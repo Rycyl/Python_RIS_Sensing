@@ -1,0 +1,8 @@
+RsInstrument
+RsSmw
+pyserial
+numpy
+matplotlib
+python-periphery
+bitstring
+scipy

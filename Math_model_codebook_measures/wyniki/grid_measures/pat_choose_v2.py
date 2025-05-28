@@ -30,6 +30,8 @@ class Select:
         self.s = []
         self.pat_idx = []
         self.powers = []
+        self.maxs = []
+        self.maxs_idx = []
 
     def add_pat_idx(self, s, idx, pows):
         self.s.append(s)
@@ -51,13 +53,10 @@ class Select:
             array = np.array(self.powers)
             max_values = np.max(array, axis=0)
             max_indices = np.argmax(array, axis=0)
-            print(max_values)
-            print(max_indices)
             for l in range(len(max_indices)):
                 max_indices[l] = self.pat_idx[max_indices[l]]
-            print(max_indices)
-            self.show_pows()
-            self.show()
+            self.maxs  = (max_values)
+            self.maxs_idx = (max_indices)
         return
         
 
@@ -65,34 +64,46 @@ dumpfile= "wybrane_paterny_pk_metod_v2.pkl"
 # try:
 selected = Selected()
 selected.load_from_file(dumpfile=dumpfile)
-pass
-try:
-    for k in selected.selected:
-        k.find_max()
-        print("\n\n\n")
-except:
-    results = Results()
-    codebook = Codebook()
+#pass
+# try:
+# for k in selected.selected:
+#         k.find_max()
+#         print("\n\n\n")
+# selected.dump_class_to_file(dumpfile=dumpfile)
+merge = []
+for s in selected.selected:
+    merge.append(s.maxs)
+print(merge)
+max_values = np.max(merge, axis=0)
+max_indices = np.argmax(merge, axis=0)
+print(max_values)
 
-    print("data loaded")
-    currtent_pattern = None
-    
 
-    selected = Selected()
-    i = -49
-    for d in range(0, 91):
-        used_patterns = [0] * 919
-        print("D=", d)
-        selected.selected.append(Select(i,d))
-        for x in codebook.patterns:
-            if used_patterns[x.idx] != 1:
-                for a in x.angles:
-                    if used_patterns[x.idx] == 1:
-                        break
-                    if (a[0] == i and a[1] == d):
-                        selected.selected[-1].add_pat_idx(a[2], x.idx,  results.results[x.idx].powers)
-                        used_patterns[x.idx] = 1
-            else:
-                continue
-                        
-    selected.dump_class_to_file(dumpfile=dumpfile)
+# # except:
+# results = Results()
+# codebook = Codebook()
+
+# print("data loaded")
+# currtent_pattern = None
+
+
+# selected = Selected()
+# i = -49
+# for d in range(0, 90):
+#     used_patterns = [0] * 919
+#     print("D=", d)
+#     selected.selected.append(Select(i,d))
+#     for x in codebook.patterns:
+#         if used_patterns[x.idx] != 1:
+#             for a in x.angles:
+#                 if used_patterns[x.idx] == 1:
+#                     break
+#                 if (a[0] == i and a[1] == d):
+#                     selected.selected[-1].add_pat_idx(a[2], x.idx,  results.results[x.idx].powers)
+#                     used_patterns[x.idx] = 1
+#         else:
+#             continue
+# for x in selected.selected:
+#     x.find_max()
+                    
+# selected.dump_class_to_file(dumpfile=dumpfile)
