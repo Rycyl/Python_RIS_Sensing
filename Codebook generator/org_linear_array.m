@@ -11,27 +11,23 @@ kanal_do_od_RIS=exp(-1j*2*pi*f_c/c*d*([0:L-1]*sind(kat_TX)+[0:L-1]*sind(kat_RX))
 katy_pomiarowe_RX=[-90:90];
 prekoder=conj(kanal_do_od_RIS);
 AF=exp(-1j*2*pi*f_c/c*d*([0:L-1]*sind(kat_TX)+sind(katy_pomiarowe_RX')*[0:L-1]))*transpose(prekoder);
-plot(katy_pomiarowe_RX,10*log10(abs(AF).^2), "linewidth",3, '--')
+plot(katy_pomiarowe_RX,10*log10(abs(AF).^2),'--')
 hold on
 prekoder_bin=2*(real(prekoder*exp(1j*0*pi/2))>0)-1;
 AF=exp(-1j*2*pi*f_c/c*d*([0:L-1]*sind(kat_TX)+sind(katy_pomiarowe_RX')*[0:L-1]))*transpose(prekoder_bin);
-plot(katy_pomiarowe_RX,10*log10(abs(AF).^2), "linewidth",3)
+plot(katy_pomiarowe_RX,10*log10(abs(AF).^2))
 prekoder_bin=2*(real(prekoder*exp(1j*1*pi/2))>0)-1;
 AF=exp(-1j*2*pi*f_c/c*d*([0:L-1]*sind(kat_TX)+sind(katy_pomiarowe_RX')*[0:L-1]))*transpose(prekoder_bin);
-plot(katy_pomiarowe_RX,10*log10(abs(AF).^2), "linewidth",3)
-xticks(-90:20:90);
-yticks(-10:10:30);
-set(gca, "linewidth", 1, "fontsize", 20)
-legend("Liniowy", "Binarny", "Binarny z rotacją")
-xlabel('Kąt położenia RX')
+plot(katy_pomiarowe_RX,10*log10(abs(AF).^2))
+xlabel('RX angle')
 ylabel('AF (dB)')
-% title(['AF for TX at ' num2str(kat_TX) ' and RIS pattern for TX angle=' num2str(kat_TX) ' and RX angle=' num2str(kat_RX)])
+title(['AF for TX at ' num2str(kat_TX) ' and RIS pattern for TX angle=' num2str(kat_TX) ' and RX angle=' num2str(kat_RX)])
 % prekoder_bin=2*(real(prekoder*exp(1j*2*pi/2))>0)-1;
-% AF=exp(-1j*2*pi*f_c/c*d*([0:L-1]*sind(kat_TX)+sind(katy_pomiarowe_RX')*[L-1:-1:0]))*transpose(prekoder_bin);
-% plot(10*log10(abs(AF).^2))
-% prekoder_bin=2*(real(prekoder*exp(1j*3*pi/2))>0)-1;
-% AF=exp(-1j*2*pi*f_c/c*d*([0:L-1]*sind(kat_TX)+sind(katy_pomiarowe_RX')*[L-1:-1:0]))*transpose(prekoder_bin);
-% plot(10*log10(abs(AF).^2))
+AF=exp(-1j*2*pi*f_c/c*d*([0:L-1]*sind(kat_TX)+sind(katy_pomiarowe_RX')*[L-1:-1:0]))*transpose(prekoder_bin);
+%plot(10*log10(abs(AF).^2))
+prekoder_bin=2*(real(prekoder*exp(1j*3*pi/2))>0)-1;
+%AF=exp(-1j*2*pi*f_c/c*d*([0:L-1]*sind(kat_TX)+sind(katy_pomiarowe_RX')*[L-1:-1:0]))*transpose(prekoder_bin);
+plot(10*log10(abs(AF).^2))
 grid
 figure
 set_RX=[-90:90];
