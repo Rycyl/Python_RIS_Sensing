@@ -237,7 +237,7 @@ class Results:
         return
             
 # Create class instance
-results_instance = Results()
-results_instance.dump_class_to_file("results.pkl")
-print(results_instance)
+# results_instance = Results()
+# results_instance.dump_class_to_file("results.pkl")
+# print(results_instance)
 ############################################
