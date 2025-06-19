@@ -35,8 +35,8 @@ def metric(selections):
     ret_val = np.mean(max_values)
     return ret_val
 
-N = 4
-ITERATIONS = 1000
+N = 1
+ITERATIONS = 1
 
 positions = random.sample(range(len(merge)), min(N, len(merge)))
 selections = merge[positions]
