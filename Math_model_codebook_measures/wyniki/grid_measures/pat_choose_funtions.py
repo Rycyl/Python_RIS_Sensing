@@ -162,41 +162,46 @@ def plot_bitrate_in_loc(data, #lista list do wykresowania
         plt.show()
     return
 
-#### INIT #####
+def merge_selections(selected):
+    merge = []
+    for s in selected.selected:
+        merge.append(s.maxs)
+    merge = np.array(merge)
+    return merge
 
-# Optionally set a random seed based on the current time
-random.seed(time.time())
-#dumpfile for pickle name:
-dumpfile= "wybrane_paterny_pk_metod_v2.pkl"
 
-selected = Selected()
-'''
-uncomment one to:
-    - load data from source csv
-    - from preprepared picle
-'''
-# selected = load_results_from_file(selected)
-selected.load_from_file(dumpfile=dumpfile)
+if __name__ == "__main__":
+    #### INIT #####
 
-#create merged array with maximums from patterns for given i,d generations
-merge = []
-for s in selected.selected:
-    merge.append(s.maxs)
-merge = np.array(merge)
+    # Optionally set a random seed based on the current time
+    random.seed(time.time())
+    #dumpfile for pickle name:
+    dumpfile= "wybrane_paterny_pk_metod_v2.pkl"
 
-y = []
-for n in range(1,16):
-    y.append([])
-    i = 0
-    while i<10:
-        print("N: ", n, " i: ", i)
-        m, pows, pos = pat_sel_random(merge, N=n)
-        y[n-1].append(m)
-        i+=1
-print(y)
-plot_reg(y)
-pass
-pass
+    selected = Selected()
+    '''
+    uncomment one to:
+        - load data from source csv
+        - from preprepared picle
+    '''
+    # selected = load_results_from_file(selected)
+    selected.load_from_file(dumpfile=dumpfile)
+
+    #create merged array with maximums from patterns for given i,d generations
+    merge = merge_selections(selected)
+
+    y = []
+    for n in range(1,16):
+        y.append([])
+        i = 0
+        while i<10:
+            print("N: ", n, " i: ", i)
+            m, pows, pos = pat_sel_random(merge, N=n)
+            y[n-1].append(m)
+            i+=1
+    plot_reg(y)
+    pass
+    pass
 
 
 
