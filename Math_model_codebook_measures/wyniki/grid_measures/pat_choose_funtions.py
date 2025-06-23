@@ -169,6 +169,18 @@ def merge_selections(selected):
     merge = np.array(merge)
     return merge
 
+def run_select_function(merge, i_bound = 1, pat_sel_function = pat_sel_random):
+    y = []
+    for n in range(1, 16):
+        y.append([])
+        i = 0
+        while i < i_bound:
+            print("N: ", n, " i: ", i)
+            m, pows, pos = pat_sel_function(merge, N=n)
+            y[n - 1].append(m)
+            i += 1
+    return y
+
 
 if __name__ == "__main__":
     #### INIT #####
@@ -190,18 +202,19 @@ if __name__ == "__main__":
     #create merged array with maximums from patterns for given i,d generations
     merge = merge_selections(selected)
 
-    y = []
-    for n in range(1,16):
-        y.append([])
-        i = 0
-        while i<10:
-            print("N: ", n, " i: ", i)
-            m, pows, pos = pat_sel_random(merge, N=n)
-            y[n-1].append(m)
-            i+=1
-    plot_reg(y)
-    pass
-    pass
+    #select patterns by functions
+    selection_functions = [pat_sel_random]
+
+    I_BOUND = 10
+
+    # Loop through each selection function and generate data
+    for selection_function in selection_functions:
+        print(f"Using function: {selection_function.__name__}")
+        y = run_select_function(merge, i_bound=I_BOUND, pat_sel_function=selection_function)
+        #plot scores
+        plot_reg(y)
+
+
 
 
 
