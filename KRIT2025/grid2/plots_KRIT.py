@@ -112,9 +112,9 @@ plt.ylabel('Przepływność kanału [MB/s]', fontsize=FONTSIZE)
 
 plt.xticks(fontsize=FONTSIZE)  # Ustawia rozmiar czcionki etykiet na osi X
 plt.yticks(fontsize=FONTSIZE)  # Ustawia rozmiar czcionki etykiet na osi Y
-plt.legend(fontsize=FONTSIZE, loc='upper right')
+#plt.legend(fontsize=FONTSIZE, loc='upper right')
 
-plt.ylim(0, 60)
+plt.ylim(0, 40)
 
 plt.grid()
 plt.savefig('przeplywnosc.png', dpi=300, bbox_inches='tight')
