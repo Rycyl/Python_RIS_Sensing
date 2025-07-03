@@ -7,11 +7,39 @@ import random
 import matplotlib.pyplot as plt
 import scipy.stats as st
 import seaborn as sns
+
 import pandas as pd
 import time
 import copy
 import threading
+import math
 
+def dbm_to_mw(x):
+    mW=10**(x/10)
+    return mW
+
+def mw_to_dbm(x):
+    dbm=10*math.log10(x)
+    return dbm
+
+def snrs():
+    snrs = []
+    results = Results()
+    powers   = []
+    for result in results.results:
+        if result.idx < 1000:
+            pow = result.powers
+            powers.append(pow)
+    powers_np_array = np.array(powers)
+    data = powers_np_array.T #transpose
+    for i in range(data.shape[0]):
+        dat = (data[i])
+        wat_dat = []
+        for x in dat:
+            wat_dat.append(dbm_to_mw(x))
+        avg = mw_to_dbm(np.mean(wat_dat))
+        snrs.append(avg)
+    return snrs
 
 def przeplywnosc(x, W = 20E6, noise = -68): # x = rec pwr
     if noise > x:
@@ -26,80 +54,105 @@ def metric(selections):
     return ret_val
 
 
-def pat_sel_random(merge, N = 1, ITERATIONS = 10000):
+class PatternSelector:
+    def __init__(self, data, snrs, N=1, population_size=100, iterations=1000, mutation_rate=0.4):
+        self.data = data
+        self.snrs = snrs
+        self.N = N
+        self.population_size = population_size
+        self.iterations = iterations
+        self.mutation_rate = mutation_rate
 
-    positions = random.sample(range(len(merge)), min(N, len(merge)))
-    selections = merge[positions]
+    def setup_constants(population_size=100, iterations=1000, mutation_rate=0.4):
+        self.population_size = population_size
+        self.iterations = iterations
+        self.mutation_rate = mutation_rate
+        return
 
-    best = 0
-    best_sel = None
-    best_pos = None
+    def przeplywnosc(self, x, j, W = 20E6, B = 20E6): # x = rec pwr
+        # if self.snrs[j] > x:
+        #     return -100
+        return W * np.log2(1 + (dbm_to_mw(x) / dbm_to_mw(-174 + 10 * np.log10(B)) ) )/8/1024/1024 # in MB/s
 
-    i = 0
-    while i < ITERATIONS:
-        positions = random.sample(range(len(merge)), min(N, len(merge)))
-        selections = merge[positions]
-        m = metric(selections)
-        if m > best:
-            best = copy.copy(m)
-            best_sel = copy.copy(selections)  # Store the best selection
-            best_pos = copy.copy(positions)
-        i+=1
-    return (metric(best_sel), np.max(best_sel, axis=0), best_pos)
+    def metric(self, selections):
+        max_values = np.max(selections, axis=0)
+        for j in range(len(max_values)):
+            max_values[j] = self.przeplywnosc(max_values[j], j)
+        ret_val = np.sum(max_values) #np.mean
+        return ret_val
 
+    def pat_sel_random(self):
+        positions = random.sample(range(len(self.data)), min(self.N, len(self.data)))
+        selections = self.data[positions]
 
-#### GENETIC START OF CODE ####
-def fitness(individual):
-    sc = merge[individual]
-    ret = metric(sc)
-    return ret
+        best = -100000
+        best_sel = None
+        best_pos = None
 
-def pat_sel_genetic(merge, N = 2, population_size = 100, ITERATIONS = 20, mutation_rate = 0.4):
-    
-    data = merge
-    num_patterns, num_locations = data.shape
-    population_size = population_size
-    generations = ITERATIONS
-    mutation_rate = 0.2
+        for k in range(self.iterations):
+            # print(k, self.N)
+            positions = random.sample(range(len(self.data)), min(self.N, len(self.data)))
+            selections = self.data[positions]
+            m = self.metric(selections)
+            if m > best:
+                best = copy.copy(m)
+                best_sel = copy.copy(selections)  # Store the best selection
+                best_pos = copy.copy(positions)
 
-    # Inicjalizacja populacji
-    population = [random.sample(range(num_patterns), N) for _ in range(population_size)]
+        return (self.metric(best_sel), np.max(best_sel, axis=0), best_pos)
 
-    licz = 0
-    # Algorytm genetyczny
-    for generation in range(generations):
-        
-        # Ocena populacji
-        fitness_scores = [fitness(ind) for ind in population]
-        #print(f'GENERACJA {licz}, max fitness = {np.max(fitness_scores)}')
-        licz+=1
-        # Selekcja
-        selected_indices = np.argsort(fitness_scores)[-population_size//2:]  # Wybieramy najlepsze połowę
-        selected_population = [population[i] for i in selected_indices]
-        
-        # Krzyżowanie
-        new_population = []
-        while len(new_population) < population_size:
-            parent1, parent2 = random.sample(selected_population, 2)
-            crossover_point = random.randint(1, N-1)
-            child = np.concatenate((parent1[:crossover_point], parent2[crossover_point:]))
-            new_population.append(child)  # Unikalne wzorce
-        
-        # Mutacja
-        for i in range(len(new_population)):
-            if random.random() < mutation_rate:
-                mutation_index = random.randint(0, N-1)
-                new_population[i][mutation_index] = random.randint(0, num_patterns-1)
-        
-        population = new_population
-        
-    # Najlepszy wynik
-    best_individual = max(population, key=fitness)
-    best_value = fitness(best_individual)
-    
-    return (best_value, np.max(data[best_individual], axis=0), best_individual)
+    def fitness(self, individual):
+        sc = self.data[individual]
+        return self.metric(sc)
 
-#### END OF GENETIC CODE ####
+    def pat_sel_genetic(self):
+        num_patterns, num_locations = self.data.shape
+
+        # Initialize population
+        population = [random.sample(range(num_patterns), self.N) for _ in range(self.population_size)]
+
+        for generation in range(self.iterations):
+            # Evaluate population
+            fitness_scores = [self.fitness(ind) for ind in population]
+
+            # Selection
+            selected_indices = np.argsort(fitness_scores)[-self.population_size // 2:]  # Select the best half
+            selected_population = [population[i] for i in selected_indices]
+
+            # Crossover
+            new_population = []
+            if self.N > 1:
+                while len(new_population) < self.population_size:
+                    parent1, parent2 = random.sample(selected_population, 2)
+                    crossover_point = random.randint(1, self.N - 1)
+                    child = np.concatenate((parent1[:crossover_point], parent2[crossover_point:]))
+                    new_population.append(child)  # Unique patterns
+            else:
+                while len(new_population) < self.population_size:
+                    parent1, parent2 = random.sample(selected_population, 2)
+                    crossover_point = random.randint(0, self.N - 1)
+                    child = np.concatenate((parent1[:crossover_point], parent2[crossover_point:]))
+                    new_population.append(child)  # Unique patterns
+
+            # Mutation
+            if self.N>1:
+                for i in range(len(new_population)):
+                    if random.random() < self.mutation_rate:
+                        mutation_index = random.randint(0, self.N - 1)
+                        new_population[i][mutation_index] = random.randint(0, num_patterns - 1)
+            else:
+                for i in range(len(new_population)):
+                    if random.random() < self.mutation_rate:
+                        mutation_index = 0
+                        new_population[i][mutation_index] = random.randint(0, num_patterns - 1)
+
+            population = new_population
+
+        # Best result
+        best_individual = max(population, key=self.fitness)
+        best_value = self.fitness(best_individual)
+
+        return (best_value, np.max(self.data[best_individual], axis=0), best_individual)
 
 def plot_reg(y, #plot data
             X_LABEL = 'N-1 paternow',
@@ -139,9 +192,9 @@ def plot_reg(y, #plot data
 
 def plot_reg_series(yy, # plot data
                     YY_LABELS=None,
-                    X_LABEL='N-1 paternow',
+                    X_LABEL='N paternow',
                     Y_LABEL='Przeplywnosc [MB/s]',
-                    TITLE='Regression Plot with 95% Confidence Interval',
+                    TITLE='Regression Plot with 99% Confidence Interval',
                     SAVE=False,
                     SAVE_NAME='figure',
                     SAVE_FORMAT='png',
@@ -155,17 +208,17 @@ def plot_reg_series(yy, # plot data
         3d -> series
     '''
     plt.figure(figsize=(10, 6))  # Create a single figure for all series
-
+    
     for i, y in enumerate(yy):
         # Convert to a DataFrame, transposing the data
         data = pd.DataFrame(y).T  # Transpose to have each point in a column
 
         # Create a new DataFrame for plotting
         data_melted = data.melt(var_name='Data Point', value_name='Values')
-
+        data_melted['Data Point'] += 1
         # Plotting using seaborn's regplot
-        sns.regplot(x='Data Point', y='Values', data=data_melted, ci=95, marker='o', order=ORDER, label=YY_LABELS[i] if YY_LABELS else None)
-
+        sns.regplot(x='Data Point', y='Values', data=data_melted, ci=99, marker='o', order=ORDER, label=YY_LABELS[i] if YY_LABELS else None)
+    sns.color_palette("Paired")
     # Names and labels
     plt.title(TITLE)
     plt.xlabel(X_LABEL)
@@ -183,7 +236,6 @@ def plot_reg_series(yy, # plot data
         plt.savefig(f"{SAVE_NAME}.{SAVE_FORMAT}", format=SAVE_FORMAT)
     
     return
-
 
 def plot_n_pats_bitrate(y, #plot data
                         X_LABEL = 'N-1 paternow',
@@ -275,11 +327,11 @@ def merge_selections(selected):
     merge = np.array(merge)
     return merge
 
-
-
-def run_select_function(merge, range_low = 1, range_max = 16, i_bound = 1, pat_sel_function = pat_sel_random):
-    t_start = time.time()
+def run_select_function(merge, pattern_selector, range_low = 1, range_max = 16, i_bound = 1, pat_sel_function_name='pat_sel_genetic'):
     y = []
+    # Get the method from the pattern_selector instance
+    pat_sel_function = getattr(pattern_selector, pat_sel_function_name)
+
     for n in range(1, range_max):
         if range_low>n:
             y.append([])
@@ -289,20 +341,15 @@ def run_select_function(merge, range_low = 1, range_max = 16, i_bound = 1, pat_s
             i = 0
             while i < i_bound:
                 #print("N: ", n, " i: ", i)
-                m, pows, pos = pat_sel_function(merge, N=n)
+                pattern_selector.N=n
+                m, pows, pos = pat_sel_function()
                 y[n - 1].append(m)
                 i += 1
-    print(f"{pat_sel_function.__name__} TIME =  {time.time() - t_start}")
     return y
-
-
-
-
-
 
 if __name__ == "__main__":
     #### INIT #####
-
+    
     # Optionally set a random seed based on the current time
     random.seed(time.time())
     #dumpfile for pickle name:
@@ -319,24 +366,48 @@ if __name__ == "__main__":
 
     #create merged array with maximums from patterns for given i,d generations
     merge = merge_selections(selected)
+    snrs = snrs()
+    pattern_selector = PatternSelector(data=merge, snrs=snrs, iterations=10)
 
     #select patterns by functions
     #LISTA: pat_sel_genetic, pat_sel_random
-    selection_functions = [pat_sel_genetic, pat_sel_random]
-
-    I_BOUND = 3
-
+    selection_functions = ["pat_sel_genetic", "pat_sel_random"]
+    genetic_params = [[10,25,0.2]]#,[20,25,0.2],[20,100,0.2],[100,15,0.2],[100,15,0.4],[200,10,0.2]] #population, generations, mutations
+    random_params = [[250],[1000],[2500],[5000]]
+    I_BOUND = 10
     # Loop through each selection function and generate data
     yy = []
     yy_legend = []
     for selection_function in selection_functions:
-        print(f"Using function: {selection_function.__name__}")
-        y = run_select_function(merge, range_low=2, range_max=10, i_bound=I_BOUND, pat_sel_function=selection_function)
-        yy.append(y)
-        yy_legend.append(selection_function.__name__)
+        print(f"Using function: {selection_function}")
+        if selection_function=="pat_sel_random":
+            for p in random_params:
+                continue
+                print(p)
+                t0 = time.time()
+                pattern_selector.iterations = p[0]
+                y = run_select_function(merge, pattern_selector, range_low=1, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                yy.append(y)
+                yy_legend.append(selection_function +" "+ str(p[0]) +" "+ str(time.time()-t0)[0:3] + "s")
+        else:
+            for p in genetic_params:
+
+                print(p)
+                t0 = time.time()
+                pattern_selector.iterations=p[1]
+                pattern_selector.population_size=p[0]
+                pattern_selector.mutation_rate=p[2]
+                # pattern_selector.setup_constants(population_size=p[0], iterations=p[1], mutation_rate=p[2])
+                y = run_select_function(merge, pattern_selector, range_low=2, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                yy.append(y)
+                yy_legend.append(selection_function +" " + str(p)+" "+ str(time.time()-t0)[0:3] + "s")
+        # print(f"Using function: {selection_function}")
+        # y = run_select_function(merge, pattern_selector, range_low=2, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+        # yy.append(y)
+        # yy_legend.append(selection_function)
         #plot scores
         #plot_reg(y, TITLE='Regression 95% with Polynomial interpolation order=7; Genetic')
-    plot_reg_series(yy, yy_legend, ORDER= 5)
+    plot_reg_series(yy, yy_legend, ORDER= 7)
 
 
 
