@@ -1,14 +1,15 @@
 from class_codebook import *
 from class_measures_result import *
 from class_select import *
+from class_measures_ref import *
 
 import numpy as np
-import random
 import matplotlib.pyplot as plt
 import scipy.stats as st
 import seaborn as sns
-
 import pandas as pd
+
+import random
 import time
 import copy
 import threading
@@ -41,10 +42,12 @@ def snrs():
         snrs.append(avg)
     return snrs
 
-def przeplywnosc(x, W = 20E6, noise = -68): # x = rec pwr
-    if noise > x:
-        return 0.0
-    return W * np.log2(1 + (x - noise))/8/1024/1024 # in MB/s
+def przeplywnosc(x, W = 20E6, B = 20E6): # x = rec pwr
+        # if self.snrs[j] > x:
+        #     return -100
+        noise_pow = dbm_to_mw(-174 + 10 * np.log10(B))
+        signal_pow = dbm_to_mw(x-50)
+        return W * np.log2(1 + (signal_pow / noise_pow) )/8/1024/1024 # in MB/s
 
 def metric(selections):
     max_values = np.max(selections, axis=0)
@@ -52,7 +55,6 @@ def metric(selections):
         max_values[j] = przeplywnosc(max_values[j])
     ret_val = np.sum(max_values) #np.mean
     return ret_val
-
 
 class PatternSelector:
     def __init__(self, data, snrs, N=1, population_size=100, iterations=1000, mutation_rate=0.4):
@@ -72,7 +74,7 @@ class PatternSelector:
     def przeplywnosc(self, x, j, W = 20E6, B = 20E6): # x = rec pwr
         # if self.snrs[j] > x:
         #     return -100
-        return W * np.log2(1 + (dbm_to_mw(x) / dbm_to_mw(-174 + 10 * np.log10(B)) ) )/8/1024/1024 # in MB/s
+        return W * np.log2(1 + (dbm_to_mw(x-50) / dbm_to_mw(-174 + 10 * np.log10(B)) ) )/8/1024/1024 # in MB/s
 
     def metric(self, selections):
         max_values = np.max(selections, axis=0)
@@ -273,7 +275,7 @@ def plot_n_pats_bitrate(y, #plot data
     return
 
 def plot_bitrate_in_loc(data, #lista list do wykresowania
-                        data_LABELS, #lista labeli do wykresowania
+                        data_LABELS, #lista opisów do wykresowania
                         X_LABEL = 'N-1 paternow',
                         Y_LABEL = 'Przeplywnosc [MB/s]',
                         SAVE = False,
@@ -291,13 +293,12 @@ def plot_bitrate_in_loc(data, #lista list do wykresowania
     # Use Rx_Angle from Results as the x-axis
     results= Results()
     x_axis = results.results[0].Rx_Angle
-
     # Create a figure and axis
     plt.figure(figsize=(10, 8))
 
     # Plot data and labels
     for i, y in enumerate(data):
-        plt.plot(x_axis, y,  markersize=MARKERSIZE, label=y[i], marker='X')
+        plt.plot(x_axis, y,  markersize=MARKERSIZE, label=data_LABELS[i], marker='X')
     # ref max from results
     if PLT_REF:
         res_pows = []
@@ -305,7 +306,7 @@ def plot_bitrate_in_loc(data, #lista list do wykresowania
             res_pows.append(x.powers)
         res_pows_array = np.array(res_pows)
         res_pows = np.max(res_pows_array, axis=0)
-        plt.plot(x_axis, res_pows,  markersize=MARKERSIZE, label='max in measures', color='green', marker='X')
+        plt.plot(x_axis, res_pows,  markersize=MARKERSIZE, label='max in measures', color='yellow', marker='X')
 
     plt.xlabel('Kąt położenia odbiornika [stopnie]', fontsize=FONTSIZE)
     plt.ylabel('Wartości mocy odebranej [dBm]', fontsize=FONTSIZE)
@@ -328,24 +329,46 @@ def merge_selections(selected):
     return merge
 
 def run_select_function(merge, pattern_selector, range_low = 1, range_max = 16, i_bound = 1, pat_sel_function_name='pat_sel_genetic'):
-    y = []
+    y, powss, poss = [], [], []
     # Get the method from the pattern_selector instance
     pat_sel_function = getattr(pattern_selector, pat_sel_function_name)
 
     for n in range(1, range_max):
+        #extend list dims
+        y.append([])
+        powss.append([])
+        poss.append([])
         if range_low>n:
-            y.append([])
             continue
         else:
-            y.append([])
             i = 0
             while i < i_bound:
                 #print("N: ", n, " i: ", i)
                 pattern_selector.N=n
                 m, pows, pos = pat_sel_function()
                 y[n - 1].append(m)
+                powss[n - 1].append(pows)
+                poss[n - 1].append(pos)
                 i += 1
-    return y
+    return y, powss, poss
+
+def save_powers(data):
+    flattened_data = []
+    for sublist in data:
+        for item in sublist:
+            if isinstance(item, list):
+                for subitem in item:
+                    flattened_data.append(subitem)
+            else:
+                flattened_data.append(item)
+
+    # Tworzymy DataFrame
+    df = pd.DataFrame(flattened_data)
+
+    # Zapisz do pliku CSV
+    df.to_csv('datapowers.csv', index=False, header=False)
+
+    print("Dane zostały zapisane do pliku 'data.csv'.")
 
 if __name__ == "__main__":
     #### INIT #####
@@ -354,7 +377,11 @@ if __name__ == "__main__":
     random.seed(time.time())
     #dumpfile for pickle name:
     dumpfile= "wybrane_paterny_pk_metod_v2.pkl"
-
+    ref_mes = Results_Ref()
+    ref_metric = []
+    rm = metric([ref_mes.results[0].powers])
+    for _ in range(0,15):
+        ref_metric.append(rm)
     selected = Selected()
     '''
     uncomment one to:
@@ -373,32 +400,40 @@ if __name__ == "__main__":
     #LISTA: pat_sel_genetic, pat_sel_random
     selection_functions = ["pat_sel_genetic", "pat_sel_random"]
     genetic_params = [[10,25,0.2]]#,[20,25,0.2],[20,100,0.2],[100,15,0.2],[100,15,0.4],[200,10,0.2]] #population, generations, mutations
-    random_params = [[250],[1000],[2500],[5000]]
-    I_BOUND = 10
+    random_params = [[100]]#,[1000],[2500],[5000]]
+    I_BOUND = 1
     # Loop through each selection function and generate data
-    yy = []
-    yy_legend = []
+    powers = [[ref_mes.results[0].powers]]
+    yy = [ref_metric]
+    yy_legend = ["NO_RIS"]
     for selection_function in selection_functions:
         print(f"Using function: {selection_function}")
         if selection_function=="pat_sel_random":
             for p in random_params:
-                continue
-                print(p)
+                print("RANDOM", p)
                 t0 = time.time()
                 pattern_selector.iterations = p[0]
-                y = run_select_function(merge, pattern_selector, range_low=1, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                y, pow, pos = run_select_function(merge, pattern_selector, range_low=1, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                print(y)
+                powers.append(pow)
+                print(pow)
+                print(pos)
                 yy.append(y)
                 yy_legend.append(selection_function +" "+ str(p[0]) +" "+ str(time.time()-t0)[0:3] + "s")
         else:
             for p in genetic_params:
 
-                print(p)
+                print("GENETIC", p)
                 t0 = time.time()
                 pattern_selector.iterations=p[1]
                 pattern_selector.population_size=p[0]
                 pattern_selector.mutation_rate=p[2]
                 # pattern_selector.setup_constants(population_size=p[0], iterations=p[1], mutation_rate=p[2])
-                y = run_select_function(merge, pattern_selector, range_low=2, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                y, pow, pos = run_select_function(merge, pattern_selector, range_low=2, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                print(y)
+                powers.append(pow)
+                print(pow)
+                print(pos)
                 yy.append(y)
                 yy_legend.append(selection_function +" " + str(p)+" "+ str(time.time()-t0)[0:3] + "s")
         # print(f"Using function: {selection_function}")
@@ -407,8 +442,8 @@ if __name__ == "__main__":
         # yy_legend.append(selection_function)
         #plot scores
         #plot_reg(y, TITLE='Regression 95% with Polynomial interpolation order=7; Genetic')
-    plot_reg_series(yy, yy_legend, ORDER= 7)
-
+    #plot_reg_series(yy, yy_legend, ORDER= 7)
+    save_powers(powers)
 
 
 

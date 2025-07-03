@@ -83,3 +83,11 @@ class Select:
             self.maxs_idx = (max_indices)
         return
         
+
+if __name__=="__main__":
+    dumpfile= "wybrane_paterny_pk_metod_v2.pkl"
+    selected = Selected()
+    selected.load_from_file(dumpfile)
+    for s in selected.selected:
+        s.find_max()
+    selected.dump_class_to_file(dumpfile=dumpfile)
