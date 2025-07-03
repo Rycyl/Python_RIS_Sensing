@@ -23,7 +23,7 @@ xticks(-90:20:90);
 yticks(-10:10:30);
 set(gca, "linewidth", 1, "fontsize", 20)
 legend("Liniowy", "Binarny", "Binarny z rotacją")
-xlabel('Kąt położenia RX')
+xlabel('Kąt położenia Rx [stopnie]')
 ylabel('AF (dB)')
 % title(['AF for TX at ' num2str(kat_TX) ' and RIS pattern for TX angle=' num2str(kat_TX) ' and RX angle=' num2str(kat_RX)])
 % prekoder_bin=2*(real(prekoder*exp(1j*2*pi/2))>0)-1;
