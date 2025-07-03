@@ -59,17 +59,17 @@ for i in range(data.shape[0]):
     avg = np.mean(wat_dat)
     avg = mw_to_dbm(avg)
     plt.figure()  # Utwórz nową figurę dla każdego wykresu
-    plt.plot(dat, label=f'Wiersz {i+1}')
-    plt.axhline(y=maxs[i], color='r', linestyle='--', label='colcol_max')
-    plt.axhline(y=avg, color='y', linestyle='--', label='avg')
-    plt.axhline(y=mins[i], color='g', linestyle='--', label='colcol_min')
+    plt.plot(dat, label=f'Rec pwr')
+    plt.axhline(y=maxs[i], color='r', linestyle='--', label='Opt max')
+    plt.axhline(y=avg, color='c', linestyle='--', label='Lin avg')
+    plt.axhline(y=mins[i], color='g', linestyle='--', label='Opt min')
     plt.title(f'Tx {int(results.results[0].Tx_Angle[i])}, Rx {int(results.results[0].Rx_Angle[i])}')
-    plt.xlabel('N-ty_pattern')
-    plt.ylabel('Moc [dBm]')
+    plt.xlabel('N\'th pattern in recieved power')
+    plt.ylabel('Recieved power [dBm]')
     plt.ylim(-95, -50)  # Ustawienie stałego zakresu osi Y
     plt.grid(True)  # Włączenie linii pomocniczych
-    plt.legend()
-    
+    plt.legend(loc='lower left')
+    plt.show()
     # Zapisz wykres do pliku w folderze "plots"
-    # plt.savefig(os.path.join(plots_folder, f'wykres_pos_pow_wiersz_{i+1}.png'))
+    #plt.savefig(os.path.join(plots_folder, f'wykres_pos_pow_wiersz_{i+1}.png'))
     plt.close()  # Zamknij figurę, aby nie pokazywać podglądu

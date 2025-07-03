@@ -4,11 +4,6 @@ import pickle
 from bitstring import BitArray
 import os
 import numpy as np
-import re
-
-def extract_number(filename):
-    match = re.search(r'(\d+)(?=\.csv$)', filename)
-    return int(match.group(1)) if match else -1  # Return -1 if no number found
 
 class Result:
     def __init__(self, idx, pattern):
@@ -22,6 +17,10 @@ class Result:
         self.c_values = []  # List to store values of c
         self.x_values = []  # List to store values of x
         self.y_values = []  # List to store values of y
+
+    def __repr__(self):
+        return(f"angle_RX {self.Rx_Angle}")
+
 
     def add_measure(self, power, tx_angle, rx_angle, a, b, c, x, y):
         self.powers.append(float(power))  # Add power measurement
@@ -54,6 +53,71 @@ class Results:
         self.maxs = []
         self.mins = []
         self.load_results(dumpfile, resultfilename)
+
+    def sort_by_RX(self):
+        # Ensure that all relevant attributes are NumPy arrays
+        for result in self.results:
+            result.Rx_Angle = np.array(result.Rx_Angle)
+            result.Tx_Angle = np.array(result.Tx_Angle)
+            result.a_values = np.array(result.a_values)
+            result.b_values = np.array(result.b_values)
+            result.c_values = np.array(result.c_values)
+            result.powers = np.array(result.powers)
+            result.x_values = np.array(result.x_values)
+            result.y_values = np.array(result.y_values)
+
+        for min_result in self.mins:
+            min_result.Rx_Angle = np.array(min_result.Rx_Angle)
+            min_result.Tx_Angle = np.array(min_result.Tx_Angle)
+            min_result.a_values = np.array(min_result.a_values)
+            min_result.b_values = np.array(min_result.b_values)
+            min_result.c_values = np.array(min_result.c_values)
+            min_result.powers = np.array(min_result.powers)
+            min_result.x_values = np.array(min_result.x_values)
+            min_result.y_values = np.array(min_result.y_values)
+
+        for max_result in self.maxs:
+            max_result.Rx_Angle = np.array(max_result.Rx_Angle)
+            max_result.Tx_Angle = np.array(max_result.Tx_Angle)
+            max_result.a_values = np.array(max_result.a_values)
+            max_result.b_values = np.array(max_result.b_values)
+            max_result.c_values = np.array(max_result.c_values)
+            max_result.powers = np.array(max_result.powers)
+            max_result.x_values = np.array(max_result.x_values)
+            max_result.y_values = np.array(max_result.y_values)
+
+        # Now perform the sorting
+        sorted_indices = np.argsort(self.results[0].Rx_Angle)
+        
+        for i in range(len(self.results)):
+            self.results[i].Rx_Angle = self.results[i].Rx_Angle[sorted_indices]
+            self.results[i].Tx_Angle = self.results[i].Tx_Angle[sorted_indices]
+            self.results[i].a_values = self.results[i].a_values[sorted_indices]
+            self.results[i].b_values = self.results[i].b_values[sorted_indices]
+            self.results[i].c_values = self.results[i].c_values[sorted_indices]
+            self.results[i].powers = self.results[i].powers[sorted_indices]
+            self.results[i].x_values = self.results[i].x_values[sorted_indices]
+            self.results[i].y_values = self.results[i].y_values[sorted_indices]
+
+        for i in range(len(self.mins)):
+            self.mins[i].Rx_Angle = self.mins[i].Rx_Angle[sorted_indices]
+            self.mins[i].Tx_Angle = self.mins[i].Tx_Angle[sorted_indices]
+            self.mins[i].a_values = self.mins[i].a_values[sorted_indices]
+            self.mins[i].b_values = self.mins[i].b_values[sorted_indices]
+            self.mins[i].c_values = self.mins[i].c_values[sorted_indices]
+            self.mins[i].powers = self.mins[i].powers[sorted_indices]
+            self.mins[i].x_values = self.mins[i].x_values[sorted_indices]
+            self.mins[i].y_values = self.mins[i].y_values[sorted_indices]
+
+        for i in range(len(self.maxs)):
+            self.maxs[i].Rx_Angle = self.maxs[i].Rx_Angle[sorted_indices]
+            self.maxs[i].Tx_Angle = self.maxs[i].Tx_Angle[sorted_indices]
+            self.maxs[i].a_values = self.maxs[i].a_values[sorted_indices]
+            self.maxs[i].b_values = self.maxs[i].b_values[sorted_indices]
+            self.maxs[i].c_values = self.maxs[i].c_values[sorted_indices]
+            self.maxs[i].powers = self.maxs[i].powers[sorted_indices]
+            self.maxs[i].x_values = self.maxs[i].x_values[sorted_indices]
+            self.maxs[i].y_values = self.maxs[i].y_values[sorted_indices]
 
     def add_result(self, result):
         if isinstance(result, Result):
@@ -92,6 +156,7 @@ class Results:
     def load_results(self, dumpfile, resultfilename):
         print("results loading....")
         try:
+            print("picle try")
             with open(dumpfile, 'rb') as file:
                 loaded_object = pickle.load(file)
             self.results = loaded_object.results
@@ -100,9 +165,7 @@ class Results:
             print("Results loaded")
         except:
             directory_path = os.path.dirname(os.path.abspath(__file__))
-            file_list = [f for f in os.listdir(directory_path) if f.endswith('.csv') and f.startswith(resultfilename)]
-            file_list.sort(key=extract_number)
-            for filename in file_list:#os.listdir(directory_path):
+            for filename in os.listdir(directory_path):
                 # Sprawdzenie, czy nazwa pliku zaczyna się od "Big_codebook"
                 print("checking file:",filename)
                 if filename.startswith(resultfilename) and filename.endswith(".csv"):
@@ -167,13 +230,15 @@ class Results:
                                 result.add_measure(*rest_data)
                                 self.mins.append(result)
                             
-                                
+            self.sort_by_RX()                    
             print("results loaded")
             self.dump_class_to_file(dumpfile)
             print("results dumped to file")
         return
-            
-# Create class instance
-results_instance = Results()
-print(results_instance)
-############################################
+
+if __name__=="__main__":       
+    # Create class instance
+    results_instance = Results()
+    results_instance.dump_class_to_file("results.pkl")
+    print(results_instance)
+    ############################################
