@@ -306,10 +306,12 @@ def plot_bitrate_in_loc(data, #lista list do wykresowania
             res_pows.append(x.powers)
         res_pows_array = np.array(res_pows)
         res_pows = np.max(res_pows_array, axis=0)
-        plt.plot(x_axis, res_pows,  markersize=MARKERSIZE, label='max in measures', color='yellow', marker='X')
+        plt.plot(x_axis, res_pows,  markersize=MARKERSIZE, label='FULL CODEBOOK i=[0;90],d=[0;90]', color='yellow', marker='X')
 
     plt.xlabel('Kąt położenia odbiornika [stopnie]', fontsize=FONTSIZE)
     plt.ylabel('Wartości mocy odebranej [dBm]', fontsize=FONTSIZE)
+    if TITLE!='':
+        plt.title(TITLE)
     plt.grid()
     plt.legend(fontsize=FONTSIZE, loc='upper right')
 
@@ -399,9 +401,9 @@ if __name__ == "__main__":
     #select patterns by functions
     #LISTA: pat_sel_genetic, pat_sel_random
     selection_functions = ["pat_sel_genetic", "pat_sel_random"]
-    genetic_params = [[10,25,0.2]]#,[20,25,0.2],[20,100,0.2],[100,15,0.2],[100,15,0.4],[200,10,0.2]] #population, generations, mutations
-    random_params = [[100]]#,[1000],[2500],[5000]]
-    I_BOUND = 1
+    genetic_params = [[50,20,0.3],[20,20,0.3],[20,50,0.3]]#,[100,15,0.2],[100,15,0.4],[200,10,0.2]] #population, generations, mutations
+    random_params = [[100],[250],[1000]]#,[5000]]
+    I_BOUND = 2
     # Loop through each selection function and generate data
     powers = [[ref_mes.results[0].powers]]
     yy = [ref_metric]
@@ -443,7 +445,18 @@ if __name__ == "__main__":
         #plot scores
         #plot_reg(y, TITLE='Regression 95% with Polynomial interpolation order=7; Genetic')
     #plot_reg_series(yy, yy_legend, ORDER= 7)
-    save_powers(powers)
+    pass
+    j = 0
+    while j < len(powers[1]):
+        dat = [powers[0][0]]
+        i = 1
+        while i < len(powers):
+            if powers[i][j]!=[]:
+                dat.append(np.mean(powers[i][j], axis=0))
+            i+=1
+        plot_bitrate_in_loc(dat, yy_legend, TITLE=f"Liczba wzorcy={j+1}")
+        j+=1
+    #save_powers(powers)
 
 
 

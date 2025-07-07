@@ -35,7 +35,7 @@ def extract_number(filename):
 
 def read_from_files(N):
     # Folder with your CSVs
-    folder = os.path.join(os.getcwd(), "Math_model_codebook_measures", "wyniki", "grid_measures_30_Apr")
+    folder = os.path.join(os.getcwd())
     csv_files = [f for f in os.listdir(folder) if f.endswith('.csv') and f.startswith("Big_codebook")]
     csv_files.sort(key=extract_number)
     print(csv_files)
