@@ -3,6 +3,8 @@ from class_measures_result import *
 from class_select import *
 from class_measures_ref import *
 
+from heat_map import *
+
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as st
@@ -42,10 +44,14 @@ def snrs():
         snrs.append(avg)
     return snrs
 
+def white_noise(B=20e6):
+    lvl = -174 + 10 * np.log10(B)
+    return lvl
+
 def przeplywnosc(x, W = 20E6, B = 20E6): # x = rec pwr
         # if self.snrs[j] > x:
         #     return -100
-        noise_pow = dbm_to_mw(-174 + 10 * np.log10(B))
+        noise_pow = dbm_to_mw(white_noise(B))
         signal_pow = dbm_to_mw(x-50)
         return W * np.log2(1 + (signal_pow / noise_pow) )/8/1024/1024 # in MB/s
 
@@ -446,19 +452,26 @@ if __name__ == "__main__":
         #plot_reg(y, TITLE='Regression 95% with Polynomial interpolation order=7; Genetic')
     #plot_reg_series(yy, yy_legend, ORDER= 7)
     pass
+    white_noise_lvls = np.full(15, white_noise(200e6))
     j = 0
+    x_y = [(0,0), (0,1), (0,2), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (3,1), (4,2), (4,1), (3,0), (4,0)]
     while j < len(powers[1]):
         dat = [powers[0][0]]
         i = 1
         while i < len(powers):
             if powers[i][j]!=[]:
                 dat.append(np.mean(powers[i][j], axis=0))
+                heat_map_data = input_dat(dat[-1]-white_noise_lvls, x_y)
+                plot_heat_map(heat_map_data, f"Liczba wzorcy={j+1}, {yy[i]}")
             i+=1
+            
         plot_bitrate_in_loc(dat, yy_legend, TITLE=f"Liczba wzorcy={j+1}")
         j+=1
     #save_powers(powers)
+    
+    
 
-
+    
 
 
 
