@@ -1,34 +1,57 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+import inspect
+import os
 
+def plot_heat_map(heatmap_data,
+                title="",
+                SCALE_LABEL='',
+                V_MIN=2,
+                V_MAX=12,
+                SAVE = False,
+                SAVE_NAME = 'figure',
+                SAVE_FORMAT = 'png',
+                FONTSIZE=20):
 
-def plot_heat_map(heatmap_data, title, save = False):
     # Plotting
-    plt.figure(figsize=(42, 24))
-    ax = sns.heatmap(np.flip(heatmap_data.T, axis=1), annot=True, cmap='viridis', cbar_kws={'label': 'Wzrost Mocy [dB]'}, annot_kws={"size": 120, "weight": "bold",})
+    plt.figure(figsize=(10, 6))
+    ax = sns.heatmap(
+        np.flip(heatmap_data.T, axis=1),
+        annot=True, cmap='viridis',
+        cbar_kws={'label': SCALE_LABEL},
+        annot_kws={"size": 14, "weight": "bold",},
+        vmax=V_MAX, # Maximum value for the color scale
+        vmin=V_MIN  # Minimum value for the color scale
+        ) 
     colorbar = ax.collections[0].colorbar
-    colorbar.ax.tick_params(labelsize=80)
-    colorbar.ax.yaxis.label.set_size(80)
-    colorbar.ax.yaxis.label.set_weight("bold")
-    colorbar.ax.tick_params(labelsize=80, width=1.5)
+    colorbar.ax.tick_params(labelsize=FONTSIZE)
+    colorbar.ax.yaxis.label.set_size(FONTSIZE)
+    #colorbar.ax.yaxis.label.set_weight("bold")
+    colorbar.ax.tick_params(labelsize=FONTSIZE, width=1.5)
     for tick in colorbar.ax.get_yticklabels():
         tick.set_weight("bold")
     x_labels = np.arange(2.64, -0.66, -0.66)
     x_labels = [abs(round(x, 2)) for x in x_labels]
-    print(x_labels)
-    plt.xticks(ticks=np.arange(0.5, 5.5, step=1), labels=x_labels, fontsize = 100, fontweight='bold')
-    plt.yticks(ticks=np.arange(0.5, 3, step=1), labels=np.arange(1.5, 3, 0.5), fontsize = 100, fontweight='bold')
-    #plt.title(title, fontsize=42, fontweight='bold') #f"Heatmap for Pattern: {pattern_title}"
-    #plt.xlabel("Odległość Rx od Osi Y RIS'a [m]", fontsize=81, fontweight='bold')
-    #plt.ylabel("Odległość Rx od Osi X RIS'a [m]", fontsize=81, fontweight='bold')
+    plt.xticks(ticks=np.arange(0.5, 5.5, step=1), labels=x_labels, fontsize = FONTSIZE)
+    plt.yticks(ticks=np.arange(0.5, 3, step=1), labels=np.arange(1.5, 3, 0.5), fontsize = FONTSIZE)
+    if title!="":
+        plt.title(title, fontsize=FONTSIZE, fontweight='bold') #f"Heatmap for Pattern: {pattern_title}"
+    plt.xlabel("Odległość Rx od Osi Y RIS'a [m]", fontsize=FONTSIZE)
+    plt.ylabel("Odległość Rx od Osi X RIS'a [m]", fontsize=FONTSIZE)
     plt.gca().invert_yaxis()  # Optional: match matrix orientation
     plt.tight_layout()
-    if not save:
-        plt.show()
+    if SAVE:
+        folder_name = os.path.dirname(os.path.abspath(__file__))
+        plots_folder = os.path.join(folder_name, inspect.currentframe().f_code.co_name)
+        # Utwórz folder "plots", jeśli nie istnieje
+        os.makedirs(plots_folder, exist_ok=True)
+        plt.savefig(os.path.join(plots_folder, f"{SAVE_NAME}.{SAVE_FORMAT}"), format=SAVE_FORMAT)
+        print("PLOT SAVED:", f"{SAVE_NAME}.{SAVE_FORMAT}")
     else:
-        #plt.savefig(f"Heat_map_{title}.png")
-        plt.savefig(f"Heat_map_REF.png")
+        plt.show()
+    plt.close()
+    return
 
 def input_dat(data, x_y):
     #x_y = [(4,2), (3,2), (2,2), (1,2), (0,2), (0,1), (1,1), (2,1), (3,1), (4,1), (4,0), (3,0), (2,0), (1,0), (0,0)]
@@ -62,4 +85,4 @@ if __name__ == "__main__":
         for j in range(3):
             normalized_heat_map[i][j] = -heat_map_data_ref[i][j] + heat_map_data[i][j]
     
-    plot_heat_map(normalized_heat_map, r"Moc odebrana w punktach $R_{i=(x,y)}$", True)
+    plot_heat_map(normalized_heat_map, r"Moc odebrana w punktach $R_{i=(x,y)}$")
