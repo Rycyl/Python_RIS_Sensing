@@ -11,11 +11,13 @@ import scipy.stats as st
 import seaborn as sns
 import pandas as pd
 
+import inspect
 import random
 import time
 import copy
 import threading
 import math
+import os
 
 def dbm_to_mw(x):
     mW=10**(x/10)
@@ -195,7 +197,12 @@ def plot_reg(y, #plot data
     if SHOW:
         plt.show()
     if SAVE:
-        plt.savefig(f"{SAVE_NAME}.{SAVE_FORMAT}", format=SAVE_FORMAT)
+        folder_name = os.path.dirname(os.path.abspath(__file__))
+        plots_folder = os.path.join(folder_name, inspect.currentframe().f_code.co_name)
+
+        # Utwórz folder "plots", jeśli nie istnieje
+        os.makedirs(plots_folder, exist_ok=True)
+        plt.savefig(os.path.join(plots_folder, f"{SAVE_NAME}.{SAVE_FORMAT}", format=SAVE_FORMAT))
     return
 
 def plot_reg_series(yy, # plot data
@@ -241,7 +248,12 @@ def plot_reg_series(yy, # plot data
     if SHOW:
         plt.show()
     if SAVE:
-        plt.savefig(f"{SAVE_NAME}.{SAVE_FORMAT}", format=SAVE_FORMAT)
+        folder_name = os.path.dirname(os.path.abspath(__file__))
+        plots_folder = os.path.join(folder_name, inspect.currentframe().f_code.co_name)
+
+        # Utwórz folder "plots", jeśli nie istnieje
+        os.makedirs(plots_folder, exist_ok=True)
+        plt.savefig(os.path.join(plots_folder, f"{SAVE_NAME}.{SAVE_FORMAT}", format=SAVE_FORMAT))
     
     return
 
@@ -276,7 +288,12 @@ def plot_n_pats_bitrate(y, #plot data
     if SHOW:
         plt.show()
     if SAVE:
-        plt.savefig(f"{SAVE_NAME}.{SAVE_FORMAT}", format=SAVE_FORMAT)
+        folder_name = os.path.dirname(os.path.abspath(__file__))
+        plots_folder = os.path.join(folder_name, inspect.currentframe().f_code.co_name)
+
+        # Utwórz folder "plots", jeśli nie istnieje
+        os.makedirs(plots_folder, exist_ok=True)
+        plt.savefig(os.path.join(plots_folder, f"{SAVE_NAME}.{SAVE_FORMAT}", format=SAVE_FORMAT))
 
     return
 
@@ -322,7 +339,12 @@ def plot_bitrate_in_loc(data, #lista list do wykresowania
     plt.legend(fontsize=FONTSIZE, loc='upper right')
 
     if SAVE:
-        plt.savefig(f"{SAVE_NAME}.{SAVE_FORMAT}", format=SAVE_FORMAT)
+        folder_name = os.path.dirname(os.path.abspath(__file__))
+        plots_folder = os.path.join(folder_name, inspect.currentframe().f_code.co_name)
+
+        # Utwórz folder "plots", jeśli nie istnieje
+        os.makedirs(plots_folder, exist_ok=True)
+        plt.savefig(os.path.join(plots_folder, f"{SAVE_NAME}.{SAVE_FORMAT}", format=SAVE_FORMAT))
 
     # Show the plot if requested
     if SHOW:
@@ -411,7 +433,7 @@ if __name__ == "__main__":
     random_params = [[100],[250],[1000]]#,[5000]]
     I_BOUND = 2
     # Loop through each selection function and generate data
-    powers = [[ref_mes.results[0].powers]]
+    powers = [[[ref_mes.results[0].powers]]]
     yy = [ref_metric]
     yy_legend = ["NO_RIS"]
     for selection_function in selection_functions:
@@ -422,10 +444,10 @@ if __name__ == "__main__":
                 t0 = time.time()
                 pattern_selector.iterations = p[0]
                 y, pow, pos = run_select_function(merge, pattern_selector, range_low=1, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
-                print(y)
+                # print(y)
                 powers.append(pow)
-                print(pow)
-                print(pos)
+                # print(pow)
+                # print(pos)
                 yy.append(y)
                 yy_legend.append(selection_function +" "+ str(p[0]) +" "+ str(time.time()-t0)[0:3] + "s")
         else:
@@ -438,10 +460,10 @@ if __name__ == "__main__":
                 pattern_selector.mutation_rate=p[2]
                 # pattern_selector.setup_constants(population_size=p[0], iterations=p[1], mutation_rate=p[2])
                 y, pow, pos = run_select_function(merge, pattern_selector, range_low=2, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
-                print(y)
+                # print(y)
                 powers.append(pow)
-                print(pow)
-                print(pos)
+                # print(pow)
+                # print(pos)
                 yy.append(y)
                 yy_legend.append(selection_function +" " + str(p)+" "+ str(time.time()-t0)[0:3] + "s")
         # print(f"Using function: {selection_function}")
@@ -452,27 +474,59 @@ if __name__ == "__main__":
         #plot_reg(y, TITLE='Regression 95% with Polynomial interpolation order=7; Genetic')
     #plot_reg_series(yy, yy_legend, ORDER= 7)
     pass
-    white_noise_lvls = np.full(15, white_noise(200e6))
+
+    #HEATMAPS POWER
+    white_noise_lvls = np.full(15, white_noise(20e6)) # SET NOISE LVL 
+
+    #PLOT REF HEATMAP
+    ref_x_y = [(0,0), (0,2), (0,1), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (4,2), (3,1), (4,0), (3,0), (4,1)]
+    heat_map_data = input_dat(powers[0][0][0]-white_noise_lvls, ref_x_y)
+    #plot_heat_map(heat_map_data, f"NO_RIS", SAVE=True, SAVE_NAME=f"heatmap_power_no_ris")
+
     j = 0
     x_y = [(0,0), (0,1), (0,2), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (3,1), (4,2), (4,1), (3,0), (4,0)]
     while j < len(powers[1]):
-        dat = [powers[0][0]]
+        dat = [powers[0][0][0]]
         i = 1
         while i < len(powers):
             if powers[i][j]!=[]:
-                dat.append(np.mean(powers[i][j], axis=0))
+                dat.append(np.max(powers[i][j], axis=0))
                 heat_map_data = input_dat(dat[-1]-white_noise_lvls, x_y)
-                plot_heat_map(heat_map_data, f"Liczba wzorcy={j+1}, {yy[i]}")
+                #plot_heat_map(heat_map_data, f"Liczba wzorcy={j+1}, {yy[i]}", SAVE=True, SAVE_NAME=f"heatmap_power_liczba_wzorcy_{j+1}_{yy_legend[i]}")
             i+=1
-            
-        plot_bitrate_in_loc(dat, yy_legend, TITLE=f"Liczba wzorcy={j+1}")
+        #plot_bitrate_in_loc(dat, yy_legend, TITLE=f"Liczba wzorcy={j+1}")
         j+=1
     #save_powers(powers)
-    
-    
 
-    
+    #HEATMAP PRZEPLYWNOSC
+    bitrates = []
+    for p_funkcji in powers: #iteruj wykonane funkcje
+        bitrates.append([])
+        for p_n_elementow in p_funkcji: #iteruj liczby elementów
+            bitrates[-1].append([])
+            if p_n_elementow==[]:
+                continue
+            if len(p_n_elementow)>1:
+                tmp_p = (np.max(p_n_elementow, axis=0)) #znajdz maxy dla wielu iteracji jednego algorytmu
+            else:
+                tmp_p = p_n_elementow[0]
+            for p in tmp_p: #iteruj pojedyncze moce i oblicz przeplywnosci dla nich w koncu
+                bitrates[-1][-1].append(przeplywnosc(p))
 
+    heat_map_data = input_dat(bitrates[0][0], ref_x_y)            
+    plot_heat_map(heat_map_data, f"REF NO_RIS, sum:{np.round(np.sum(bitrates[0][0]), decimals=1)} MB/s", SAVE=True, SAVE_NAME=f"heatmap_bitrate_NO_RIS_{yy_legend[0]}", SCALE_LABEL="Bitrate [MB/s]")
+    j=0
+    while j < len(bitrates[1]):
+        dat=[bitrates[0][0]]
+        i = 1
+        while i < len(bitrates):
+            print(i,j)
+            if bitrates[i][j]!=[]:
+                heat_map_data = input_dat(bitrates[i][j], x_y)
+                plot_heat_map(heat_map_data, f"N={j+1}, {yy_legend[i][8:-4]}, sum:{np.round(np.sum(bitrates[i][j]), decimals=1)} MB/s", SAVE=True, SAVE_NAME=f"heatmap_bitrate_liczba_wzorcy_{j+1}_{yy_legend[i]}", SCALE_LABEL="Bitrate [MB/s]")
+            i+=1
+        #plot_bitrate_in_loc(dat, yy_legend, TITLE=f"Liczba wzorcy={j+1}")
+        j+=1
 
 
 
