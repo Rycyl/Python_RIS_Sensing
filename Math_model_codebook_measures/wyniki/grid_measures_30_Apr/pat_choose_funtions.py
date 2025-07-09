@@ -82,7 +82,7 @@ class PatternSelector:
     def przeplywnosc(self, x, j, W = 20E6, B = 20E6): # x = rec pwr
         # if self.snrs[j] > x:
         #     return -100
-        return W * np.log2(1 + (dbm_to_mw(x-50) / dbm_to_mw(-174 + 10 * np.log10(B)) ) )/8/1024/1024 # in MB/s
+        return W * np.log2(1 + (dbm_to_mw(x-50) / dbm_to_mw(white_noise(B)) ) )/8/1024/1024 # in MB/s
 
     def metric(self, selections):
         max_values = np.max(selections, axis=0)
@@ -351,6 +351,78 @@ def plot_bitrate_in_loc(data, #lista list do wykresowania
         plt.show()
     return
 
+def plot_heatmap_bitrate(powers, SAVE=True):
+    '''
+        Powers -> tablica [funkcja_generująca_listę_mocy][ilość patternów uzytych][iteracja wyników (może być jedna)]
+    '''
+    ref_x_y = [(0,0), (0,2), (0,1), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (4,2), (3,1), (4,0), (3,0), (4,1)]
+    x_y = [(0,0), (0,1), (0,2), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (3,1), (4,2), (4,1), (3,0), (4,0)]
+    white_noise_lvls = np.full(15, white_noise(20e6)) # SET NOISE LVL 
+    #HEATMAP PRZEPLYWNOSC
+    bitrates = []
+    for p_funkcji in powers: #iteruj wykonane funkcje
+        bitrates.append([])
+        for p_n_elementow in p_funkcji: #iteruj liczby elementów
+            bitrates[-1].append([])
+            if p_n_elementow==[]:
+                continue
+            if len(p_n_elementow)>1:
+                tmp_p = (np.max(p_n_elementow, axis=0)) #znajdz maxy dla wielu iteracji jednego algorytmu
+            else:
+                tmp_p = p_n_elementow[0]
+            for p in tmp_p: #iteruj pojedyncze moce i oblicz przeplywnosci dla nich w koncu
+                bitrates[-1][-1].append(przeplywnosc(p))
+
+    heat_map_data = input_dat(bitrates[0][0], ref_x_y)            
+    plot_heat_map(
+                heat_map_data,
+                f"REF NO_RIS, sum:{np.round(np.sum(bitrates[0][0]), decimals=1)} MB/s",
+                SAVE=SAVE, SAVE_NAME=f"heatmap_bitrate_NO_RIS_{yy_legend[0]}",
+                SCALE_LABEL="Bitrate [MB/s]",
+                SAVE_FORMAT='png'
+                )
+    j=0
+    while j < len(bitrates[1]):
+        dat=[bitrates[0][0]]
+        i = 1
+        while i < len(bitrates):
+            print(i,j)
+            if bitrates[i][j]!=[]:
+                heat_map_data = input_dat(bitrates[i][j], x_y)
+                plot_heat_map(
+                            heat_map_data,
+                            f"N={j+1}, {yy_legend[i][8:-4]}, sum:{np.round(np.sum(bitrates[i][j]), decimals=1)} MB/s",
+                            SAVE=SAVE,
+                            SAVE_NAME=f"heatmap_bitrate_liczba_wzorcy_{j+1}_{yy_legend[i]}",
+                            SCALE_LABEL="Bitrate [MB/s]",
+                            SAVE_FORMAT='png'
+                            )
+            i+=1
+        #plot_bitrate_in_loc(dat, yy_legend, TITLE=f"Liczba wzorcy={j+1}")
+        j+=1
+
+def plot_heatmap_powers(powers, SAVE=True):
+    #HEATMAPS POWER
+    white_noise_lvls = np.full(15, white_noise(20e6)) # SET NOISE LVL 
+
+    #PLOT REF HEATMAP
+    ref_x_y = [(0,0), (0,2), (0,1), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (4,2), (3,1), (4,0), (3,0), (4,1)]
+    heat_map_data = input_dat(powers[0][0][0]-white_noise_lvls, ref_x_y)
+    plot_heat_map(heat_map_data, f"NO_RIS", SAVE=True, SAVE_NAME=f"heatmap_power_no_ris", SAVE_FORMAT='svg')
+
+    j = 0
+    x_y = [(0,0), (0,1), (0,2), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (3,1), (4,2), (4,1), (3,0), (4,0)]
+    while j < len(powers[1]):
+        dat = [powers[0][0][0]]
+        i = 1
+        while i < len(powers):
+            if powers[i][j]!=[]:
+                dat.append(np.max(powers[i][j], axis=0))
+                heat_map_data = input_dat(dat[-1]-white_noise_lvls, x_y)
+                plot_heat_map(heat_map_data, f"Liczba wzorcy={j+1}, {yy[i]}", SAVE=True, SAVE_NAME=f"heatmap_power_liczba_wzorcy_{j+1}_{yy_legend[i]}", SAVE_FORMAT='svg')
+            i+=1
+        j+=1
+
 def merge_selections(selected):
     merge = []
     for s in selected.selected:
@@ -429,9 +501,9 @@ if __name__ == "__main__":
     #select patterns by functions
     #LISTA: pat_sel_genetic, pat_sel_random
     selection_functions = ["pat_sel_genetic", "pat_sel_random"]
-    genetic_params = [[50,20,0.3],[20,20,0.3],[20,50,0.3]]#,[100,15,0.2],[100,15,0.4],[200,10,0.2]] #population, generations, mutations
-    random_params = [[100],[250],[1000]]#,[5000]]
-    I_BOUND = 2
+    genetic_params = [[10,10,0.3],[100,10,0.3],[250,40,0.3]]#,[100,15,0.2],[100,15,0.4],[200,10,0.2]] #population, generations, mutations
+    random_params = [[100],[1000],[10000]]
+    I_BOUND = 10
     # Loop through each selection function and generate data
     powers = [[[ref_mes.results[0].powers]]]
     yy = [ref_metric]
@@ -466,68 +538,10 @@ if __name__ == "__main__":
                 # print(pos)
                 yy.append(y)
                 yy_legend.append(selection_function +" " + str(p)+" "+ str(time.time()-t0)[0:3] + "s")
-        # print(f"Using function: {selection_function}")
-        # y = run_select_function(merge, pattern_selector, range_low=2, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
-        # yy.append(y)
-        # yy_legend.append(selection_function)
-        #plot scores
-        #plot_reg(y, TITLE='Regression 95% with Polynomial interpolation order=7; Genetic')
-    #plot_reg_series(yy, yy_legend, ORDER= 7)
-    pass
+    plot_reg_series(yy[1:], yy_legend[1:], ORDER=7)
+    #plot_heatmap_bitrate(powers)
 
-    #HEATMAPS POWER
-    white_noise_lvls = np.full(15, white_noise(20e6)) # SET NOISE LVL 
-
-    #PLOT REF HEATMAP
-    ref_x_y = [(0,0), (0,2), (0,1), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (4,2), (3,1), (4,0), (3,0), (4,1)]
-    heat_map_data = input_dat(powers[0][0][0]-white_noise_lvls, ref_x_y)
-    #plot_heat_map(heat_map_data, f"NO_RIS", SAVE=True, SAVE_NAME=f"heatmap_power_no_ris")
-
-    j = 0
-    x_y = [(0,0), (0,1), (0,2), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (3,1), (4,2), (4,1), (3,0), (4,0)]
-    while j < len(powers[1]):
-        dat = [powers[0][0][0]]
-        i = 1
-        while i < len(powers):
-            if powers[i][j]!=[]:
-                dat.append(np.max(powers[i][j], axis=0))
-                heat_map_data = input_dat(dat[-1]-white_noise_lvls, x_y)
-                #plot_heat_map(heat_map_data, f"Liczba wzorcy={j+1}, {yy[i]}", SAVE=True, SAVE_NAME=f"heatmap_power_liczba_wzorcy_{j+1}_{yy_legend[i]}")
-            i+=1
-        #plot_bitrate_in_loc(dat, yy_legend, TITLE=f"Liczba wzorcy={j+1}")
-        j+=1
-    #save_powers(powers)
-
-    #HEATMAP PRZEPLYWNOSC
-    bitrates = []
-    for p_funkcji in powers: #iteruj wykonane funkcje
-        bitrates.append([])
-        for p_n_elementow in p_funkcji: #iteruj liczby elementów
-            bitrates[-1].append([])
-            if p_n_elementow==[]:
-                continue
-            if len(p_n_elementow)>1:
-                tmp_p = (np.max(p_n_elementow, axis=0)) #znajdz maxy dla wielu iteracji jednego algorytmu
-            else:
-                tmp_p = p_n_elementow[0]
-            for p in tmp_p: #iteruj pojedyncze moce i oblicz przeplywnosci dla nich w koncu
-                bitrates[-1][-1].append(przeplywnosc(p))
-
-    heat_map_data = input_dat(bitrates[0][0], ref_x_y)            
-    plot_heat_map(heat_map_data, f"REF NO_RIS, sum:{np.round(np.sum(bitrates[0][0]), decimals=1)} MB/s", SAVE=True, SAVE_NAME=f"heatmap_bitrate_NO_RIS_{yy_legend[0]}", SCALE_LABEL="Bitrate [MB/s]")
-    j=0
-    while j < len(bitrates[1]):
-        dat=[bitrates[0][0]]
-        i = 1
-        while i < len(bitrates):
-            print(i,j)
-            if bitrates[i][j]!=[]:
-                heat_map_data = input_dat(bitrates[i][j], x_y)
-                plot_heat_map(heat_map_data, f"N={j+1}, {yy_legend[i][8:-4]}, sum:{np.round(np.sum(bitrates[i][j]), decimals=1)} MB/s", SAVE=True, SAVE_NAME=f"heatmap_bitrate_liczba_wzorcy_{j+1}_{yy_legend[i]}", SCALE_LABEL="Bitrate [MB/s]")
-            i+=1
-        #plot_bitrate_in_loc(dat, yy_legend, TITLE=f"Liczba wzorcy={j+1}")
-        j+=1
-
+    
 
 
 
