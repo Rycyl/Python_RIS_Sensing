@@ -367,7 +367,12 @@ def plot_heatmap_bitrate(powers, SAVE=True):
             if p_n_elementow==[]:
                 continue
             if len(p_n_elementow)>1:
-                tmp_p = (np.max(p_n_elementow, axis=0)) #znajdz maxy dla wielu iteracji jednego algorytmu
+                maks = 0,0
+                for indeks, iteracja in enumerate(p_n_elementow):
+                    t = np.sum(iteracja)
+                    if maks[0] < t:
+                        maks = (t, indeks)
+                tmp_p = p_n_elementow[maks[1]]
             else:
                 tmp_p = p_n_elementow[0]
             for p in tmp_p: #iteruj pojedyncze moce i oblicz przeplywnosci dla nich w koncu
@@ -501,7 +506,7 @@ if __name__ == "__main__":
     #select patterns by functions
     #LISTA: pat_sel_genetic, pat_sel_random
     selection_functions = ["pat_sel_genetic", "pat_sel_random"]
-    genetic_params = [[10,10,0.3],[100,10,0.3],[250,40,0.3]]#,[100,15,0.2],[100,15,0.4],[200,10,0.2]] #population, generations, mutations
+    genetic_params = [[10,10,0.3],[250,40,0.3],[50,20,0.3]] #population, generations, mutations
     random_params = [[100],[1000],[10000]]
     I_BOUND = 10
     # Loop through each selection function and generate data
@@ -539,7 +544,7 @@ if __name__ == "__main__":
                 yy.append(y)
                 yy_legend.append(selection_function +" " + str(p)+" "+ str(time.time()-t0)[0:3] + "s")
     plot_reg_series(yy[1:], yy_legend[1:], ORDER=7)
-    #plot_heatmap_bitrate(powers)
+    plot_heatmap_bitrate(powers)
 
     
 
