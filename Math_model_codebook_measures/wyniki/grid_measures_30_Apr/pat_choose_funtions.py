@@ -205,15 +205,16 @@ def plot_reg(y, #plot data
         plt.savefig(os.path.join(plots_folder, f"{SAVE_NAME}.{SAVE_FORMAT}", format=SAVE_FORMAT))
     return
 
+
 def plot_reg_series(yy, # plot data
                     YY_LABELS=None,
-                    X_LABEL='N paternow',
-                    Y_LABEL='Przeplywnosc [MB/s]',
+                    X_LABEL='N patterns',
+                    Y_LABEL='Total bitrate [MB/s]',
                     TITLE='Regression Plot with 99% Confidence Interval',
                     SAVE=False,
                     SAVE_NAME='figure',
                     SAVE_FORMAT='png',
-                    ORDER = 7,
+                    ORDER=7,
                     SHOW=True):
     
     '''
@@ -254,8 +255,10 @@ def plot_reg_series(yy, # plot data
         # Utwórz folder "plots", jeśli nie istnieje
         os.makedirs(plots_folder, exist_ok=True)
         plt.savefig(os.path.join(plots_folder, f"{SAVE_NAME}.{SAVE_FORMAT}", format=SAVE_FORMAT))
+        plt.savefig(os.path.join(plots_folder, f"{SAVE_NAME}.{SAVE_FORMAT}"), format=SAVE_FORMAT)
     
     return
+
 
 def plot_n_pats_bitrate(y, #plot data
                         X_LABEL = 'N-1 paternow',
@@ -506,8 +509,8 @@ if __name__ == "__main__":
     #select patterns by functions
     #LISTA: pat_sel_genetic, pat_sel_random
     selection_functions = ["pat_sel_genetic", "pat_sel_random"]
-    genetic_params = [[10,10,0.3],[250,40,0.3],[50,20,0.3]] #population, generations, mutations
-    random_params = [[100],[1000],[10000]]
+    genetic_params = [[10,10,0.3]]#,[250,40,0.3],[50,20,0.3]] #population, generations, mutations
+    random_params = [[100]]#,[1000],[10000]]
     I_BOUND = 10
     # Loop through each selection function and generate data
     powers = [[[ref_mes.results[0].powers]]]
@@ -544,7 +547,7 @@ if __name__ == "__main__":
                 yy.append(y)
                 yy_legend.append(selection_function +" " + str(p)+" "+ str(time.time()-t0)[0:3] + "s")
     plot_reg_series(yy[1:], yy_legend[1:], ORDER=7)
-    plot_heatmap_bitrate(powers)
+    # plot_heatmap_bitrate(powers)
 
     
 
