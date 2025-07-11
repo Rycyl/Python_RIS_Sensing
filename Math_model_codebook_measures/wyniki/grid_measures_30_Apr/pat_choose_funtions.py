@@ -233,7 +233,12 @@ def plot_reg_series(yy, # plot data
         data_melted = data.melt(var_name='Data Point', value_name='Values')
         data_melted['Data Point'] += 1
         # Plotting using seaborn's regplot
-        sns.regplot(x='Data Point', y='Values', data=data_melted, ci=99, marker='o', order=ORDER, label=YY_LABELS[i] if YY_LABELS else None)
+        sns.lineplot(x='Data Point',
+                     y='Values',
+                     data=data_melted,
+                     label=YY_LABELS[i] if YY_LABELS else None,
+                     err_style="bars", errorbar="ci"
+                     )
     sns.color_palette("Paired")
     # Names and labels
     plt.title(TITLE)
