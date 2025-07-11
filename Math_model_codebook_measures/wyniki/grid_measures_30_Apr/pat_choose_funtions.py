@@ -210,13 +210,15 @@ def plot_reg_series(yy, # plot data
                     YY_LABELS=None,
                     X_LABEL='N patterns',
                     Y_LABEL='Total bitrate [MB/s]',
-                    TITLE='Regression Plot with 99% Confidence Interval',
+                    CI=95,
+                    TITLE='',
                     SAVE=False,
                     SAVE_NAME='figure',
                     SAVE_FORMAT='png',
                     ORDER=7,
                     SHOW=True):
-    
+    if TITLE=='':
+        TITLE = f'Regression Plot with {CI}% Confidence Interval'
     '''
     yy is data matrix:
         cols -> data points (kolenje x)
@@ -237,18 +239,28 @@ def plot_reg_series(yy, # plot data
                      y='Values',
                      data=data_melted,
                      label=YY_LABELS[i] if YY_LABELS else None,
+                     legend='full',
                      err_style="band", errorbar="ci",
                      color=palette[i],
-                     linestyle=''
+                     linestyle='',marker='o' 
+                     
                      )
         sns.lineplot(x='Data Point',
                      y='Values',
                      data=data_melted,
                      err_style="bars", errorbar="ci",
                      color=palette[i],
-                     linestyle=''
+                     linestyle='', marker='o'
                      )
-    sns.color_palette("Paired")
+        
+        # sns.pointplot(x='Data Point',
+        #              y='Values',
+        #              label=YY_LABELS[i] if YY_LABELS else None,
+        #              data=data_melted,
+        #              errorbar="ci",
+        #              color=palette[i],
+        #              )
+
     # Names and labels
     plt.title(TITLE)
     plt.xlabel(X_LABEL)
@@ -537,7 +549,7 @@ if __name__ == "__main__":
                 print("RANDOM", p)
                 t0 = time.time()
                 pattern_selector.iterations = p[0]
-                y, pow, pos = run_select_function(merge, pattern_selector, range_low=1, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                y, pow, pos = run_select_function(merge, pattern_selector, range_low=2, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
                 # print(y)
                 powers.append(pow)
                 # print(pow)
