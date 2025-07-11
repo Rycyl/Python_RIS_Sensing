@@ -224,7 +224,7 @@ def plot_reg_series(yy, # plot data
         3d -> series
     '''
     plt.figure(figsize=(10, 6))  # Create a single figure for all series
-    
+    palette = sns.color_palette()
     for i, y in enumerate(yy):
         # Convert to a DataFrame, transposing the data
         data = pd.DataFrame(y).T  # Transpose to have each point in a column
@@ -237,7 +237,16 @@ def plot_reg_series(yy, # plot data
                      y='Values',
                      data=data_melted,
                      label=YY_LABELS[i] if YY_LABELS else None,
-                     err_style="bars", errorbar="ci"
+                     err_style="band", errorbar="ci",
+                     color=palette[i],
+                     linestyle=''
+                     )
+        sns.lineplot(x='Data Point',
+                     y='Values',
+                     data=data_melted,
+                     err_style="bars", errorbar="ci",
+                     color=palette[i],
+                     linestyle=''
                      )
     sns.color_palette("Paired")
     # Names and labels
