@@ -240,7 +240,7 @@ def plot_reg_series(yy, # plot data
                      data=data_melted,
                      label=YY_LABELS[i] if YY_LABELS else None,
                      legend='full',
-                     err_style="band", errorbar="ci",
+                     err_style="band", errorbar=('ci', CI),
                      color=palette[i],
                      linestyle='',marker='o' 
                      
@@ -248,9 +248,9 @@ def plot_reg_series(yy, # plot data
         sns.lineplot(x='Data Point',
                      y='Values',
                      data=data_melted,
-                     err_style="bars", errorbar="ci",
+                     err_style="bars", errorbar=('ci', CI),
                      color=palette[i],
-                     linestyle='', marker='o'
+                     linestyle=''
                      )
         
         # sns.pointplot(x='Data Point',
@@ -535,9 +535,9 @@ if __name__ == "__main__":
     #select patterns by functions
     #LISTA: pat_sel_genetic, pat_sel_random
     selection_functions = ["pat_sel_genetic", "pat_sel_random"]
-    genetic_params = [[10,10,0.3]]#,[250,40,0.3],[50,20,0.3]] #population, generations, mutations
-    random_params = [[100]]#,[1000],[10000]]
-    I_BOUND = 10
+    genetic_params = [[10,10,0.3],[50,20,0.3]]#,[250,40,0.3]] #population, generations, mutations
+    random_params = [[100],[1000]]#,[10000]]
+    I_BOUND = 20
     # Loop through each selection function and generate data
     powers = [[[ref_mes.results[0].powers]]]
     yy = [ref_metric]
