@@ -441,8 +441,8 @@ def plot_heatmap_powers(powers, SAVE=True):
 
     #PLOT REF HEATMAP
     ref_x_y = [(0,0), (0,2), (0,1), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (4,2), (3,1), (4,0), (3,0), (4,1)]
-    heat_map_data = input_dat(powers[0][0][0]-white_noise_lvls, ref_x_y)
-    plot_heat_map(heat_map_data, f"NO_RIS", SAVE=True, SAVE_NAME=f"heatmap_power_no_ris", SAVE_FORMAT='svg')
+    heat_map_data = input_dat(powers[0][0][0]-white_noise_lvls-50, ref_x_y)
+    plot_heat_map(heat_map_data, f"NO_RIS", SAVE=True, SAVE_NAME=f"heatmap_power_no_ris", SAVE_FORMAT='png',V_MIN=0, V_MAX=10)
 
     j = 0
     x_y = [(0,0), (0,1), (0,2), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (3,1), (4,2), (4,1), (3,0), (4,0)]
@@ -451,9 +451,24 @@ def plot_heatmap_powers(powers, SAVE=True):
         i = 1
         while i < len(powers):
             if powers[i][j]!=[]:
-                dat.append(np.max(powers[i][j], axis=0))
-                heat_map_data = input_dat(dat[-1]-white_noise_lvls, x_y)
-                plot_heat_map(heat_map_data, f"Liczba wzorcy={j+1}, {yy[i]}", SAVE=True, SAVE_NAME=f"heatmap_power_liczba_wzorcy_{j+1}_{yy_legend[i]}", SAVE_FORMAT='svg')
+
+                maks = 0,0
+                for indeks, iteracja in enumerate(powers[i][j]):
+                    t = np.sum(iteracja)
+                    if maks[0] < t:
+                        maks = (t, indeks)
+                tmp_p = powers[i][j][maks[1]]
+                dat.append(tmp_p)
+
+                heat_map_data = input_dat(dat[-1]-50-white_noise_lvls, x_y)
+                plot_heat_map(
+                              heat_map_data,
+                              f"Liczba wzorcy={j+1}, {yy_legend[i]}",
+                              SAVE=True,
+                              SAVE_NAME=f"heatmap_power_liczba_wzorcy_{j+1}_{yy_legend[i]}",
+                              SAVE_FORMAT='png',
+                              V_MIN=0, V_MAX=10
+                              )
             i+=1
         j+=1
 
@@ -537,7 +552,7 @@ if __name__ == "__main__":
     selection_functions = ["pat_sel_genetic", "pat_sel_random"]
     genetic_params = [[10,10,0.3],[50,20,0.3]]#,[250,40,0.3]] #population, generations, mutations
     random_params = [[100],[1000]]#,[10000]]
-    I_BOUND = 20
+    I_BOUND = 6
     # Loop through each selection function and generate data
     powers = [[[ref_mes.results[0].powers]]]
     yy = [ref_metric]
@@ -572,6 +587,7 @@ if __name__ == "__main__":
                 # print(pos)
                 yy.append(y)
                 yy_legend.append(selection_function +" " + str(p)+" "+ str(time.time()-t0)[0:3] + "s")
+    plot_heatmap_powers(powers=powers)
     plot_reg_series(yy[1:], yy_legend[1:], ORDER=7)
     # plot_heatmap_bitrate(powers)
 
