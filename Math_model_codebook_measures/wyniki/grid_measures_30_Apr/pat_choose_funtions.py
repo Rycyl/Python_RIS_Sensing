@@ -27,7 +27,7 @@ def mw_to_dbm(x):
     dbm=10*math.log10(x)
     return dbm
 
-def snrs():
+def mean_power_with_ris():
     snrs = []
     results = Results()
     powers   = []
@@ -51,8 +51,6 @@ def white_noise(B=20e6):
     return lvl
 
 def przeplywnosc(x, W = 20E6, B = 20E6): # x = rec pwr
-        # if self.snrs[j] > x:
-        #     return -100
         noise_pow = dbm_to_mw(white_noise(B))
         signal_pow = dbm_to_mw(x-50)
         return W * np.log2(1 + (signal_pow / noise_pow) )/8/1024/1024 # in MB/s
@@ -65,9 +63,9 @@ def metric(selections):
     return ret_val
 
 class PatternSelector:
-    def __init__(self, data, snrs, N=1, population_size=100, iterations=1000, mutation_rate=0.4):
+    def __init__(self, data, mean_power_with_ris, N=4, population_size=100, iterations=1000, mutation_rate=0.4):
         self.data = data
-        self.snrs = snrs
+        self.mean_power_with_ris = mean_power_with_ris
         self.N = N
         self.population_size = population_size
         self.iterations = iterations
@@ -90,6 +88,29 @@ class PatternSelector:
             max_values[j] = self.przeplywnosc(max_values[j], j)
         ret_val = np.sum(max_values) #np.mean
         return ret_val
+
+    def pat_sel_greedy(self):
+        '''
+            Do selecta trafiają kolejno wzorce dający największe zyski
+        '''
+        #WATCH IN DEBUG
+        best_selected = [0]
+        best_metric = self.metric(self.data[best_selected])
+        selected = []
+        while (len(selected)< self.N):
+            i = 0
+            selected.append(0)
+            c_metric = self.metric(self.data[selected])
+            while i < len(self.data):
+                if(i not in best_selected):
+                    selected[-1] = i
+                    c_metric = self.metric(self.data[selected])
+                if (c_metric >= best_metric):
+                    best_metric = copy.copy(c_metric)
+                    best_selected = copy.copy(selected)
+                i+=1
+            selected = copy.copy(best_selected)
+        return (self.metric(self.data[best_selected]), np.max(self.data[best_selected], axis=0), best_selected)
 
     def pat_sel_random(self):
         positions = random.sample(range(len(self.data)), min(self.N, len(self.data)))
@@ -215,7 +236,6 @@ def plot_reg_series(yy, # plot data
                     SAVE=False,
                     SAVE_NAME='figure',
                     SAVE_FORMAT='png',
-                    ORDER=7,
                     SHOW=True):
     if TITLE=='':
         TITLE = f'Regression Plot with {CI}% Confidence Interval'
@@ -544,15 +564,16 @@ if __name__ == "__main__":
 
     #create merged array with maximums from patterns for given i,d generations
     merge = merge_selections(selected)
-    snrs = snrs()
-    pattern_selector = PatternSelector(data=merge, snrs=snrs, iterations=10)
+    mean_power_with_ris = mean_power_with_ris()
+    pattern_selector = PatternSelector(data=merge, mean_power_with_ris=mean_power_with_ris, iterations=10)
 
+    pattern_selector.pat_sel_greedy()
     #select patterns by functions
     #LISTA: pat_sel_genetic, pat_sel_random
-    selection_functions = ["pat_sel_genetic", "pat_sel_random"]
-    genetic_params = [[10,10,0.3],[50,20,0.3]]#,[250,40,0.3]] #population, generations, mutations
-    random_params = [[100],[1000]]#,[10000]]
-    I_BOUND = 6
+    selection_functions = ["pat_sel_genetic", "pat_sel_random", "pat_sel_greedy"]
+    genetic_params = [[10,10,0.3],[50,20,0.3],[250,40,0.3]] #population, generations, mutations
+    random_params = [[100],[1000],[10000]]
+    I_BOUND = 20
     # Loop through each selection function and generate data
     powers = [[[ref_mes.results[0].powers]]]
     yy = [ref_metric]
@@ -571,7 +592,7 @@ if __name__ == "__main__":
                 # print(pos)
                 yy.append(y)
                 yy_legend.append(selection_function +" "+ str(p[0]) +" "+ str(time.time()-t0)[0:3] + "s")
-        else:
+        elif selection_function=="pat_sel_genetic":
             for p in genetic_params:
 
                 print("GENETIC", p)
@@ -587,8 +608,18 @@ if __name__ == "__main__":
                 # print(pos)
                 yy.append(y)
                 yy_legend.append(selection_function +" " + str(p)+" "+ str(time.time()-t0)[0:3] + "s")
-    plot_heatmap_powers(powers=powers)
-    plot_reg_series(yy[1:], yy_legend[1:], ORDER=7)
+        elif selection_function == "pat_sel_greedy":
+            print("greedy running",)
+            t0 = time.time()
+            y, pow, pos = run_select_function(merge, pattern_selector, range_low=2, range_max=16, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+            # print(y)
+            powers.append(pow)
+            # print(pow)
+            # print(pos)
+            yy.append(y)
+            yy_legend.append(selection_function +" "+ str(time.time()-t0)[0:3] + "s")
+    #plot_heatmap_powers(powers=powers)
+    plot_reg_series(yy[1:], yy_legend[1:], CI=95)
     # plot_heatmap_bitrate(powers)
 
     
