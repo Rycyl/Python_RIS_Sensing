@@ -46,9 +46,23 @@ def mean_power_with_ris():
         snrs.append(avg)
     return snrs
 
+def global_maximum_powers_in_pos(selected):
+    results = Results()
+    powers   = []
+    for result in selected.selected:
+        pow = np.max(result.powers, axis=0)
+        powers.append(pow)
+    pow_list = np.max(powers, axis=0)
+    return pow_list
+
+
+
 def white_noise(B=20e6):
     lvl = -174 + 10 * np.log10(B)
     return lvl
+
+
+
 
 def przeplywnosc(x, W = 20E6, B = 20E6): # x = rec pwr
         noise_pow = dbm_to_mw(white_noise(B))
@@ -255,23 +269,33 @@ def plot_reg_series(yy, # plot data
         data_melted = data.melt(var_name='Data Point', value_name='Values')
         data_melted['Data Point'] += 1
         # Plotting using seaborn's regplot
-        sns.lineplot(x='Data Point',
+        if YY_LABELS[i] == GLOBAL_MAX_LABEL:
+            sns.lineplot(x='Data Point',
                      y='Values',
                      data=data_melted,
+                     color=palette[i],
                      label=YY_LABELS[i] if YY_LABELS else None,
                      legend='full',
-                     err_style="band", errorbar=('ci', CI),
-                     color=palette[i],
-                     linestyle='',marker='o' 
-                     
+                     linestyle='--'
                      )
-        sns.lineplot(x='Data Point',
-                     y='Values',
-                     data=data_melted,
-                     err_style="bars", errorbar=('ci', CI),
-                     color=palette[i],
-                     linestyle=''
-                     )
+        else:
+            sns.lineplot(x='Data Point',
+                        y='Values',
+                        data=data_melted,
+                        label=YY_LABELS[i] if YY_LABELS else None,
+                        legend='full',
+                        err_style="band", errorbar=('ci', CI),
+                        color=palette[i],
+                        linestyle='',marker='o' 
+                        
+                        )
+            sns.lineplot(x='Data Point',
+                        y='Values',
+                        data=data_melted,
+                        err_style="bars", errorbar=('ci', CI),
+                        color=palette[i],
+                        linestyle=''
+                        )
         
         # sns.pointplot(x='Data Point',
         #              y='Values',
@@ -553,6 +577,8 @@ if __name__ == "__main__":
     rm = metric([ref_mes.results[0].powers])
     for _ in range(0,15):
         ref_metric.append(rm)
+
+    ## LOAD DATASET
     selected = Selected()
     '''
     uncomment one to:
@@ -562,22 +588,35 @@ if __name__ == "__main__":
     # selected = load_results_from_file(selected)
     selected.load_from_file(dumpfile=dumpfile)
 
+    # FIND GLOBAL MAX POWERS AND ITS METRIC
+    global_maximum_powers = global_maximum_powers_in_pos(selected)
+    global_max_metric = []
+    glmm =  metric([global_maximum_powers])
+    for _ in range(0,15):
+        global_max_metric.append(glmm)
+
+
     #create merged array with maximums from patterns for given i,d generations
     merge = merge_selections(selected)
     mean_power_with_ris = mean_power_with_ris()
     pattern_selector = PatternSelector(data=merge, mean_power_with_ris=mean_power_with_ris, iterations=10)
-
-    pattern_selector.pat_sel_greedy()
+    global GLOBAL_MAX_LABEL
+    GLOBAL_MAX_LABEL = "GLOBAL MAX"
     #select patterns by functions
     #LISTA: pat_sel_genetic, pat_sel_random
     selection_functions = ["pat_sel_genetic", "pat_sel_random", "pat_sel_greedy"]
     genetic_params = [[10,10,0.3],[50,20,0.3],[250,40,0.3]] #population, generations, mutations
     random_params = [[100],[1000],[10000]]
-    I_BOUND = 20
+    '''FAST RUN'''
+    genetic_params = [[10,10,0.3]] #population, generations, mutations
+    random_params = [[100]]
+     
+    I_BOUND = 10
+
     # Loop through each selection function and generate data
     powers = [[[ref_mes.results[0].powers]]]
-    yy = [ref_metric]
-    yy_legend = ["NO_RIS"]
+    yy = [ref_metric, global_max_metric]
+    yy_legend = ["NO_RIS", GLOBAL_MAX_LABEL]
     for selection_function in selection_functions:
         print(f"Using function: {selection_function}")
         if selection_function=="pat_sel_random":
