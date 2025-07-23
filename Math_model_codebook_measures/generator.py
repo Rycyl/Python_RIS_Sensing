@@ -49,11 +49,6 @@ class Generator(RsSmw):
         print(f'Direct SCPI response on *IDN?: {response}')
 
 
-# class Generator():
-#     def __init__(self, config):
-#         RsSmw.assert_minimum_version('5.0.44')
-#         self.resource = f'TCPIP::{config.IP_ADDRESS_GENERATOR}::{config.PORT_GENERATOR}::{config.CONNECTION_TYPE}'
-#         try:
 
 if __name__ == "__main__":
     from config_obj import Config

@@ -1,0 +1,10 @@
+Plik odpowiada za przeprowadzanie pomiarów, zawiera 4 klasy sing_pat_per_run, sing_pat_per_run_w_wait, element_by_element, stripe_by_stripe
+sing_pat_per_run używany jest do pomiarów dla patternów z wcześniej zdefiniowanego codebook'a
+sing_pat_per_run_w_wait jest wersją sing_pat_per_run, która nie używa równoległego przeprowadzania pomiarów, przez co jest stabilniejsza
+obydwie klasy potrzebują do zainicjalizowania objektów RIS'a, Analizatora, Generatora oraz pliki (w postaci ścieżki) - wyjściowy i drugi zawierający codebook
+Obydwie klasy posiadają takie same metody (różniące się lekko implementacją), do rozpoczęcia pomiarów używana jest metoda start_measure
+Klasa element_by_element odpowiada za optymalizację heurystyczną element po elemencie (lecz zmieniając wartość zmiennej mask można uzyskać inne kombinacje)
+konstruktor przyjmuje objekty: RIS'a, Analizatora oraz Generatora, dodatkowo ścieżkę pliku wyjściowego oraz opcjonalne parametry mask (definiuje maskę do przełączania elementów domyślnie '0b1), find_min (jeśli ustawione na True zamiast maksymalizacji będzie realizowana minimalizacja, domyślnie False) oraz no_start_from_zero (domyślnie false, pozwala na zdefiniowanie początkowego patternu, podanego jako wartość no_start_from_zero)
+Optymalizację rozpoczyna się wywołując metodę start_measure, zapis do podanego pliku wyjściowego można wykonań wywołując metodę save_to_file, start_measure zwraca również tablicę z wszystkimi pomiarami a metoda ret_best może zostać użyta do zwrócenia najlepszego patternu i opowiadającej mu odebranej mocy
+Klasa stripe_by_stripe odpowiada za optymalizację (maksymalizację lub minimalizację) "pas po pasie" czyli przełączając pionowe rzędy RIS w każdej iteracji
+konstruktor przyjmuje objekty: RIS'a, Analizatora oraz Generatora, dodatkowo objekt klasy Antenna_Geometry i ścieżkę pliku wyjściowego oraz opcjonalne find_min (jeśli ustawione na True zamiast maksymalizacji będzie realizowana minimalizacja, domyślnie False) oraz no_start_from_zero (domyślnie false, pozwala na zdefiniowanie początkowego patternu, podanego jako wartość no_start_from_zero) 

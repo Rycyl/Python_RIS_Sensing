@@ -1,0 +1,3 @@
+Ten plik odpowiada za wyznaczenie geometrii, w tym kątów tak jak przedstawiono na rysunku geometria.png
+Plik zawiera klasę Antenna_Geometry, przyjmującą do konstruktora objekt modułu UWB (UWB_module) oraz dystans pomiędzy modułami UWB po bokach RIS
+Przy ekstremalnych kątach może pojawić się dzielenie przez 0, z tego powodu zazwyczaj metoda get_angles jest wykonywana w pętli wraz z try - except

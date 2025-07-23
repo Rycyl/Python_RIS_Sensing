@@ -1,0 +1,8 @@
+Plik odpowiedzialny za komunikację i sterowanie generatorem, posiada klasy Generator i Generator_Virtual
+Klasa Generator służy do stworzenia objektu generatora, jej Konstruktor przyjmuje objekt konfiguracji oraz flagę phy_device (domyślnie ustawioną na True)
+Dziedziczy ona z Klasy RsSmw biblioteki RsSmw
+Zawiera 2 metody:
+com_chceck - odpowiedzialne za ustawienie dodatkowych parametrów przesyłu danych (głównie time out)
+meas_prep - rozpoczyna nadawanie sygnału przez generator, przyjmuje parametry: set - bool jeśli ustawiony na True rozpoczyna nadawanie, mode - ustawia tryb generatora (przez nas używany był tylko CW), amplitude - amplituda nadawanego sygnału w dBm, freq - ustawia częstotliwość w Hz
+
+Generator wyirtualny służy jako placeholder do testów gdy fizyczne użądzenie nie mogło być podłączone
