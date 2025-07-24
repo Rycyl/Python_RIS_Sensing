@@ -1,0 +1,3 @@
+Plik ten służy do komunikacji z modułami UWB TREK1000
+Zawiera klase UWB_module, która do konftruktora przyjmuje port, do którego podłączony jest moduł (jako str, dla Linux domyślnie /dev/ttyACM0), baudrate (domyślnie 115200), ilość czytanych linii (ilość zapytań z których uśredniane są wartości) i maksymalna ilość podejść (timeout domyślnie 500)
+Klasa ta posiada kilka metod z czego najważniejsza jest get_distance, zwracająca średnie dystansy między tagami a anchorami 

@@ -1,0 +1,3 @@
+Plik config_obj zawiera klasy Config oraz Patterns 
+Klasa Config odpowiada za wczytanie pliku konfiguracyjnego .json, zawiera dodatkowo metody update_rbw i update_swt, które pozwalają zmieniać odpowiednio rbw i swt w programie pozostawiając powiązanie między nimi a ilością punktów trace
+Klasa Patterns odpowiada za wczytanie wcześniej zdefiniowanej książki kodowej z pliku .json (dokładniej RIS_patterns.json)

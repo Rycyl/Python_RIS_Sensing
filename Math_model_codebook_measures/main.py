@@ -44,7 +44,7 @@ if __name__ == "__main__":
     #         break
     #     except:
     #         pass
-    print("Geometry obrained")
+    print("Geometry obtained")
     print("creating obj...")
     meas_obj = sing_pat_per_run(ris, analyzer, generator, geometry_obj, meas_file, code_book_file)
     stripes_max = stripe_by_stripe(ris, analyzer, generator, geometry_obj, meas_file, False)

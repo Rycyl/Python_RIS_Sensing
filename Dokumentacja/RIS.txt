@@ -1,0 +1,9 @@
+Plik odpowiedzialny za komunikację i sterowanie RIS
+Posiada 3 klasy odpowiednio: RIS, Physical_RIS i Virtual_RIS gdzie RIS wrapper służący do wybrania czy tworzony objekt powinien posiadać metody Physical_RIS czy Virtual_RIS
+Konstruktor klasy RIS przyjmuje str oznaczający port do którego RIS jest podłączony (port szeregowy COM na Windows i /dev/ttyUSB dla Linux/Unix), id (domślnie ustalone na 0) używane do identyfikacji RIS kiedy podłączonych jest ich kilka, timeout (domyślnie 10) czas w sekunkach na oczekiwanie na odpowiedź od RIS, baudrate (domyślnie 115200) -  lepiej nie zmieniać, phy_device (domyślnie True) flaga decydująca czy zostanie podjęta próba stworzenia Physical_RIS, set_wait_time (domyślnie None) ręcznie określony czas przełączenie RIS (jeśli nie określone to po każdej komędzie program będzie oczekiwał na ACK od RIS)
+Physical_RIS jak i Virtual_RIS posiadają 3 metody, gdzie metody Virtual_RIS w rzeczywistości wprowadzają tylko odpowiednie opóźnienie
+Metody Physical_RIS:
+set_pattern - ustawia przekazany pattern na RIS
+reset - resetuje RIS
+read_pattern - odczytuje aktualnie ustawiony na RIS pattern
+Physical_RIS dodatkowo przeładowaną metodę __repr__

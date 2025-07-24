@@ -1,0 +1,19 @@
+Plik odpowiedzialny za łączenie z Analizatorem widma R&S
+Zawiera klasy Analyzer i Analyzer_Virtual 
+Klasa Analyzer służy do inicializacji objektu analizatora, pozwala na stworzenie analizatora wirtualnego jeśli fizyczny nie jest podłączony (lub zostanie ustawiona odpowiednia flaga)
+Konstruktor przyjmuje objekt konfiguracji (config) oraz flagę phy_device, domyślnie ustawioną na True, jeśli flaga ta zostanie ustawiona na False stworzony zostanie wirtualny analizator
+Klasa Analyzer zawiera metody (jej wirtualna wersja posiada analogiczne metodyt) używane do wysyłania wiadmości do analizatora i odczytywanie odpowiedzi
+
+Metody:
+com_prep - ustawia parametry komunikacji z analizatorem, wywoływanie automatycznie przez Konstruktor
+com_chceck - testuje połączenie
+
+meas_prep - odpowiada za ustawienia analizaora, wywoływane wymaga przekazania odpowiednich wartości dla: częstotliwości, czasu przemiatania, spanu częstotliwości, trybu, rodzaju detektora, poziomu odniesienia, rbw, ilości punktów w jednym trace, i opcjonalnie ilość przeprowadzanych przemiatań
+
+trace_get - wywołyuje analizator do zwrócenia aktualnie trzymanego w pamięci trace'a
+trace_get_mean_and_csv_save_trace - wersja trace_get zapisująca uzyskany trace odrazu w pliku podanym przy wywołaniu
+trace_get_mean - zwraca średnią wartość z trace'a
+
+close - zamyka połączenie
+
+Klasa Analyzer_Virtual posiada analogiczne metody, ale do działania potrzebuje zawartości pliku Traces.py, służącego do stworzenia i przekazania trace

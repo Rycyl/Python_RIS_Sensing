@@ -1,0 +1,1 @@
+Plik search_patterns zawiera wersje legacy skryptów używanych do pomiarów (nie używane przez nas)
