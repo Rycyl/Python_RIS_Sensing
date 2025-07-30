@@ -244,7 +244,7 @@ def plot_reg(y, #plot data
 def plot_reg_series(yy, # plot data
                     YY_LABELS=None,
                     X_LABEL='N patterns',
-                    Y_LABEL='Total bitrate [b/s/Hz]',
+                    Y_LABEL='Total spectrum efficiency [b/s/Hz]',
                     CI=95,
                     TITLE='',
                     SAVE=False,
@@ -278,6 +278,16 @@ def plot_reg_series(yy, # plot data
                      legend='full',
                      linestyle='--'
                      )
+        elif YY_LABELS[i]==GLOBAL_MAX_CURVE:
+            sns.lineplot(x='Data Point',
+                        y='Values',
+                        data=data_melted,
+                        label=YY_LABELS[i] if YY_LABELS else None,
+                        legend='full',
+                        err_style="band", errorbar=('ci', CI),
+                        color=palette[i % len(palette)],
+                        linestyle='--',markers=True
+                        )
         elif YY_LABELS[i]==GLOBAL_MEAN_BITRATE_WITH_RIS:
             sns.lineplot(x='Data Point',
                      y='Values',
@@ -341,7 +351,7 @@ def plot_reg_series(yy, # plot data
 
 def plot_n_pats_bitrate(y, #plot data
                         X_LABEL = 'N-1 patterns',
-                        Y_LABEL = 'bitrate [b/s/Hz]',
+                        Y_LABEL = 'Spectrum efficiency [b/s/Hz]',
                         TITLE = '',
                         SAVE = False,
                         SAVE_NAME = 'figure',
@@ -362,7 +372,7 @@ def plot_n_pats_bitrate(y, #plot data
 
     # Plot res_best_pows
     plt.xlabel('Number of selected patterns [N]', fontsize=FONTSIZE)
-    plt.ylabel('Bitrate sum [b/s/Hz]', fontsize=FONTSIZE)
+    plt.ylabel('Spectrum efficiency [b/s/Hz]', fontsize=FONTSIZE)
     plt.grid()
     #plt.legend(fontsize=FONTSIZE)
 
@@ -382,7 +392,7 @@ def plot_n_pats_bitrate(y, #plot data
 def plot_bitrate_in_loc(data, #lista list do wykresowania
                         data_LABELS, #lista opisów do wykresowania
                         X_LABEL = 'N-1 patterns',
-                        Y_LABEL = 'Bitrate [b/s/Hz]',
+                        Y_LABEL = 'Spectrum efficiency [b/s/Hz]',
                         SAVE = False,
                         TITLE = '',
                         SAVE_NAME = 'figure',
@@ -465,7 +475,7 @@ def plot_heatmap_bitrate(powers, SAVE=True):
                 heat_map_data,
                 f"REF NO_RIS, sum:{np.round(np.sum(bitrates[0][0]), decimals=1)} b/s/Hz",
                 SAVE=SAVE, SAVE_NAME=f"heatmap_bitrate_NO_RIS_{yy_legend[0]}",
-                SCALE_LABEL="Bitrate [b/s/Hz]",
+                SCALE_LABEL="Spectrum efficiency [b/s/Hz]",
                 SAVE_FORMAT='png'
                 )
 
@@ -474,7 +484,7 @@ def plot_heatmap_bitrate(powers, SAVE=True):
                 heat_map_data,
                 f"REF NO_RIS, sum:{np.round(np.sum(bitrates[1][0]), decimals=1)} b/s/Hz",
                 SAVE=SAVE, SAVE_NAME=f"heatmap_bitrate_{yy_legend[1]}",
-                SCALE_LABEL="Bitrate [b/s/Hz]",
+                SCALE_LABEL="Spectrum efficiency [b/s/Hz]",
                 SAVE_FORMAT='png'
                 )
     
@@ -483,7 +493,7 @@ def plot_heatmap_bitrate(powers, SAVE=True):
                 heat_map_data,
                 f"REF NO_RIS, sum:{np.round(np.sum(bitrates[2][0]), decimals=1)} b/s/Hz",
                 SAVE=SAVE, SAVE_NAME=f"heatmap_bitrate_{yy_legend[2]}",
-                SCALE_LABEL="Bitrate [b/s/Hz]",
+                SCALE_LABEL="Spectrum efficiency [b/s/Hz]",
                 SAVE_FORMAT='png'
                 )
 
@@ -499,7 +509,7 @@ def plot_heatmap_bitrate(powers, SAVE=True):
                             f"N={j+1}, {yy_legend[i][8:-4]}, sum:{np.round(np.sum(bitrates[i][j]), decimals=1)} [b/s/Hz]",
                             SAVE=SAVE,
                             SAVE_NAME=f"heatmap_bitrate_liczba_wzorcy_{j+1}_{yy_legend[i]}",
-                            SCALE_LABEL="Bitrate [b/s/Hz]",
+                            SCALE_LABEL="Spectrum efficiency [b/s/Hz]",
                             SAVE_FORMAT='png'
                             )
             i+=1
@@ -546,6 +556,52 @@ def plot_heatmap_powers(powers, SAVE=True):
                               SAVE=True,
                               SCALE_LABEL="SNR [dBm]",
                               SAVE_NAME=f"heatmap_power_liczba_wzorcy_{j+1}_{yy_legend[i]}",
+                              SAVE_FORMAT='png',
+                              V_MIN=0, V_MAX=10
+                              )
+            i+=1
+        j+=1
+
+def plot_heatmap_powers_snr_to_mean_ris(powers, mean_ris_pow, SAVE=True):
+    #HEATMAPS POWER
+    white_noise_lvls = np.full(15, white_noise(20e6)) # SET NOISE LVL 
+
+    #PLOT REF HEATMAP
+    ref_x_y = [(0,0), (0,2), (0,1), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (4,2), (3,1), (4,0), (3,0), (4,1)]
+    x_y = [(0,0), (0,1), (0,2), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (3,1), (4,2), (4,1), (3,0), (4,0)]
+
+    heat_map_data = input_dat(powers[0][0][0]-np.array(mean_ris_pow), ref_x_y)
+    plot_heat_map(heat_map_data, f"NO_RIS", SAVE=True,SCALE_LABEL="SNR to mean ris [dB]", SAVE_NAME=f"heatmap_power_no_ris_to_mean_ris", SAVE_FORMAT='png',V_MIN=0, V_MAX=10)
+
+    heat_map_data = input_dat(powers[1][0][0]-np.array(mean_ris_pow), x_y)
+    plot_heat_map(heat_map_data, f"GLOBAL MAX", SAVE=True,SCALE_LABEL="SNR to mean ris [dB]", SAVE_NAME=f"heatmap_power_glob_max_to_mean_ris", SAVE_FORMAT='png',V_MIN=0, V_MAX=10)
+
+    heat_map_data = input_dat(powers[2][0][0]-np.array(mean_ris_pow), x_y)
+    plot_heat_map(heat_map_data, f"MEAN RIS", SAVE=True,SCALE_LABEL="SNR to mean ris [dB]", SAVE_NAME=f"heatmap_power_ris_mean_to_mean_ris", SAVE_FORMAT='png',V_MIN=0, V_MAX=10)
+
+    j = 0
+    x_y = [(0,0), (0,1), (0,2), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (3,1), (4,2), (4,1), (3,0), (4,0)]
+    while j < len(powers[-1]):
+        dat = [powers[0][0][0]]
+        i = 3
+        while i < len(powers):
+            if powers[i][j]!=[]:
+
+                maks = 0,0
+                for indeks, iteracja in enumerate(powers[i][j]):
+                    t = np.sum(iteracja)
+                    if maks[0] < t:
+                        maks = (t, indeks)
+                tmp_p = powers[i][j][maks[1]]
+                dat.append(tmp_p)
+
+                heat_map_data = input_dat(dat[-1]-np.array(mean_ris_pow), x_y)
+                plot_heat_map(
+                              heat_map_data,
+                              f"N patterns={j+1}, {yy_legend[i]}",
+                              SAVE=True,
+                              SCALE_LABEL="SNR to mean ris [dB]",
+                              SAVE_NAME=f"heatmap_snr_to_mean_ris_liczba_wzorcy_{j+1}_{yy_legend[i]}",
                               SAVE_FORMAT='png',
                               V_MIN=0, V_MAX=10
                               )
@@ -625,28 +681,70 @@ def badanie_genetycznego_save_result(yy, yy_legend, RET=True):
     print("GENETIC SAVED TO FILE")
     return ret_vals, ret_sums_vals, ret_labels
 
+def global_max_curve_finder(yy):
+    maksy = [0] * 15
+    for i, y in enumerate(yy):
+        for j,val_list in enumerate(y):
+            mx = np.max(val_list)
+            if maksy[j] < mx:
+                maksy[j]=mx
+            pass
+        pass
+    pass
+    return maksy
+
+
 if __name__ == "__main__":
     #### INIT #####
     
     # Optionally set a random seed based on the current time
     random.seed(time.time())
     #dumpfile for pickle name:
-    dumpfile= "wybrane_paterny_pk_metod_v2.pkl"
+    
     ref_mes = Results_Ref()
     ref_metric = []
     rm = metric([ref_mes.results[0].powers])
     for _ in range(0,15):
         ref_metric.append(rm)
 
-    ## LOAD DATASET
-    selected = Selected()
+    ## LOAD DATASET with diffrent phi_s stepping
+    selected = Selected(1)
+    selected_30 = Selected(30)
+    selected_45 = Selected(45)
+    selected_90 = Selected(90)
+    selected_180 = Selected(180)
+    selected_360 = Selected(360)
     '''
     uncomment one to:
         - load data from source csv
         - from preprepared picle
     '''
     # selected = load_results_from_file(selected)
+    dumpfile = "wybrane_paterny_pk_metod_s_step_1.pkl"
     selected.load_from_file(dumpfile=dumpfile)
+
+    dumpfile = "wybrane_paterny_pk_metod_s_step_30.pkl"
+    selected_30.load_from_file(dumpfile=dumpfile)
+
+    dumpfile = "wybrane_paterny_pk_metod_s_step_45.pkl"
+    selected_45.load_from_file(dumpfile=dumpfile)
+
+    dumpfile = "wybrane_paterny_pk_metod_s_step_90.pkl"
+    selected_90.load_from_file(dumpfile=dumpfile)
+
+    dumpfile = "wybrane_paterny_pk_metod_s_step_180.pkl"
+    selected_180.load_from_file(dumpfile=dumpfile)
+
+    dumpfile = "wybrane_paterny_pk_metod_s_step_360.pkl"
+    selected_360.load_from_file(dumpfile=dumpfile)
+
+    selections_list = [selected,
+                       selected_30,
+                       selected_45,
+                       selected_90, 
+                       selected_180,
+                       selected_360
+                       ]
 
     # FIND GLOBAL MAX POWERS AND ITS METRIC
     global GLOBAL_MAX_LABEL
@@ -658,7 +756,12 @@ if __name__ == "__main__":
 
 
     #create merged array with maximums from patterns for given i,d generations
-    merge = merge_selections(selected)
+    merge_list = []
+
+    for sel in selections_list:
+        merge_list.append(merge_selections(sel))
+
+    ## MEAN WITH RIS
     mean_power_with_ris = mean_power_with_ris()
     mean_bitrate_with_ris = []
     mb = 0
@@ -668,12 +771,12 @@ if __name__ == "__main__":
     global GLOBAL_MEAN_BITRATE_WITH_RIS
     GLOBAL_MEAN_BITRATE_WITH_RIS = "Mean bitrate with RIS"
 
-    pattern_selector = PatternSelector(data=merge, mean_power_with_ris=mean_power_with_ris, iterations=10)
+    
 
     #select patterns by functions
 
     #LISTA: pat_sel_genetic, pat_sel_random
-    selection_functions = ["pat_sel_genetic", "pat_sel_random", "pat_sel_greedy"]
+    selection_functions = ["pat_sel_random", "pat_sel_greedy","pat_sel_genetic"]
     genetic_params = [[10,10,0.3],[50,20,0.3]]#,[200,50,0.3]] #population, generations, mutations
     random_params = [[100],[1000]]#,[10000]]
 
@@ -693,64 +796,78 @@ if __name__ == "__main__":
 
 
     # '''FAST RUN'''
-    
-    # random_params = [[400]]
-    # genetic_params = [[20,20,0.3]]
+    selection_functions = ["pat_sel_greedy"]
+    random_params = [[400]]
+    genetic_params = [[20,20,0.3]]
 
 
 
-    I_BOUND = 100
-    RANGE_MAX = 12
-    RANGE_LOW = 2
+    I_BOUND = 4
+    RANGE_MAX = 16 #max 16
+    RANGE_LOW = 1
     # Loop through each selection function and generate data
     powers = [[[ref_mes.results[0].powers]],[[global_maximum_powers]], [[mean_power_with_ris]]]
     yy = [ref_metric, global_max_metric, mean_bitrate_with_ris]
     yy_legend = ["NO_RIS", GLOBAL_MAX_LABEL, GLOBAL_MEAN_BITRATE_WITH_RIS]
 
+    for i,merge in enumerate(merge_list):
+        # if i > 3: #breaking early to fasten run
+        #     break
+        phi_s_step = selections_list[i].phi_s_step
+        pattern_selector = PatternSelector(data=merge, mean_power_with_ris=mean_power_with_ris, iterations=10)
 
-    for selection_function in selection_functions:
-        print(f"Using function: {selection_function}")
-        if selection_function=="pat_sel_random":
-            for p in random_params:
-                print("RANDOM", p)
+        for selection_function in selection_functions:
+            print(f"Using function: {selection_function}")
+            if selection_function=="pat_sel_random":
+                for p in random_params:
+                    print("RANDOM", p)
+                    t0 = time.time()
+                    pattern_selector.iterations = p[0]
+                    y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                    # print(y)
+                    powers.append(pow)
+                    # print(pow)
+                    # print(pos)
+                    yy.append(y)
+                    yy_legend.append(selection_function +" " + "ϕs_step" +str(phi_s_step) + "° " + str(p[0]) +" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s")
+            elif selection_function=="pat_sel_genetic":
+                range_low_bac = None
+                if RANGE_LOW<2:
+                    range_low_bac = copy.copy(RANGE_LOW)
+                    RANGE_LOW=2
+                for p in genetic_params:
+                    print("GENETIC", p)
+                    t0 = time.time()
+                    pattern_selector.iterations=p[1]
+                    pattern_selector.population_size=p[0]
+                    pattern_selector.mutation_rate=p[2]
+                    # pattern_selector.setup_constants(population_size=p[0], iterations=p[1], mutation_rate=p[2])
+                    y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                    # print(y)
+                    powers.append(pow)
+                    # print(pow)
+                    # print(pos)
+                    yy.append(y)
+                    yy_legend.append(selection_function +" " + "ϕs_step" +str(phi_s_step) + "° " +str(p)+" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s")
+            elif selection_function == "pat_sel_greedy":
+                print("greedy running",)
                 t0 = time.time()
-                pattern_selector.iterations = p[0]
-                y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=2, pat_sel_function_name=selection_function)
                 # print(y)
                 powers.append(pow)
+                print(pos)
                 # print(pow)
                 # print(pos)
                 yy.append(y)
-                yy_legend.append(selection_function +" "+ str(p[0]) +" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s")
-        elif selection_function=="pat_sel_genetic":
-            for p in genetic_params:
-                print("GENETIC", p)
-                t0 = time.time()
-                pattern_selector.iterations=p[1]
-                pattern_selector.population_size=p[0]
-                pattern_selector.mutation_rate=p[2]
-                # pattern_selector.setup_constants(population_size=p[0], iterations=p[1], mutation_rate=p[2])
-                y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=I_BOUND, pat_sel_function_name=selection_function)
-                # print(y)
-                powers.append(pow)
-                # print(pow)
-                # print(pos)
-                yy.append(y)
-                yy_legend.append(selection_function +" " + str(p)+" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s")
-        elif selection_function == "pat_sel_greedy":
-            print("greedy running",)
-            t0 = time.time()
-            y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=2, pat_sel_function_name=selection_function)
-            # print(y)
-            powers.append(pow)
-            print(pos)
-            # print(pow)
-            # print(pos)
-            yy.append(y)
-            yy_legend.append(selection_function +" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s")
-    plot_reg_series(yy[0:], yy_legend[0:], CI=95)
-    plot_heatmap_bitrate(powers)
-    plot_heatmap_powers(powers=powers)
+                yy_legend.append(selection_function +" "+"ϕs_step" +str(phi_s_step) + "° " + str((time.time()-t0)/I_BOUND)[0:3] + "s")
+    yy.append(global_max_curve_finder(yy[3:]))
+    global GLOBAL_MAX_CURVE
+    GLOBAL_MAX_CURVE = "GLOBAL MAX CURVE"
+    yy_legend.append(GLOBAL_MAX_CURVE)
+    plot_reg_series(yy[1:], yy_legend[1:], CI=95)
+    #plot_heatmap_powers_snr_to_mean_ris(powers=powers, mean_ris_pow=mean_power_with_ris)
+    # plot_heatmap_bitrate(powers)
+    # plot_heatmap_powers(powers=powers)
     
     
 

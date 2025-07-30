@@ -1,15 +1,22 @@
 from class_codebook import *
 from class_measures_result import *
 
-def load_results_from_file(selected):
+def load_results_from_file(selected, I = -49, PHI_S_STEP = 1):
     results = Results()
     codebook = Codebook()
     print("source data loaded")
     currtent_pattern = None
 
-    selected = Selected()
-    i = -49
+    selected = Selected(PHI_S_STEP)
+    i = I
+    phi_s = []
+    s = 0
+    while s<360:
+        phi_s.append(s)
+        s+= PHI_S_STEP 
+    
     for d in range(0, 90):
+        phi_s_found = False
         used_patterns = [0] * 919
         print("D=", d)
         selected.selected.append(Select(i,d))
@@ -18,18 +25,19 @@ def load_results_from_file(selected):
                 for a in x.angles:
                     if used_patterns[x.idx] == 1:
                         break
-                    if (a[0] == i and a[1] == d):
+                    if (a[0] == i and a[1] == d and a[2] in phi_s):
                         selected.selected[-1].add_pat_idx(a[2], x.idx,  results.results[x.idx].powers)
                         used_patterns[x.idx] = 1
+                
             else:
                 continue         
-    selected.dump_class_to_file(dumpfile=dumpfile)
+    # selected.dump_class_to_file(dumpfile=dumpfile)
     return selected
 
 class Selected:
-    def __init__(self):
+    def __init__(self, phi_s_step):
         self.selected = []
-    
+        self.phi_s_step = phi_s_step
 
     def dump_class_to_file(self, dumpfile):
         # Serializacja obiektu do pliku
@@ -85,9 +93,15 @@ class Select:
         
 
 if __name__=="__main__":
-    dumpfile= "wybrane_paterny_pk_metod_v2.pkl"
-    selected = Selected()
-    selected.load_from_file(dumpfile)
-    for s in selected.selected:
-        s.find_max()
-    selected.dump_class_to_file(dumpfile=dumpfile)
+    dumpfile_base = "wybrane_paterny_pk_metod_s_step_"
+    
+    #selected.load_from_file(dumpfile)
+    PHI_S_STEPS = [1,30,45,90,180,360]
+    for phi_s in PHI_S_STEPS:
+        print("S", phi_s)
+        selected = Selected(PHI_S_STEPS)
+        selected = load_results_from_file(selected, PHI_S_STEP=phi_s)
+        for s in selected.selected:
+           s.find_max()
+        dumpfile = dumpfile_base + str(phi_s) + ".pkl"
+        selected.dump_class_to_file(dumpfile=dumpfile)
