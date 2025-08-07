@@ -53,6 +53,7 @@ class Codebook:
         return
             
 # Create class instance and load the data
-codebook_instance  = Codebook()
-print(codebook_instance.patterns[1])
-print(len(codebook_instance.patterns))
+if __name__=="__main__":
+    codebook_instance  = Codebook()
+    # print(codebook_instance.patterns[1])
+    print("Codebook has ", len(codebook_instance.patterns), "patterns")

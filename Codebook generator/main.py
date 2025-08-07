@@ -7,7 +7,7 @@ import csv
 import threading
 import cmath
 from bitstring import BitArray
-
+from class_codebook import Codebook
 
 global FQ, C, LAMBDA, K0, j, x_ris, y_ris, DEBUG
 DEBUG = False
@@ -147,7 +147,7 @@ def pattern_generate(θ_i_treshold=-90, θ_i_step=10, θ_i_start=0, θ_d_treshol
             while θ_r <= 9:
                 θi, θd = θ_i + θ_r, θ_d - θ_r
                 pattern_bin, pattern_deg = [], []
-                print("generating pattern for θ_i, θ_d, θ_r, shift::", θ_i, θ_d, θ_r, phase_shift)
+                #print("generating pattern for θ_i, θ_d, θ_r, shift::", θ_i, θ_d, θ_r, phase_shift)
                 y_n = 7
                 while y_n >= -8:
                     x_m = -8
@@ -211,44 +211,78 @@ def thread_target(θ_i, θ_d, quant):
 ## PATTERN GENERATOR ##
 #######################
 
-RIS_patterns = []
-patterns_angles = []
-pat_counter = 0
-phase_shift = 0
-while phase_shift < 360:
-    p_b, p_d, degs = pattern_generate(θ_i_treshold=-90, θ_i_step=-1, θ_i_start=0, θ_d_treshold=90, θ_d_step=1, θ_d_start=0, stack_repeats=True, phase_shift=phase_shift)
-    for i in range(len(p_b)):
-        #print(degs[i])
-        #pat_print(p_b[i])
-        c_pat = BitArray(p_b[i])
-        if c_pat not in RIS_patterns:
-            pat_counter += 1
-            RIS_patterns.append(c_pat * 16)  # Powielanie wzoru 16 razy
-            patterns_angles.append(degs[i])  
-        else:
-            # Jeśli wzór już istnieje, znajdź jego indeks
-            index = RIS_patterns.index(c_pat * 16)  # Używamy powielonego wzoru do znalezienia indeksu
-            if c_pat in patterns_angles:
-                patterns_angles[c_pat].extend(degs)
-    phase_shift+=1
+def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_treshold=90, θ_d_step=1, θ_d_start=0, stack_repeats=True, phase_shift=1, phase_shift_step=1):
+    try:
+        codebook_object = Codebook(dumpfile=(filename[0:-4]+".pkl"), filename=filename)
+        return len(codebook_object.patterns)
+    except:
+        RIS_patterns = []
+        patterns_angles = []
+        pat_counter = 0
+        phase_shift = 0
+        while phase_shift < 360:
+            p_b, p_d, degs = pattern_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_treshold=90, θ_d_step=theta_d_step, θ_d_start=0, stack_repeats=True, phase_shift=phase_shift)
+            for i in range(len(p_b)):
+                #print(degs[i])
+                #pat_print(p_b[i])
+                c_pat = BitArray(p_b[i]) * 16 # tu trzeba by 16 razy powielać, wtedy codebook eval bedzie niepotrzebne bo sie poprawnie zmerguja
+                if c_pat not in RIS_patterns:
+                    pat_counter += 1
+                    RIS_patterns.append(c_pat)  # dodaj pattern do listy
+                    patterns_angles.append(degs[i])  # dodaj kąty patternu do listy
+                else:
+                    # Jeśli wzór już istnieje, znajdź jego indeks
+                    index = RIS_patterns.index(c_pat)  # Używamy powielonego wzoru do znalezienia indeksu
+                    if c_pat in patterns_angles:
+                        patterns_angles[c_pat].extend(degs)
+            phase_shift+=phase_shift_step
 
-#    if i > 1:
-#        prev_pat = p_b[i-1]
-#        if prev_pat == p_b[i]:
-#            print("Takie same")
-    #print("\n\n\n")
+        #    if i > 1:
+        #        prev_pat = p_b[i-1]
+        #        if prev_pat == p_b[i]:
+        #            print("Takie same")
+            #print("\n\n\n")
 
-print("N diff patterns:: ", pat_counter)
-
-
-#  # Write to CSV
-filename = "Big_Codebook.csv"
-with open(filename, mode='w', newline='') as file:
-    for i in range(len(RIS_patterns)):
-        #file.write(RIS_patterns[i].hex + ";" + "θ_i=" + str(degs[i][0]) + " θ_d=" + str(degs[i][1]) + "\n")
-        file.write(RIS_patterns[i].hex + ";" + str(patterns_angles[i]) + "\n")
+        print("N diff patterns:: ", pat_counter)
 
 
+        #  # Write to CSV
+        filename = "Big_Codebook_by_"+str(phase_shift_step)+"_phi_s_step_"+ str(theta_d_step)+ "_theta_d_step.csv"
+        with open(filename, mode='w', newline='') as file:
+            for i in range(len(RIS_patterns)):
+                #file.write(RIS_patterns[i].hex + ";" + "θ_i=" + str(degs[i][0]) + " θ_d=" + str(degs[i][1]) + "\n")
+                file.write(RIS_patterns[i].hex + ";" + str(patterns_angles[i]) + "\n")
+        print(f'Data written to {filename}')
 
-print(f'Data written to {filename}')
+        from eval import codebook_eval
 
+        codebook_eval(filename)
+
+        filename = filename[0:-4] + "_v2.csv"
+        codebook_object = Codebook(dumpfile=(filename[0:-4]+".pkl"), filename=filename)
+        return len(codebook_object.patterns)
+
+
+
+phase_shift_step_list = [1,2,4,10,20,30,45,60,90,120,180]
+theta_d_step = 1
+pattern_amount = []
+unique_pattern_amount = []
+
+for phase_shift_step in phase_shift_step_list:
+    unique_pattern_amount.append(codebook_generate(phase_shift_step=phase_shift_step))
+    pattern_amount.append(phase_shift_step)
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(10, 6))
+plt.plot(pattern_amount, unique_pattern_amount, color='blue', marker='o', linestyle='-')
+# Adding titles and labels
+plt.title('Pattern Amount vs Unique Pattern Amount')
+plt.xlabel('Pattern Amount')
+plt.ylabel('Unique Pattern Amount')
+
+# Show grid
+plt.grid()
+
+# Display the plot
+plt.show()
