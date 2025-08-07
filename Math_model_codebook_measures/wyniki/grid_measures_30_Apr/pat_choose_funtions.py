@@ -348,6 +348,118 @@ def plot_reg_series(yy, # plot data
     
     return
 
+def plot_reg_series_by_no_of_patterns(yy, # plot data
+                    YY_LABELS=None,
+                    YY_NUMBER_OF_PATTERNS=None,
+                    X_LABEL='N patterns',
+                    Y_LABEL='Total spectrum efficiency [b/s/Hz]',
+                    CI=95,
+                    TITLE='',
+                    SAVE=False,
+                    SAVE_NAME='figure',
+                    SAVE_FORMAT='png',
+                    SHOW=True):
+    if TITLE=='':
+        TITLE = f'Regression Plot with {CI}% Confidence Interval'
+    '''
+    yy is data matrix:
+        cols -> data points (kolenje x)
+        rows -> kolejne wartosci f(x)
+        3d -> series
+    '''
+    plt.figure(figsize=(10, 6))  # Create a single figure for all series
+    palette = sns.color_palette()
+    for i, y in enumerate(yy):
+        # Convert to a DataFrame, transposing the data
+        data = pd.DataFrame(y).T  # Transpose to have each point in a column
+
+        # Create a new DataFrame for plotting
+        data_melted = data.melt(var_name='Data Point', value_name='Values')
+        
+        # Use YY_NUMBER_OF_PATTERNS for the X coordinates
+        if YY_NUMBER_OF_PATTERNS is not None:
+            x_values = YY_NUMBER_OF_PATTERNS[i]
+            for j,data_point in enumerate(data_melted['Data Point']):
+                data_melted['Data Point'][j] = x_values[data_point]  # Set the X values from YY_NUMBER_OF_PATTERNS
+        # Plotting using seaborn's regplot
+        if YY_LABELS[i] == GLOBAL_MAX_LABEL:
+            sns.lineplot(x='Data Point',
+                     y='Values',
+                     data=data_melted,
+                     color=palette[i % len(palette)],
+                     label=YY_LABELS[i] if YY_LABELS else None,
+                     legend='full',
+                     linestyle='--'
+                     )
+        elif YY_LABELS[i]==GLOBAL_MAX_CURVE:
+            sns.lineplot(x='Data Point',
+                        y='Values',
+                        data=data_melted,
+                        label=YY_LABELS[i] if YY_LABELS else None,
+                        legend='full',
+                        err_style="band", errorbar=('ci', CI),
+                        color=palette[i % len(palette)],
+                        linestyle='--',markers=True
+                        )
+        elif YY_LABELS[i]==GLOBAL_MEAN_BITRATE_WITH_RIS:
+            sns.lineplot(x='Data Point',
+                     y='Values',
+                     data=data_melted,
+                     color=palette[i % len(palette)],
+                     label=YY_LABELS[i] if YY_LABELS else None,
+                     legend='full',
+                     linestyle='--'
+                     )
+        else:
+            sns.lineplot(x='Data Point',
+                        y='Values',
+                        data=data_melted,
+                        label=YY_LABELS[i] if YY_LABELS else None,
+                        legend='full',
+                        err_style="band", errorbar=('ci', CI),
+                        color=palette[i % len(palette)],
+                        linestyle='',marker='o' 
+                        
+                        )
+            sns.lineplot(x='Data Point',
+                        y='Values',
+                        data=data_melted,
+                        err_style="bars", errorbar=('ci', CI),
+                        color=palette[i % len(palette)],
+                        linestyle=''
+                        )
+        
+        # sns.pointplot(x='Data Point',
+        #              y='Values',
+        #              label=YY_LABELS[i] if YY_LABELS else None,
+        #              data=data_melted,
+        #              errorbar="ci",
+        #              color=palette[i],
+        #              )
+
+    # Names and labels
+    plt.title(TITLE)
+    plt.xlabel(X_LABEL)
+    plt.ylabel(Y_LABEL)
+    plt.grid()
+    
+    # Add legend if labels are provided
+    if YY_LABELS:
+        plt.legend(title='Series')
+
+    # Show plot
+    if SHOW:
+        plt.show()
+    if SAVE:
+        folder_name = os.path.dirname(os.path.abspath(__file__))
+        plots_folder = os.path.join(folder_name, inspect.currentframe().f_code.co_name)
+
+        # Utwórz folder "plots", jeśli nie istnieje
+        os.makedirs(plots_folder, exist_ok=True)
+        plt.savefig(os.path.join(plots_folder, f"{SAVE_NAME}.{SAVE_FORMAT}", format=SAVE_FORMAT))
+        plt.savefig(os.path.join(plots_folder, f"{SAVE_NAME}.{SAVE_FORMAT}"), format=SAVE_FORMAT)
+    
+    return
 
 def plot_n_pats_bitrate(y, #plot data
                         X_LABEL = 'N-1 patterns',
@@ -809,9 +921,9 @@ if __name__ == "__main__":
     powers = [[[ref_mes.results[0].powers]],[[global_maximum_powers]], [[mean_power_with_ris]]]
     yy = [ref_metric, global_max_metric, mean_bitrate_with_ris]
     yy_legend = ["NO_RIS", GLOBAL_MAX_LABEL, GLOBAL_MEAN_BITRATE_WITH_RIS]
-
+    yy_number_of_patterns = [[np.linspace(0,919,920)],[np.linspace(0,919,920)],[np.linspace(0,919,920)]]
     for i,merge in enumerate(merge_list):
-        # if i > 3: #breaking early to fasten run
+        # if i > 2: #breaking early to fasten run
         #     break
         phi_s_step = selections_list[i].phi_s_step
         pattern_selector = PatternSelector(data=merge, mean_power_with_ris=mean_power_with_ris, iterations=10)
@@ -829,6 +941,7 @@ if __name__ == "__main__":
                     # print(pow)
                     # print(pos)
                     yy.append(y)
+                    yy_number_of_patterns.append(np.linspace(360/phi_s_step,RANGE_MAX*(360/phi_s_step),RANGE_MAX-RANGE_LOW+1))
                     yy_legend.append(selection_function +" " + "ϕs_step" +str(phi_s_step) + "° " + str(p[0]) +" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s")
             elif selection_function=="pat_sel_genetic":
                 range_low_bac = None
@@ -845,6 +958,7 @@ if __name__ == "__main__":
                     y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=I_BOUND, pat_sel_function_name=selection_function)
                     # print(y)
                     powers.append(pow)
+                    yy_number_of_patterns.append(np.linspace(360/phi_s_step,RANGE_MAX*(360/phi_s_step),RANGE_MAX-RANGE_LOW+1))
                     # print(pow)
                     # print(pos)
                     yy.append(y)
@@ -855,17 +969,18 @@ if __name__ == "__main__":
                 y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=2, pat_sel_function_name=selection_function)
                 # print(y)
                 powers.append(pow)
-                print(pos)
                 # print(pow)
                 # print(pos)
                 yy.append(y)
+                yy_number_of_patterns.append(np.linspace(360/phi_s_step,RANGE_MAX*(360/phi_s_step),RANGE_MAX-RANGE_LOW+1))
                 yy_legend.append(selection_function +" "+"ϕs_step" +str(phi_s_step) + "° " + str((time.time()-t0)/I_BOUND)[0:3] + "s")
-    yy.append(global_max_curve_finder(yy[3:]))
+    # yy.append(global_max_curve_finder(yy[3:]))
     global GLOBAL_MAX_CURVE
     GLOBAL_MAX_CURVE = "GLOBAL MAX CURVE"
-    yy_legend.append(GLOBAL_MAX_CURVE)
-    plot_reg_series(yy[1:], yy_legend[1:], CI=95)
-    #plot_heatmap_powers_snr_to_mean_ris(powers=powers, mean_ris_pow=mean_power_with_ris)
+    # yy_legend.append(GLOBAL_MAX_CURVE)
+    plot_reg_series_by_no_of_patterns(yy[3:], yy_legend[3:], yy_number_of_patterns[3:], CI=95)
+    # plot_reg_series(yy[1:], yy_legend[1:], CI=95)
+    # plot_heatmap_powers_snr_to_mean_ris(powers=powers, mean_ris_pow=mean_power_with_ris)
     # plot_heatmap_bitrate(powers)
     # plot_heatmap_powers(powers=powers)
     
