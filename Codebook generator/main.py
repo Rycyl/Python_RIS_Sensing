@@ -213,9 +213,13 @@ def thread_target(θ_i, θ_d, quant):
 
 def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_treshold=90, θ_d_step=1, θ_d_start=0, stack_repeats=True, phase_shift=1, phase_shift_step=1):
     try:
+        print("try load codebook")
+        filename = "Big_Codebook_by_"+str(phase_shift_step)+"_phi_s_step_"+ str(theta_d_step)+ "_theta_d_step.csv"
+        filename = filename[0:-4] + "_v2.csv"
         codebook_object = Codebook(dumpfile=(filename[0:-4]+".pkl"), filename=filename)
         return len(codebook_object.patterns)
     except:
+        print("generating codebook")
         RIS_patterns = []
         patterns_angles = []
         pat_counter = 0
@@ -264,25 +268,65 @@ def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_tr
 
 
 
-phase_shift_step_list = [1,2,4,10,20,30,45,60,90,120,180]
-theta_d_step = 1
+phase_shift_step_list = [1,2,4,5,10,15,20,30,45,90,180]#[1,2,4,10,20,30,45,90,180]
+theta_d_step_list = [1,2,4,5,10,15,20,30,45,90,180]
 pattern_amount = []
+pattern_amount_phi = []
+pattern_amount_theta=[]
 unique_pattern_amount = []
+phi_s_stepping = []
+theta_d_stepping = []
+
+for theta_d_step in theta_d_step_list:
+    phase_shift_step = 1
+    print(theta_d_step, phase_shift_step)
+    pat_no = codebook_generate(phase_shift_step=phase_shift_step, θ_d_step=theta_d_step)
+    unique_pattern_amount.append(pat_no)
+    theta_d_stepping.append(pat_no)
+    pattern_amount.append(90//theta_d_step * 360//phase_shift_step)
+    pattern_amount_theta.append(90//theta_d_step * 360//phase_shift_step)
 
 for phase_shift_step in phase_shift_step_list:
-    unique_pattern_amount.append(codebook_generate(phase_shift_step=phase_shift_step))
-    pattern_amount.append(phase_shift_step)
+    theta_d_step = 1
+    print(theta_d_step, phase_shift_step)
+    pat_no = codebook_generate(phase_shift_step=phase_shift_step, θ_d_step=theta_d_step)
+    phi_s_stepping.append(pat_no)
+    unique_pattern_amount.append(pat_no)
+    pattern_amount.append(90//theta_d_step * 360//phase_shift_step)
+    pattern_amount_phi.append(90//theta_d_step * 360//phase_shift_step)
 
 import matplotlib.pyplot as plt
 plt.figure(figsize=(10, 6))
-plt.plot(pattern_amount, unique_pattern_amount, color='blue', marker='o', linestyle='-')
+plt.plot(theta_d_step_list, phi_s_stepping, color='blue', marker='o', linestyle='-', label='φ_s step')
+plt.plot(theta_d_step_list, theta_d_stepping, color='red', marker='o', linestyle='-', label="θ_d step")
 # Adding titles and labels
-plt.title('Pattern Amount vs Unique Pattern Amount')
-plt.xlabel('Pattern Amount')
-plt.ylabel('Unique Pattern Amount')
-
+plt.xlabel('Quantization step of angle')
+plt.ylabel('Unique Pattern Amount in Codebook')
 # Show grid
+plt.legend()
 plt.grid()
 
 # Display the plot
 plt.show()
+
+# plt.figure(figsize=(10, 6))
+# paired_lists = list(zip(pattern_amount, unique_pattern_amount))
+
+# # Sorting the paired lists based on the first element (pattern_amount)
+# sorted_lists = sorted(paired_lists)
+
+# # Unzipping the sorted lists back into two separate lists
+# sorted_pattern_amount, sorted_unique_pattern_amount = zip(*sorted_lists)
+
+# # Convert back to lists if needed
+# sorted_pattern_amount = list(sorted_pattern_amount)
+# sorted_unique_pattern_amount = list(sorted_unique_pattern_amount)
+# #PLOT
+# plt.plot(sorted_pattern_amount, sorted_unique_pattern_amount, color='blue', marker='o', linestyle='-')
+# # Adding titles and labels
+# plt.xlabel('Total patterns amount')
+# plt.xscale('log')
+# plt.ylabel('Unique Pattern Amount in Codebook')
+# # Show grid
+# plt.grid()
+# plt.show()
