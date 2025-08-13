@@ -27,7 +27,7 @@ def codebook_eval(codebook_name):
             while j < len(patterns):
                 if patterns[i] == patterns[j]:
                     used_idx.append(j)
-                    print("FOUND SAME PATTERN AT:: ", i, j)
+                    #print("FOUND SAME PATTERN AT:: ", i, j)
                     clean_angles[-1].extend(angles[j])
                 j+=1
             i+=1
