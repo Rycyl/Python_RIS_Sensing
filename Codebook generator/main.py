@@ -85,10 +85,13 @@ def AF_single_q(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0):
 
 def AF_single(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0):
     a = -j * K0 * ((x_ris / 2 + x_m * x_ris) * u(θ, φ) + (y_ris / 2 + y_n * y_ris)* v(θ, φ))
+def AF_single(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0, phase_shift=0):
+    a = -j * K0 * ((ris_x_distance(x_m)) * u(θ, φ) + (ris_y_distance(y_n))* v(θ, φ))
     one = np.exp(a)
     b = j * Phi_i_mn(x_m, y_n, θi, φ_i)
     two = np.exp(b)
     c = -j * Phi_mn(x_m, y_n, θi, θd, φ_i, φ_d)
+    c = -j * Phi_mn(x_m, y_n, θi, θd, φ_i, φ_d, phase_shift=phase_shift)
     three = np.exp(c)
     # print(one, abs(one), cmath.phase(one))
     # print(two, abs(two), cmath.phase(two))
@@ -99,6 +102,7 @@ def AF_single(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0):
     return ret_val
 
 def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0):
+def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0, phase_shift=0):
     kat = -90
     AFs = [0] * 180
     print("AF for: θi = ", θi, " θd = ", θd)
@@ -111,12 +115,13 @@ def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0):
                 #print(kat, kat+90)
                 if quant:
                     AFs[kat+90]+=(AF_single_q(x_m, y_n,  kat, 0, θi, θd, φ_i, φ_d))
+                    AFs[kat+90]+=(AF_single_q(x_m, y_n,  kat, 0, θi, θd, φ_i, φ_d, phase_shift))
                 else:
                     AFs[kat+90]+=(AF_single(x_m, y_n,  kat, 0, θi, θd, φ_i, φ_d))
+                    AFs[kat+90]+=(AF_single(x_m, y_n,  kat, 0, θi, θd, φ_i, φ_d, phase_shift))
                 kat += af_deg_step
             x_m += 1
             #end while x_m
-        y_n -= 1
         #end while y_n
     if DEBUG:
         i = 0
@@ -127,8 +132,10 @@ def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0):
     abs_AF = []
     for x in AFs:
         abs_AF.append(abs(x)**2)
+        abs_AF.append(abs(x))
     max_value = max(abs_AF)  # Znajdź maksymalną wartość
     max_index = abs_AF.index(max_value) - 90 # Znajdź indeks maksymalnej wartości
+    max_value = 10*np.log10(max_value)
 
     print(f'Maksymalna wartość: {max_value}, Indeks: {max_index}')
     return abs_AF
@@ -137,6 +144,9 @@ def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0):
 def pattern_generate(θ_i_treshold=-90, θ_i_step=10, θ_i_start=0, θ_d_treshold=90, θ_d_step=10, θ_d_start=0, phase_shift=0, stack_repeats=False):
     patterns_bin = []
     patterns_deg = []
+def pattern_generate(θ_i_treshold=-90, θ_i_step=10, θ_i_start=0, θ_d_treshold=90, θ_d_step=10, θ_d_start=0, phase_shift=0, stack_repeats=True):
+    patterns_bin = [] #skwantowane patterny
+    patterns_deg = [] #patterny w formie idealnych przesunięć - faz
     θ_i = θ_i_start
     φ_i, φ_d = 0, 0
     degs = []
@@ -212,6 +222,7 @@ def thread_target(θ_i, θ_d, quant):
 #######################
 
 def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_treshold=90, θ_d_step=1, θ_d_start=0, stack_repeats=True, phase_shift=1, phase_shift_step=1):
+def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_treshold=90, theta_d_step=1, θ_d_start=0, stack_repeats=True, phase_shift=0, phase_shift_step=1):
     try:
         print("try load codebook")
         filename = "Big_Codebook_by_"+str(phase_shift_step)+"_phi_s_step_"+ str(theta_d_step)+ "_theta_d_step.csv"
@@ -226,13 +237,16 @@ def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_tr
         phase_shift = 0
         while phase_shift < 360:
             p_b, p_d, degs = pattern_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_treshold=90, θ_d_step=theta_d_step, θ_d_start=0, stack_repeats=True, phase_shift=phase_shift)
+            p_b, p_d, degs = pattern_generate(θ_i_treshold=θ_i_treshold, θ_i_step=θ_i_step, θ_i_start=θ_i_start, θ_d_treshold=θ_d_treshold, θ_d_step=theta_d_step, θ_d_start=θ_d_start, stack_repeats=stack_repeats, phase_shift=phase_shift)
             for i in range(len(p_b)):
                 #print(degs[i])
                 #pat_print(p_b[i])
                 c_pat = BitArray(p_b[i]) * 16 # tu trzeba by 16 razy powielać, wtedy codebook eval bedzie niepotrzebne bo sie poprawnie zmerguja
+                c_pat = BitArray(p_b[i]) # tu trzeba by 16 razy powielać, wtedy codebook eval bedzie niepotrzebne bo sie poprawnie zmerguja
                 if c_pat not in RIS_patterns:
                     pat_counter += 1
                     RIS_patterns.append(c_pat)  # dodaj pattern do listy
+                    RIS_patterns.append(c_pat*16)  # dodaj pattern do listy
                     patterns_angles.append(degs[i])  # dodaj kąty patternu do listy
                 else:
                     # Jeśli wzór już istnieje, znajdź jego indeks
@@ -268,65 +282,130 @@ def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_tr
 
 
 
-phase_shift_step_list = [1,2,4,5,10,15,20,30,45,90,180]#[1,2,4,10,20,30,45,90,180]
-theta_d_step_list = [1,2,4,5,10,15,20,30,45,90,180]
-pattern_amount = []
-pattern_amount_phi = []
-pattern_amount_theta=[]
-unique_pattern_amount = []
-phi_s_stepping = []
-theta_d_stepping = []
+def plot_no_unique_patterns(xs, ys, labels, FONTSIZE=16):
+    
+    plt.figure(figsize=(10, 6))
+    for i,y in enumerate(ys):
+        plt.plot(y, xs[i], marker='o', linestyle='-', label=labels[i])
+    # Adding titles and labels
+    plt.xscale('log')
+    plt.xlabel('Step of parameter [◦]', fontsize=FONTSIZE)
+    plt.ylabel('Unique Pattern Amount in Codebook', fontsize=FONTSIZE)
+    # Show grid
+    plt.legend(fontsize=FONTSIZE)
+    plt.grid()
 
-for theta_d_step in theta_d_step_list:
-    phase_shift_step = 1
-    print(theta_d_step, phase_shift_step)
-    pat_no = codebook_generate(phase_shift_step=phase_shift_step, θ_d_step=theta_d_step)
-    unique_pattern_amount.append(pat_no)
-    theta_d_stepping.append(pat_no)
-    pattern_amount.append(90//theta_d_step * 360//phase_shift_step)
-    pattern_amount_theta.append(90//theta_d_step * 360//phase_shift_step)
+    # Display the plot
+    plt.show()
 
-for phase_shift_step in phase_shift_step_list:
-    theta_d_step = 1
-    print(theta_d_step, phase_shift_step)
-    pat_no = codebook_generate(phase_shift_step=phase_shift_step, θ_d_step=theta_d_step)
-    phi_s_stepping.append(pat_no)
-    unique_pattern_amount.append(pat_no)
-    pattern_amount.append(90//theta_d_step * 360//phase_shift_step)
-    pattern_amount_phi.append(90//theta_d_step * 360//phase_shift_step)
 
-import matplotlib.pyplot as plt
-plt.figure(figsize=(10, 6))
-plt.plot(theta_d_step_list, phi_s_stepping, color='blue', marker='o', linestyle='-', label='φ_s step')
-plt.plot(theta_d_step_list, theta_d_stepping, color='red', marker='o', linestyle='-', label="θ_d step")
-# Adding titles and labels
-plt.xlabel('Quantization step of angle')
-plt.ylabel('Unique Pattern Amount in Codebook')
-# Show grid
-plt.legend()
-plt.grid()
+# phase_shift_step_list = range(1,90)#[1,2,4,10,20,30,45,90,180]
+# theta_d_step_list = range(1,90)
+# pattern_amount = []
+# pattern_amount_phi = []
+# pattern_amount_theta=[]
+# unique_pattern_amount = []
+# phi_s_stepping = []
+# theta_d_stepping = []
 
-# Display the plot
-plt.show()
+# for theta_d_step in theta_d_step_list:
+#     phase_shift_step = 1
+#     print(theta_d_step, phase_shift_step)
+#     pat_no = codebook_generate(phase_shift_step=phase_shift_step, theta_d_step=theta_d_step)
+#     unique_pattern_amount.append(pat_no)
+#     theta_d_stepping.append(pat_no)
+#     pattern_amount.append(90//theta_d_step * 360//phase_shift_step)
+#     pattern_amount_theta.append(90//theta_d_step * 360//phase_shift_step)
 
-# plt.figure(figsize=(10, 6))
-# paired_lists = list(zip(pattern_amount, unique_pattern_amount))
+# for phase_shift_step in phase_shift_step_list:
+#     theta_d_step = 1
+#     print(theta_d_step, phase_shift_step)
+#     pat_no = codebook_generate(phase_shift_step=phase_shift_step, theta_d_step=theta_d_step)
+#     phi_s_stepping.append(pat_no)
+#     unique_pattern_amount.append(pat_no)
+#     pattern_amount.append(90//theta_d_step * 360//phase_shift_step)
+#     pattern_amount_phi.append(90//theta_d_step * 360//phase_shift_step)
 
-# # Sorting the paired lists based on the first element (pattern_amount)
-# sorted_lists = sorted(paired_lists)
+# plot_no_unique_patterns([phi_s_stepping, theta_d_stepping], [phase_shift_step_list, theta_d_step_list], ['φ_s', "θ_d"])
+# print("AAAAAAA")
 
-# # Unzipping the sorted lists back into two separate lists
-# sorted_pattern_amount, sorted_unique_pattern_amount = zip(*sorted_lists)
+# codebook_instance = Codebook(dumpfile="Big_Codebook_by_1_phi_s_step_1_theta_d_step_v2.pkl")
+# indeksy_wystapien = []
+# xs = []
+# ys = []
 
-# # Convert back to lists if needed
-# sorted_pattern_amount = list(sorted_pattern_amount)
-# sorted_unique_pattern_amount = list(sorted_unique_pattern_amount)
-# #PLOT
-# plt.plot(sorted_pattern_amount, sorted_unique_pattern_amount, color='blue', marker='o', linestyle='-')
+# tx_pos = -48
+# rx_pos = 40
+# for i,pattern in enumerate(codebook_instance.patterns):
+#     for angl in pattern.angles:
+#         if angl[0]==tx_pos and angl[1]==rx_pos: #and angl[2]==0:
+#             if i not in indeksy_wystapien:
+#                 indeksy_wystapien.append(i)
+
+# print(indeksy_wystapien)
+# print()
+# print(len(indeksy_wystapien))
+# unique_points = set() 
+# for i in indeksy_wystapien:
+#     print("I",i)
+#     xs.append([])
+#     ys.append([])
+#     for ang in codebook_instance.patterns[i].angles:
+#         ys[-1].append(ang[1])
+#         xs[-1].append(ang[2])
+#         y_value = ang[1]
+#         x_value = ang[2]
+#         unique_points.add((x_value, y_value))
+
+        
+
+# # Check if the number of unique points is equal to the total number of points
+# total_points = sum(len(ys[i]) for i in range(len(ys)))
+# if len(unique_points) == total_points:
+#     print("All points are different.")
+# else:
+#     print("There are duplicate points.")
+
+# print(len(ys))
+# # Create a scatter plot
+# cmap = plt.get_cmap('tab20')
+# i_val=[]
+# for i,y in enumerate(ys):
+#     if i%2:
+#         plt.scatter(xs[i], y, marker='o',s=10,label=f"ID={indeksy_wystapien[i]}")
+#         i_val.append(-(i//2))
+#     else:
+#         plt.scatter(xs[i], y, marker='o',s=10,label=f"ID={indeksy_wystapien[i]}")
+#         i_val.append((i//2+1))
+# print(sorted(i_val))
+# FONTSIZE = 28
 # # Adding titles and labels
-# plt.xlabel('Total patterns amount')
-# plt.xscale('log')
-# plt.ylabel('Unique Pattern Amount in Codebook')
-# # Show grid
-# plt.grid()
+# #plt.title(f"Patterns occurrences for generating pattern for TX at {tx_pos}° and RX at {rx_pos}°", fontsize=FONTSIZE)
+# plt.xlabel('φ_s [°]', fontsize=FONTSIZE)
+# plt.ylabel('Rx target localization [°]', fontsize=FONTSIZE)
+# # Setting the limits for the axes
+# plt.xticks(fontsize=FONTSIZE)
+# plt.yticks(fontsize=FONTSIZE)
+# plt.legend(title='Pattern codebook ID', title_fontsize=FONTSIZE-4, loc='upper left', bbox_to_anchor=(1, 1), fontsize=FONTSIZE-8, markerscale=5., ncol=2)
+# plt.xlim(0, 359)  # X-axis from 0 to 359
+# plt.ylim(0, 90)   # Y-axis from 0 to 90
+# # Show the plot
+# plt.grid(True)
 # plt.show()
+
+
+af_lin = 10*np.log10(AF(-48,40,quant=False))
+af_1 = 10*np.log10(AF(-48,40,quant=True))
+af_2 = 10*np.log10(AF(-48,40,quant=True,phase_shift=90))
+plt.figure(figsize=(10, 6))
+x = range(-90,90)
+plt.plot(x, af_lin, linestyle="--", label="Linear")
+plt.plot(x, af_1, label="Binary")
+plt.plot(x, af_2, label="Binary rotated")
+plt.legend()
+plt.xticks(np.arange(-90, 91, 10))
+plt.yticks(np.arange(-10, 50, 5))
+plt.xlabel("Rx location [°]")
+plt.ylabel("AF [dB]")
+plt.grid()
+plt.show()
