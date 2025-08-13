@@ -63,8 +63,6 @@ def u(θ, φ):
 def v(θ, φ):
     return  sin(θ) *  sin(φ)
 
-def AF_single_q(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0):
-    a = -j * K0 * ((x_ris / 2 + x_m * x_ris) * u(θ, φ) + (y_ris / 2 + y_n * y_ris)* v(θ, φ))
 def AF_single_q(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0, phase_shift=0):
     a = -j * K0 * ((ris_x_distance(x_m)) * u(θ, φ) + (ris_y_distance(y_n))* v(θ, φ))
     one = np.exp(a)
@@ -85,14 +83,12 @@ def AF_single_q(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0, phase_shift=0):
         #print(ret_val)
     return ret_val
 
-def AF_single(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0):
-    a = -j * K0 * ((x_ris / 2 + x_m * x_ris) * u(θ, φ) + (y_ris / 2 + y_n * y_ris)* v(θ, φ))
 def AF_single(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0, phase_shift=0):
+    # a = -j * K0 * ((x_ris / 2 + x_m * x_ris) * u(θ, φ) + (y_ris / 2 + y_n * y_ris)* v(θ, φ))
     a = -j * K0 * ((ris_x_distance(x_m)) * u(θ, φ) + (ris_y_distance(y_n))* v(θ, φ))
     one = np.exp(a)
     b = j * Phi_i_mn(x_m, y_n, θi, φ_i)
     two = np.exp(b)
-    c = -j * Phi_mn(x_m, y_n, θi, θd, φ_i, φ_d)
     c = -j * Phi_mn(x_m, y_n, θi, θd, φ_i, φ_d, phase_shift=phase_shift)
     three = np.exp(c)
     # print(one, abs(one), cmath.phase(one))
@@ -103,7 +99,6 @@ def AF_single(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0, phase_shift=0):
         #print(ret_val)
     return ret_val
 
-def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0):
 def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0, phase_shift=0):
     kat = -90
     AFs = [0] * 180
@@ -116,14 +111,13 @@ def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0, phase_shift=0):
             while kat < 90:
                 #print(kat, kat+90)
                 if quant:
-                    AFs[kat+90]+=(AF_single_q(x_m, y_n,  kat, 0, θi, θd, φ_i, φ_d))
                     AFs[kat+90]+=(AF_single_q(x_m, y_n,  kat, 0, θi, θd, φ_i, φ_d, phase_shift))
                 else:
-                    AFs[kat+90]+=(AF_single(x_m, y_n,  kat, 0, θi, θd, φ_i, φ_d))
                     AFs[kat+90]+=(AF_single(x_m, y_n,  kat, 0, θi, θd, φ_i, φ_d, phase_shift))
                 kat += af_deg_step
             x_m += 1
             #end while x_m
+        y_n -= 1
         #end while y_n
     if DEBUG:
         i = 0
@@ -133,7 +127,6 @@ def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0, phase_shift=0):
                 i+=1
     abs_AF = []
     for x in AFs:
-        abs_AF.append(abs(x)**2)
         abs_AF.append(abs(x))
     max_value = max(abs_AF)  # Znajdź maksymalną wartość
     max_index = abs_AF.index(max_value) - 90 # Znajdź indeks maksymalnej wartości
@@ -143,9 +136,6 @@ def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0, phase_shift=0):
     return abs_AF
     
 
-def pattern_generate(θ_i_treshold=-90, θ_i_step=10, θ_i_start=0, θ_d_treshold=90, θ_d_step=10, θ_d_start=0, phase_shift=0, stack_repeats=False):
-    patterns_bin = []
-    patterns_deg = []
 def pattern_generate(θ_i_treshold=-90, θ_i_step=10, θ_i_start=0, θ_d_treshold=90, θ_d_step=10, θ_d_start=0, phase_shift=0, stack_repeats=True):
     patterns_bin = [] #skwantowane patterny
     patterns_deg = [] #patterny w formie idealnych przesunięć - faz
@@ -223,7 +213,6 @@ def thread_target(θ_i, θ_d, quant):
 ## PATTERN GENERATOR ##
 #######################
 
-def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_treshold=90, θ_d_step=1, θ_d_start=0, stack_repeats=True, phase_shift=1, phase_shift_step=1):
 def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_treshold=90, theta_d_step=1, θ_d_start=0, stack_repeats=True, phase_shift=0, phase_shift_step=1):
     try:
         print("try load codebook")
@@ -238,16 +227,13 @@ def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_tr
         pat_counter = 0
         phase_shift = 0
         while phase_shift < 360:
-            p_b, p_d, degs = pattern_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_treshold=90, θ_d_step=theta_d_step, θ_d_start=0, stack_repeats=True, phase_shift=phase_shift)
             p_b, p_d, degs = pattern_generate(θ_i_treshold=θ_i_treshold, θ_i_step=θ_i_step, θ_i_start=θ_i_start, θ_d_treshold=θ_d_treshold, θ_d_step=theta_d_step, θ_d_start=θ_d_start, stack_repeats=stack_repeats, phase_shift=phase_shift)
             for i in range(len(p_b)):
                 #print(degs[i])
                 #pat_print(p_b[i])
-                c_pat = BitArray(p_b[i]) * 16 # tu trzeba by 16 razy powielać, wtedy codebook eval bedzie niepotrzebne bo sie poprawnie zmerguja
                 c_pat = BitArray(p_b[i]) # tu trzeba by 16 razy powielać, wtedy codebook eval bedzie niepotrzebne bo sie poprawnie zmerguja
                 if c_pat not in RIS_patterns:
                     pat_counter += 1
-                    RIS_patterns.append(c_pat)  # dodaj pattern do listy
                     RIS_patterns.append(c_pat*16)  # dodaj pattern do listy
                     patterns_angles.append(degs[i])  # dodaj kąty patternu do listy
                 else:
