@@ -8,18 +8,18 @@ import threading
 import cmath
 from bitstring import BitArray
 from class_codebook import Codebook
+import matplotlib.cm as cm
 
 global FQ, C, LAMBDA, K0, j, x_ris, y_ris, DEBUG
 DEBUG = False
-x_ris = 0.02
-y_ris = 0.013
 j = complex(0, 1)
 
 FQ = 5.53E9     # [Hz]
 C = 299792458   # [m/s]
 LAMBDA = C / FQ # [m/s / 1/s = m/s * s = m]
 K0 = 2 * np.pi / LAMBDA
-
+x_ris = 0.02
+y_ris = 0.013
 print("LAMBDA = ", LAMBDA, "K0 = ", K0)
 
 def ris_x_distance(m):
@@ -65,6 +65,8 @@ def v(θ, φ):
 
 def AF_single_q(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0):
     a = -j * K0 * ((x_ris / 2 + x_m * x_ris) * u(θ, φ) + (y_ris / 2 + y_n * y_ris)* v(θ, φ))
+def AF_single_q(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0, phase_shift=0):
+    a = -j * K0 * ((ris_x_distance(x_m)) * u(θ, φ) + (ris_y_distance(y_n))* v(θ, φ))
     one = np.exp(a)
     b = j * Phi_i_mn(x_m, y_n, θi, φ_i)
     two = np.exp(b)
