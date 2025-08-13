@@ -77,7 +77,7 @@ def AF_single_q(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0, phase_shift=0):
     	three = -1
     # print(1, one, abs(one), cmath.phase(one))
     # print(2, two, abs(two), cmath.phase(two))
-    # print(3, three, abs(three), cmath.phase(three))
+    #print(phimn, c, three, three.real, cmath.phase(three))
     ret_val =  one * two * three
     #if DEBUG:
         #print(ret_val)
@@ -93,7 +93,7 @@ def AF_single(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0, phase_shift=0):
     three = np.exp(c)
     # print(one, abs(one), cmath.phase(one))
     # print(two, abs(two), cmath.phase(two))
-    # print(three, abs(three), cmath.phase(three))
+    # print(phimn, c, three, abs(three), cmath.phase(three))
     ret_val =  one * two * three
     #if DEBUG:
         #print(ret_val)
