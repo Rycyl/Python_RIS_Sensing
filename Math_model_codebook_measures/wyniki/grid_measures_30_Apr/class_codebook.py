@@ -53,13 +53,7 @@ class Codebook:
         return
             
 # Create class instance and load the data
-# codebook_instance  = Codebook()
-# i = 0
-# for x in codebook_instance.patterns:
-#     for angle in x.angles:
-#         if (angle[0]==-49):
-#             i+=1
-#             break
-# print(i)
-# print(codebook_instance.patterns[1])
-# print(len(codebook_instance.patterns))
+if __name__=="__main__":
+    codebook_instance  = Codebook()
+    # print(codebook_instance.patterns[1])
+    print("Codebook has ", len(codebook_instance.patterns), "patterns")
