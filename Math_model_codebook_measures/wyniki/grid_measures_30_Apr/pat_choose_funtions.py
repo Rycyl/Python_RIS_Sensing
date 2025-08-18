@@ -67,7 +67,7 @@ def white_noise(B=20e6):
 def przeplywnosc(x, W = 20E6, B = 20E6): # x = rec pwr
         noise_pow = dbm_to_mw(white_noise(B))
         signal_pow = dbm_to_mw(x-50)
-        return W * np.log2(1 + (signal_pow / noise_pow) )/W # in b/s/Hz
+        return np.log2(1 + (signal_pow / noise_pow)) # in b/s/Hz
 
 def metric(selections):
     max_values = np.max(selections, axis=0)
@@ -358,6 +358,7 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
                     SAVE=False,
                     SAVE_NAME='figure',
                     SAVE_FORMAT='png',
+                    XLOG=False,
                     SHOW=True):
     if TITLE=='':
         TITLE = f'Regression Plot with {CI}% Confidence Interval'
@@ -438,6 +439,8 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
         #              )
 
     # Names and labels
+    if XLOG:
+        plt.xscale('log')
     plt.title(TITLE)
     plt.xlabel(X_LABEL)
     plt.ylabel(Y_LABEL)
@@ -978,7 +981,7 @@ if __name__ == "__main__":
     global GLOBAL_MAX_CURVE
     GLOBAL_MAX_CURVE = "GLOBAL MAX CURVE"
     # yy_legend.append(GLOBAL_MAX_CURVE)
-    plot_reg_series_by_no_of_patterns(yy[3:], yy_legend[3:], yy_number_of_patterns[3:], CI=95)
+    plot_reg_series_by_no_of_patterns(yy[3:], yy_legend[3:], yy_number_of_patterns[3:], CI=95, XLOG=True)
     # plot_reg_series(yy[1:], yy_legend[1:], CI=95)
     # plot_heatmap_powers_snr_to_mean_ris(powers=powers, mean_ris_pow=mean_power_with_ris)
     # plot_heatmap_bitrate(powers)
