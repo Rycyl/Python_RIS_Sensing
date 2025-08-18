@@ -24,11 +24,11 @@ print("LAMBDA = ", LAMBDA, "K0 = ", K0)
 
 def ris_x_distance(m):
     return ((x_ris / 2) + (m * x_ris))
-    # return (m * x_ris)
+    #return (m * x_ris)
 
 def ris_y_distance(n):
     return ((y_ris / 2) + (n * y_ris))
-    # return (n * y_ris)
+    #return (n * y_ris)
 
 def sin(alfa):
     return  np.sin(radians(alfa))
@@ -48,12 +48,15 @@ def Phi_mn(x_m, y_n, θ_i, θ_d, φ_i, φ_d, phase_shift=0):
         print("PHI_MN = ", ret)
     return ret
 
-def Phi_mn_quant(x_m, y_n, θ_i, θ_d, φ_i, φ_d, phase_shift=0, num_values=2):
+def Phi_mn_quant(x_m, y_n, θ_i, θ_d, φ_i, φ_d, phase_shift=0, num_values=2, for_AF=False):
     Phi = Phi_mn(x_m, y_n, θ_i, θ_d, φ_i, φ_d, phase_shift)
     Phi_a = abs(Phi)
     Phi_a = Phi_a % (2 * np.pi)
     step_size = (2 * np.pi) / num_values
-    quantized_phase = (Phi_a // step_size) * step_size
+    quantized_phase = round(Phi_a / step_size) * step_size
+    if for_AF:
+        #print(quantized_phase)
+        return quantized_phase
     #print("phi: ", Phi_a, "  Quant: ", quantized_phase)
     return 0 if quantized_phase else 1
 
@@ -64,36 +67,29 @@ def v(θ, φ):
     return  sin(θ) *  sin(φ)
 
 def AF_single_q(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0, phase_shift=0):
-    a = -j * K0 * ((ris_x_distance(x_m)) * u(θ, φ) + (ris_y_distance(y_n))* v(θ, φ))
+    a = -j * K0 * ((x_ris / 2 + x_m * x_ris) * u(θ, φ) + (y_ris / 2 + y_n * y_ris)* v(θ, φ))
+    #a = -j * K0 * ((ris_x_distance(x_m)) * u(θ, φ) + (ris_y_distance(y_n))* v(θ, φ))
     one = np.exp(a)
     b = j * Phi_i_mn(x_m, y_n, θi, φ_i)
     two = np.exp(b)
-    c = -j * Phi_mn(x_m, y_n, θi, θd, φ_i, φ_d)
+    c = -j * Phi_mn_quant(x_m, y_n, θi, θd, φ_i, φ_d, phase_shift,for_AF=True)
+    #print(degrees(Phi_mn_quant(x_m, y_n, θi, θd, φ_i, φ_d, phase_shift,for_AF=True)))
     three = np.exp(c)
-    #binary Quant
-    if three.real > 0:
-    	three = 1
-    else:
-    	three = -1
-    # print(1, one, abs(one), cmath.phase(one))
-    # print(2, two, abs(two), cmath.phase(two))
-    #print(phimn, c, three, three.real, cmath.phase(three))
+    #print(three)
     ret_val =  one * two * three
+    print((ret_val))
     #if DEBUG:
         #print(ret_val)
     return ret_val
 
 def AF_single(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0, phase_shift=0):
-    # a = -j * K0 * ((x_ris / 2 + x_m * x_ris) * u(θ, φ) + (y_ris / 2 + y_n * y_ris)* v(θ, φ))
-    a = -j * K0 * ((ris_x_distance(x_m)) * u(θ, φ) + (ris_y_distance(y_n))* v(θ, φ))
+    a = -j * K0 * ((x_ris / 2 + x_m * x_ris) * u(θ, φ) + (y_ris / 2 + y_n * y_ris)* v(θ, φ))
+    #a = -j * K0 * ((ris_x_distance(x_m)) * u(θ, φ) + (ris_y_distance(y_n))* v(θ, φ))
     one = np.exp(a)
     b = j * Phi_i_mn(x_m, y_n, θi, φ_i)
     two = np.exp(b)
     c = -j * Phi_mn(x_m, y_n, θi, θd, φ_i, φ_d, phase_shift=phase_shift)
     three = np.exp(c)
-    # print(one, abs(one), cmath.phase(one))
-    # print(two, abs(two), cmath.phase(two))
-    # print(phimn, c, three, abs(three), cmath.phase(three))
     ret_val =  one * two * three
     #if DEBUG:
         #print(ret_val)
@@ -127,6 +123,7 @@ def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0, phase_shift=0):
                 i+=1
     abs_AF = []
     for x in AFs:
+        #print(abs(x))
         abs_AF.append(abs(x))
     max_value = max(abs_AF)  # Znajdź maksymalną wartość
     max_index = abs_AF.index(max_value) - 90 # Znajdź indeks maksymalnej wartości
@@ -185,29 +182,6 @@ def pat_print(pattern):
 def thread_target(θ_i, θ_d, quant):
     result = AF(θ_i, θ_d, quant)
     AFs.append(result)
-
-## AF generator
-
-# AFs = []
-# θ_i = 0
-# while θ_i >= -90:
-#     θ_d = float(input("podaj kat:: "))
-#     while θ_d <= 90:
-#         AFs.append(AF(θ_i, θ_d, quant=True, af_deg_step=1))
-#         θ_d = float(input("podaj kat:: "))
-#         #θ_d += 20
-#     θ_i -= 100
-
-# # Specify the filename
-# filename = 'output.csv'
-
-# # Write to CSV
-# with open(filename, mode='w', newline='') as file:
-#     writer = csv.writer(file)
-#     writer.writerows(AFs)
-
-# print(f'Data written to {filename}')
-
 
 #######################
 ## PATTERN GENERATOR ##
@@ -287,6 +261,92 @@ def plot_no_unique_patterns(xs, ys, labels, FONTSIZE=16):
     plt.show()
 
 
+
+
+def plot_pattern_occurence(codebook_dumpfile):
+    codebook_instance = Codebook(dumpfile=codebook_dumpfile)
+    indeksy_wystapien = []
+    xs = []
+    ys = []
+
+    tx_pos = -48
+    rx_pos = 40
+    for i,pattern in enumerate(codebook_instance.patterns):
+        for angl in pattern.angles:
+            if angl[0]==tx_pos and angl[1]==rx_pos: #and angl[2]==0:
+                if i not in indeksy_wystapien:
+                    indeksy_wystapien.append(i)
+
+    # print(indeksy_wystapien)
+    # print()
+    # print(len(indeksy_wystapien))
+    unique_points = set() 
+    for i in indeksy_wystapien:
+        # print("I",i)
+        xs.append([])
+        ys.append([])
+        for ang in codebook_instance.patterns[i].angles:
+            ys[-1].append(ang[1])
+            xs[-1].append(ang[2])
+            y_value = ang[1]
+            x_value = ang[2]
+            unique_points.add((x_value, y_value))
+
+            
+
+    # Check if the number of unique points is equal to the total number of points
+    total_points = sum(len(ys[i]) for i in range(len(ys)))
+    if len(unique_points) == total_points:
+        print("All points are different.")
+    else:
+        print("There are duplicate points.")
+
+    # print(len(ys))
+    # Create a scatter plot
+    cmap = plt.get_cmap('tab20')
+    i_val=[]
+    for i,y in enumerate(ys):
+        if i%2:
+            plt.scatter(xs[i], y, marker='o',s=10,label=f"ID={indeksy_wystapien[i]}")
+            i_val.append(-(i//2))
+        else:
+            plt.scatter(xs[i], y, marker='o',s=10,label=f"ID={indeksy_wystapien[i]}")
+            i_val.append((i//2+1))
+    # print(sorted(i_val))
+    FONTSIZE = 28
+    # Adding titles and labels
+    #plt.title(f"Patterns occurrences for generating pattern for TX at {tx_pos}° and RX at {rx_pos}°", fontsize=FONTSIZE)
+    plt.xlabel('φ_s [°]', fontsize=FONTSIZE)
+    plt.ylabel('Rx target localization [°]', fontsize=FONTSIZE)
+    # Setting the limits for the axes
+    plt.xticks(fontsize=FONTSIZE)
+    plt.yticks(fontsize=FONTSIZE)
+    plt.legend(title='Pattern codebook ID', title_fontsize=FONTSIZE-4, loc='upper left', bbox_to_anchor=(1, 1), fontsize=FONTSIZE-8, markerscale=5., ncol=2)
+    plt.xlim(0, 359)  # X-axis from 0 to 359
+    plt.ylim(0, 90)   # Y-axis from 0 to 90
+    # Show the plot
+    plt.grid(True)
+    plt.show()
+
+
+af_lin = 10*np.log10(AF(-48,40,quant=False))
+af_1 = 10*np.log10(AF(-48,40,quant=True))
+# af_2 = 10*np.log10(AF(-48,40,quant=True,phase_shift=45))
+plt.figure(figsize=(10, 6))
+x = range(-90,90)
+plt.plot(x, af_lin, linestyle="--", label="Linear")
+plt.plot(x, af_1, label="Binary")
+# plt.plot(x, af_2, label="Binary rotated")
+plt.legend()
+plt.xticks(np.arange(-90, 91, 10))
+plt.yticks(np.arange(-10, 50, 5))
+plt.xlim(-90, 90)
+plt.ylim(-10, 25)
+plt.xlabel("Rx location [°]")
+plt.ylabel("AF [dB]")
+plt.grid()
+plt.show()
+
 # phase_shift_step_list = range(1,90)#[1,2,4,10,20,30,45,90,180]
 # theta_d_step_list = range(1,90)
 # pattern_amount = []
@@ -316,84 +376,3 @@ def plot_no_unique_patterns(xs, ys, labels, FONTSIZE=16):
 
 # plot_no_unique_patterns([phi_s_stepping, theta_d_stepping], [phase_shift_step_list, theta_d_step_list], ['φ_s', "θ_d"])
 # print("AAAAAAA")
-
-# codebook_instance = Codebook(dumpfile="Big_Codebook_by_1_phi_s_step_1_theta_d_step_v2.pkl")
-# indeksy_wystapien = []
-# xs = []
-# ys = []
-
-# tx_pos = -48
-# rx_pos = 40
-# for i,pattern in enumerate(codebook_instance.patterns):
-#     for angl in pattern.angles:
-#         if angl[0]==tx_pos and angl[1]==rx_pos: #and angl[2]==0:
-#             if i not in indeksy_wystapien:
-#                 indeksy_wystapien.append(i)
-
-# print(indeksy_wystapien)
-# print()
-# print(len(indeksy_wystapien))
-# unique_points = set() 
-# for i in indeksy_wystapien:
-#     print("I",i)
-#     xs.append([])
-#     ys.append([])
-#     for ang in codebook_instance.patterns[i].angles:
-#         ys[-1].append(ang[1])
-#         xs[-1].append(ang[2])
-#         y_value = ang[1]
-#         x_value = ang[2]
-#         unique_points.add((x_value, y_value))
-
-        
-
-# # Check if the number of unique points is equal to the total number of points
-# total_points = sum(len(ys[i]) for i in range(len(ys)))
-# if len(unique_points) == total_points:
-#     print("All points are different.")
-# else:
-#     print("There are duplicate points.")
-
-# print(len(ys))
-# # Create a scatter plot
-# cmap = plt.get_cmap('tab20')
-# i_val=[]
-# for i,y in enumerate(ys):
-#     if i%2:
-#         plt.scatter(xs[i], y, marker='o',s=10,label=f"ID={indeksy_wystapien[i]}")
-#         i_val.append(-(i//2))
-#     else:
-#         plt.scatter(xs[i], y, marker='o',s=10,label=f"ID={indeksy_wystapien[i]}")
-#         i_val.append((i//2+1))
-# print(sorted(i_val))
-# FONTSIZE = 28
-# # Adding titles and labels
-# #plt.title(f"Patterns occurrences for generating pattern for TX at {tx_pos}° and RX at {rx_pos}°", fontsize=FONTSIZE)
-# plt.xlabel('φ_s [°]', fontsize=FONTSIZE)
-# plt.ylabel('Rx target localization [°]', fontsize=FONTSIZE)
-# # Setting the limits for the axes
-# plt.xticks(fontsize=FONTSIZE)
-# plt.yticks(fontsize=FONTSIZE)
-# plt.legend(title='Pattern codebook ID', title_fontsize=FONTSIZE-4, loc='upper left', bbox_to_anchor=(1, 1), fontsize=FONTSIZE-8, markerscale=5., ncol=2)
-# plt.xlim(0, 359)  # X-axis from 0 to 359
-# plt.ylim(0, 90)   # Y-axis from 0 to 90
-# # Show the plot
-# plt.grid(True)
-# plt.show()
-
-
-af_lin = 10*np.log10(AF(-48,40,quant=False))
-af_1 = 10*np.log10(AF(-48,40,quant=True))
-af_2 = 10*np.log10(AF(-48,40,quant=True,phase_shift=90))
-plt.figure(figsize=(10, 6))
-x = range(-90,90)
-plt.plot(x, af_lin, linestyle="--", label="Linear")
-plt.plot(x, af_1, label="Binary")
-plt.plot(x, af_2, label="Binary rotated")
-plt.legend()
-plt.xticks(np.arange(-90, 91, 10))
-plt.yticks(np.arange(-10, 50, 5))
-plt.xlabel("Rx location [°]")
-plt.ylabel("AF [dB]")
-plt.grid()
-plt.show()

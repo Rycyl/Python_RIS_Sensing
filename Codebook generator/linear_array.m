@@ -5,8 +5,8 @@ c=3*10^8;
 d=c/f_c/2;% odleglosc miedzy elementmi antenowymi c=lambda*f
 L=16;%liczba elementow antenowych
 
-kat_TX=20% od 0 do 90; 0= na wprost RISa
-kat_RX=-50%od 0 do -90 najsensowniejsze; 0= na wprost RISa
+kat_TX=-48% od 0 do 90; 0= na wprost RISa
+kat_RX=40%od 0 do -90 najsensowniejsze; 0= na wprost RISa
 kanal_do_od_RIS=exp(-1j*2*pi*f_c/c*d*([0:L-1]*sind(kat_TX)+[0:L-1]*sind(kat_RX)));[L-1:-1:0]
 katy_pomiarowe_RX=[-90:90];
 prekoder=conj(kanal_do_od_RIS);
@@ -20,10 +20,11 @@ prekoder_bin=2*(real(prekoder*exp(1j*1*pi/2))>0)-1;
 AF=exp(-1j*2*pi*f_c/c*d*([0:L-1]*sind(kat_TX)+sind(katy_pomiarowe_RX')*[0:L-1]))*transpose(prekoder_bin);
 plot(katy_pomiarowe_RX,10*log10(abs(AF).^2), "linewidth",3)
 xticks(-90:20:90);
-yticks(-10:10:30);
+yticks(-10:5:30);
 set(gca, "linewidth", 1, "fontsize", 20)
-legend("Liniowy", "Binarny", "Binarny z rotacją")
-xlabel('Kąt położenia Rx [stopnie]')
+leg = legend ("Accurate", "Binary", "Binary rotated");
+legend(leg, "location", "northwest","orientation", "horizontal")
+xlabel('Rx location [°]')
 ylabel('AF (dB)')
 % title(['AF for TX at ' num2str(kat_TX) ' and RIS pattern for TX angle=' num2str(kat_TX) ' and RX angle=' num2str(kat_RX)])
 % prekoder_bin=2*(real(prekoder*exp(1j*2*pi/2))>0)-1;

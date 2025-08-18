@@ -5,8 +5,8 @@ c=3*10^8;
 d=c/f_c/2;% odleglosc miedzy elementmi antenowymi c=lambda*f
 L=16;%liczba elementow antenowych
 
-kat_TX=20% od 0 do 90; 0= na wprost RISa
-kat_RX=-50%od 0 do -90 najsensowniejsze; 0= na wprost RISa
+kat_TX=-48% od 0 do 90; 0= na wprost RISa
+kat_RX=60%od 0 do -90 najsensowniejsze; 0= na wprost RISa
 kanal_do_od_RIS=exp(-1j*2*pi*f_c/c*d*([0:L-1]*sind(kat_TX)+[0:L-1]*sind(kat_RX)));[L-1:-1:0]
 katy_pomiarowe_RX=[-90:90];
 prekoder=conj(kanal_do_od_RIS);
