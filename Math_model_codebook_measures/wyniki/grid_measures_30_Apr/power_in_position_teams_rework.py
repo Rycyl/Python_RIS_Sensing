@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import math
+from class_codebook import *
 results = Results()
+
 
 def dbm_to_mw(x):
     mW=10**(x/10)
@@ -33,11 +35,12 @@ for i in range(len(mi1)):
     else:
         mins.append(mi2[i])
 
-
+codebook_tx48=Codebook(dumpfile='Codebook_tx48.pkl')
 for result in results.results:
-    if result.idx < 1000:
-        pow = result.powers
-        powers.append(pow)
+    for pat in codebook_tx48.patterns:
+            if pat.pattern == result.pattern:
+                pow = result.powers
+                powers.append(pow)
 print(maxs, mins)
 #change axis
 powers_np_array = np.array(powers)
@@ -49,9 +52,10 @@ plots_folder = os.path.join(folder_name, 'power_in_position_teams_rework')
 
 # Utwórz folder "plots", jeśli nie istnieje
 os.makedirs(plots_folder, exist_ok=True)
-
+FONTSIZE=16
 # Rysowanie każdego wiersza na osobnym wykresie i zapisywanie do plików
 for i in range(data.shape[0]):
+    
     dat = np.sort((data[i]))
     wat_dat = []
     for x in dat:
@@ -59,17 +63,22 @@ for i in range(data.shape[0]):
     avg = np.mean(wat_dat)
     avg = mw_to_dbm(avg)
     plt.figure()  # Utwórz nową figurę dla każdego wykresu
-    plt.plot(dat, label=f'Rec pwr')
-    plt.axhline(y=maxs[i], color='r', linestyle='--', label='Opt max')
-    plt.axhline(y=avg, color='c', linestyle='--', label='Lin avg')
-    plt.axhline(y=mins[i], color='g', linestyle='--', label='Opt min')
-    plt.title(f'Tx {int(results.results[0].Tx_Angle[i])}, Rx {int(results.results[0].Rx_Angle[i])}')
-    plt.xlabel('N\'th pattern in recieved power')
+    plt.rcParams['font.size'] = FONTSIZE
+    plt.rcParams['lines.linewidth']= 3
+    plt.plot(dat, color='royalblue', label=f'Full codebook entries')
+    plt.axhline(y=maxs[i], color='orangered', linestyle='--', label='SC max')
+    plt.axhline(y=avg, color='cyan', linestyle='--', label='Linear average')
+    plt.axhline(y=mins[i], color='violet', linestyle='--', label='SC min')
+    #plt.title(f'Rx at {int(results.results[0].Rx_Angle[i])}°')
+    plt.xlabel('N\'th sorted pattern in recieved power')
     plt.ylabel('Recieved power [dBm]')
-    plt.ylim(-95, -50)  # Ustawienie stałego zakresu osi Y
+    plt.ylim((min(mins)//5)*5, ((max(maxs)//5)+2)*5)  # Ustawienie stałego zakresu osi Y
     plt.grid(True)  # Włączenie linii pomocniczych
-    plt.legend(loc='lower left')
-    plt.show()
+    plt.margins()
+    plt.legend(loc='lower right')
+    plt.subplots_adjust(left=0.16, right=0.9, top=0.95, bottom=0.16, wspace=0.2, hspace=0.2)
+    # plt.show()
     # Zapisz wykres do pliku w folderze "plots"
-    #plt.savefig(os.path.join(plots_folder, f'wykres_pos_pow_wiersz_{i+1}.png'))
+    save_format='svg'
+    plt.savefig(os.path.join(plots_folder, f'wykres_{i+1}_pow_sort_rx_{int(results.results[0].Rx_Angle[i])}.{save_format}'), format=save_format)
     plt.close()  # Zamknij figurę, aby nie pokazywać podglądu
