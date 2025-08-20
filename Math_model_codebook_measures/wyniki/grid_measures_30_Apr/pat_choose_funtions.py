@@ -359,6 +359,7 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
                     SAVE_NAME='figure',
                     SAVE_FORMAT='png',
                     XLOG=False,
+                    GLOBAL_MAX_CURVE=True,
                     SHOW=True):
     if TITLE=='':
         TITLE = f'Regression Plot with {CI}% Confidence Interval'
@@ -393,6 +394,7 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
                      linestyle='--'
                      )
         elif YY_LABELS[i]==GLOBAL_MAX_CURVE:
+            continue
             sns.lineplot(x='Data Point',
                         y='Values',
                         data=data_melted,
@@ -796,17 +798,42 @@ def badanie_genetycznego_save_result(yy, yy_legend, RET=True):
     print("GENETIC SAVED TO FILE")
     return ret_vals, ret_sums_vals, ret_labels
 
-def global_max_curve_finder(yy):
-    maksy = [0] * 15
-    for i, y in enumerate(yy):
-        for j,val_list in enumerate(y):
-            mx = np.max(val_list)
-            if maksy[j] < mx:
-                maksy[j]=mx
-            pass
-        pass
-    pass
-    return maksy
+def global_max_curve_finder(yy, yy_number_of_patterns):
+    maks = []
+    idxs = []
+    for i, y_N_list in enumerate(yy):
+        for j, y_val_list in enumerate(y_N_list):  # Fixed the loop variable to match the input
+            mx = np.max(y_val_list)
+            pattern_id = yy_number_of_patterns[i][j]
+            
+            # Check if the pattern_id already exists in idxs
+            if pattern_id in idxs:
+                # Find the index of the existing pattern_id
+                k = idxs.index(pattern_id)
+                # Update the maximum if the new maximum is greater
+                if maks[k] < mx:
+                    maks[k] = mx
+            else:
+                # If the pattern_id does not exist, append the new maximum and id
+                maks.append(mx)
+                idxs.append(pattern_id)
+    
+    return maks, idxs
+
+def get_patterns_amount_from_sel(positions, select):
+    ret_len = []
+    for pos in positions:
+        temp = 0
+        for po in pos:
+            temp_set = set()
+            for p in po:
+                temp_set = temp_set | set(select.selected[p].pat_idx)
+            if temp==0:
+                temp = len(temp_set)
+            else:
+                temp = (temp + len(temp_set))//2
+        ret_len.append(temp)
+    return ret_len
 
 
 if __name__ == "__main__":
@@ -911,13 +938,13 @@ if __name__ == "__main__":
 
 
     # '''FAST RUN'''
-    selection_functions = ["pat_sel_greedy"]
-    random_params = [[400]]
-    genetic_params = [[20,20,0.3]]
+    # selection_functions = ["pat_sel_greedy"]
+    random_params = [[1000]]
+    genetic_params = [[50,20,0.3]]
 
 
 
-    I_BOUND = 4
+    I_BOUND = 10
     RANGE_MAX = 16 #max 16
     RANGE_LOW = 1
     # Loop through each selection function and generate data
@@ -925,6 +952,7 @@ if __name__ == "__main__":
     yy = [ref_metric, global_max_metric, mean_bitrate_with_ris]
     yy_legend = ["NO_RIS", GLOBAL_MAX_LABEL, GLOBAL_MEAN_BITRATE_WITH_RIS]
     yy_number_of_patterns = [[np.linspace(0,919,920)],[np.linspace(0,919,920)],[np.linspace(0,919,920)]]
+    positions = []
     for i,merge in enumerate(merge_list):
         # if i > 2: #breaking early to fasten run
         #     break
@@ -939,12 +967,13 @@ if __name__ == "__main__":
                     t0 = time.time()
                     pattern_selector.iterations = p[0]
                     y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=I_BOUND, pat_sel_function_name=selection_function)
-                    # print(y)
+                    print(y)
                     powers.append(pow)
                     # print(pow)
-                    # print(pos)
+                    print(pos)
+                    positions.append(pos)
                     yy.append(y)
-                    yy_number_of_patterns.append(np.linspace(360/phi_s_step,RANGE_MAX*(360/phi_s_step),RANGE_MAX-RANGE_LOW+1))
+                    yy_number_of_patterns.append(get_patterns_amount_from_sel(pos, selections_list[i]))
                     yy_legend.append(selection_function +" " + "ϕs_step" +str(phi_s_step) + "° " + str(p[0]) +" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s")
             elif selection_function=="pat_sel_genetic":
                 range_low_bac = None
@@ -961,25 +990,29 @@ if __name__ == "__main__":
                     y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=I_BOUND, pat_sel_function_name=selection_function)
                     # print(y)
                     powers.append(pow)
-                    yy_number_of_patterns.append(np.linspace(360/phi_s_step,RANGE_MAX*(360/phi_s_step),RANGE_MAX-RANGE_LOW+1))
+                    yy_number_of_patterns.append(get_patterns_amount_from_sel(pos, selections_list[i]))
                     # print(pow)
                     # print(pos)
+                    positions.append(pos)
                     yy.append(y)
                     yy_legend.append(selection_function +" " + "ϕs_step" +str(phi_s_step) + "° " +str(p)+" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s")
             elif selection_function == "pat_sel_greedy":
                 print("greedy running",)
                 t0 = time.time()
                 y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=2, pat_sel_function_name=selection_function)
-                # print(y)
+                print(y)
                 powers.append(pow)
                 # print(pow)
-                # print(pos)
+                print(pos)
+                positions.append(pos)
                 yy.append(y)
-                yy_number_of_patterns.append(np.linspace(360/phi_s_step,RANGE_MAX*(360/phi_s_step),RANGE_MAX-RANGE_LOW+1))
+                yy_number_of_patterns.append(get_patterns_amount_from_sel(pos, selections_list[i]))
                 yy_legend.append(selection_function +" "+"ϕs_step" +str(phi_s_step) + "° " + str((time.time()-t0)/I_BOUND)[0:3] + "s")
-    # yy.append(global_max_curve_finder(yy[3:]))
-    global GLOBAL_MAX_CURVE
-    GLOBAL_MAX_CURVE = "GLOBAL MAX CURVE"
+    # glob_curve_vals, glob_curve_pats_amount = global_max_curve_finder(yy[3:], yy_number_of_patterns[3:])
+    # yy.append(glob_curve_vals)
+    # yy_number_of_patterns.append(glob_curve_pats_amount)
+    # global GLOBAL_MAX_CURVE
+    # GLOBAL_MAX_CURVE = "GLOBAL MAX CURVE"
     # yy_legend.append(GLOBAL_MAX_CURVE)
     plot_reg_series_by_no_of_patterns(yy[3:], yy_legend[3:], yy_number_of_patterns[3:], CI=95, XLOG=True)
     # plot_reg_series(yy[1:], yy_legend[1:], CI=95)
