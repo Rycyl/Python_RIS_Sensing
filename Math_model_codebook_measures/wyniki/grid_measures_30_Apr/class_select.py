@@ -14,9 +14,11 @@ def load_results_from_file(selected, I = -49, PHI_S_STEP = 1):
     while s<360:
         phi_s.append(s)
         s+= PHI_S_STEP 
-    
+    no_patterns = 0
+    used_patterns = [0]
     for d in range(0, 90):
         phi_s_found = False
+        no_patterns+=sum(used_patterns)
         used_patterns = [0] * 919
         print("D=", d)
         selected.selected.append(Select(i,d))
@@ -30,7 +32,8 @@ def load_results_from_file(selected, I = -49, PHI_S_STEP = 1):
                         used_patterns[x.idx] = 1
                 
             else:
-                continue         
+                continue
+    print(f"PHI_S_step = {PHI_S_STEP}  no patterns = {no_patterns}")         
     # selected.dump_class_to_file(dumpfile=dumpfile)
     return selected
 
@@ -96,7 +99,7 @@ if __name__=="__main__":
     dumpfile_base = "wybrane_paterny_pk_metod_s_step_"
     
     #selected.load_from_file(dumpfile)
-    PHI_S_STEPS = [1,30,45,90,180,360]
+    PHI_S_STEPS = [90,30,1,45,180,360]
     for phi_s in PHI_S_STEPS:
         print("S", phi_s)
         selected = Selected(PHI_S_STEPS)
