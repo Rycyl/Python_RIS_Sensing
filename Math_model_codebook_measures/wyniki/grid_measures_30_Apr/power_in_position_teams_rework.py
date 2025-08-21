@@ -75,7 +75,7 @@ for i in range(data.shape[0]):
     plt.ylim((min(mins)//5)*5, ((max(maxs)//5)+2)*5)  # Ustawienie stałego zakresu osi Y
     plt.grid(True)  # Włączenie linii pomocniczych
     plt.margins()
-    plt.legend(loc='lower right')
+    plt.legend(loc='lower right',  markerscale=4)
     plt.subplots_adjust(left=0.16, right=0.9, top=0.95, bottom=0.16, wspace=0.2, hspace=0.2)
     # plt.show()
     # Zapisz wykres do pliku w folderze "plots"
