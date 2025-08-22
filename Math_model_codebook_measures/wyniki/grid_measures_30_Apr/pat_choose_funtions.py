@@ -204,7 +204,17 @@ def errorbar_function(series):
     if series.isnull().all():  # Check if all values are NaN
         return None
     else:
-        return (series.mean() - 2*series.std(), series.mean() + 2*series.std())
+        n = np.round(len(series) * 0.1)
+        if n<1:
+            n=1
+        else:
+            n = n.astype(int)
+        up = series.max() #nlargest(n).iloc[-1]
+        down = series.min() #nsmallest(n).iloc[-1]
+        # return (series.mean() - 2*series.std(), series.mean() + 2*series.std())
+        print(series.to_string())
+        print(down, series.mean(), up)
+        return (down,up)
 
 def plot_reg(y, #plot data
             X_LABEL = 'N-1 patters',
@@ -293,7 +303,8 @@ def plot_reg_series(yy, # plot data
                         legend='full',
                         err_style="band", errorbar=errorbar_function,
                         color='palette[i % len(palette)]',
-                        linestyle='--',markers=True
+                        linestyle='--',markers=True,
+                        capsize=1, estimator="median"
                         )
         elif YY_LABELS[i]==GLOBAL_MEAN_BITRATE_WITH_RIS:
             sns.lineplot(x='Data Point',
@@ -302,7 +313,7 @@ def plot_reg_series(yy, # plot data
                      color=palette[i % len(palette)],
                      label=YY_LABELS[i] if YY_LABELS else None,
                      legend='full',
-                     linestyle='--'
+                     linestyle='--', estimator="median"
                      )
         else:
             sns.lineplot(x='Data Point',
@@ -321,7 +332,7 @@ def plot_reg_series(yy, # plot data
                         err_style="bars", errorbar=errorbar_function,
                         color=palette[i % len(palette)],
                         linestyle='',
-                        capsize=1  # Adjust the cap size as needed
+                          # Adjust the cap size as needed
                         )
         
         # sns.pointplot(x='Data Point',
@@ -441,7 +452,7 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
                         label=YY_LABELS[i] if YY_LABELS else None,
                         legend='full',
                         err_style="band", errorbar=errorbar_function,
-                        color=palette[i % len(palette)],
+                        color=palette[i+1 % len(palette)],
                         linestyle='',marker='o',
                         markersize=10,  # Increase the size of the dots
                         )
@@ -449,7 +460,7 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
                         y='Values',
                         data=data_melted,
                         err_style="bars", errorbar=errorbar_function,
-                        color=palette[i % len(palette)],
+                        color=palette[i+1 % len(palette)],
                         linestyle='',
                         markersize=10  # Increase the size of the dots
                         )
@@ -1008,16 +1019,21 @@ if __name__ == "__main__":
     #     continue
 
 
-    # '''FAST RUN'''
-    #selection_functions = ["Greedy"]
-    random_params = [[10]]
-    genetic_params = [[5,10,0.3]]
-
-    
-
     I_BOUND = 25
-    RANGE_MAX = 10 #max 16
+    RANGE_MAX = 16 #max 16
     RANGE_LOW = 2
+
+    FAST_RUN=False
+    save=True
+    show=not save
+
+    #selection_functions = ["Greedy"]
+    if FAST_RUN:
+        random_params = [[100]]
+        genetic_params = [[5,10,0.3]]
+        RANGE_MAX = 10
+        I_BOUND = 10
+
     # Loop through each selection function and generate data
     powers = [[[ref_mes.results[0].powers]],[[global_maximum_powers]], [[mean_power_with_ris]]]
     powers_greedy = []
@@ -1039,7 +1055,7 @@ if __name__ == "__main__":
     
 
     for i,merge in enumerate(merge_list):
-        if i > 3: #breaking early to fasten run
+        if FAST_RUN and i > 2: #breaking early to fasten run
             break
         phi_s_step = selections_list[i].phi_s_step
         pattern_selector = PatternSelector(data=merge, mean_power_with_ris=mean_power_with_ris, iterations=10)
@@ -1112,8 +1128,7 @@ if __name__ == "__main__":
     GLOBAL_MAX_CURVE = "Max from all methods"
     yy_legend.append(GLOBAL_MAX_CURVE)
     #Zbiorowy PLOT
-    save=False
-    show=not save
+
     ci = 2
     plot_reg_series_by_no_of_patterns(yy[1:], yy_legend[1:], yy_number_of_patterns[1:], CI=ci, XLOG=True, FONTSIZE=18, SHOW=show, SAVE=save, SAVE_NAME="Reg_plot_i_20_joint", SAVE_FORMAT='svg')
     
