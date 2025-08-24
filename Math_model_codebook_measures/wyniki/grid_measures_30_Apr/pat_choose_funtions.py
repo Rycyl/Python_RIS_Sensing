@@ -218,12 +218,24 @@ def errorbar_function(series):
             n=1
         else:
             n = n.astype(int)
-        up = series.max() #nlargest(n).iloc[-1]
-        down = series.min() #nsmallest(n).iloc[-1]
+        up = np.round(series.nlargest(n).iloc[-1],8)#series.max() #
+        down = np.round(series.nsmallest(n).iloc[-1],8)#series.min() #
         # return (series.mean() - 2*series.std(), series.mean() + 2*series.std())
-        print(series.to_string())
-        print(down, series.mean(), up)
+        # print(series.to_string())
+        #print(down<series.mean(), series.mean(), up>series.mean())
         return (down,up)
+
+def estimator_function(series):
+    n = np.round(len(series) * 0.1)
+    if n<1:
+        return np.round(series.mean(),8)
+    else:
+        n = n.astype(int)
+    new_series = series.sort_values()
+    #print(new_series)
+    new_series = new_series[n:-1*n]
+    ret_val = np.round(new_series.mean(),8)
+    return (ret_val)
 
 def plot_reg(y, #plot data
             X_LABEL = 'N-1 patters',
@@ -414,14 +426,15 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
 
         # Create a new DataFrame for plotting
         data_melted = data.melt(var_name='Data Point', value_name='Values')
-        # data_melted = data_mel.dropna()
-        # data_melted.dropna(inplace=True)
+        #data_melted = data_mel.dropna()
+        #data_melted.dropna(inplace=True)
         # Use YY_NUMBER_OF_PATTERNS for the X coordinates
         if YY_NUMBER_OF_PATTERNS is not None:
             x_values = YY_NUMBER_OF_PATTERNS[i]
             for j,data_point in enumerate(data_melted['Data Point']):
                 data_melted.loc[j, 'Data Point'] = x_values[data_point] # Set the X values from YY_NUMBER_OF_PATTERNS
                 #OBSOLETE data_melted['Data Point'][j] = x_values[data_point]  
+        #data_melted.dropna(inplace=True)
         # Plotting using seaborn's regplot
         if YY_LABELS[i] == GLOBAL_MAX_LABEL:
             sns.lineplot(x='Data Point',
@@ -450,18 +463,20 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
                      color=palette[i % len(palette)],
                      label=YY_LABELS[i] if YY_LABELS else None,
                      legend='full',
-                     linestyle='--',
+                     linestyle='--'
                      )
         else:
-            print(YY_LABELS[i] if YY_LABELS else None)
-            print(data_melted.to_string())
+            # print(YY_LABELS[i] if YY_LABELS else None)
+            # print(data_melted.to_string())
             sns.lineplot(x='Data Point',
                         y='Values',
                         data=data_melted,
                         label=YY_LABELS[i] if YY_LABELS else None,
                         legend='full',
-                        err_style="band", errorbar=errorbar_function,
-                        color=palette[i+1 % len(palette)],
+                        err_style="band",
+                        errorbar=errorbar_function,
+                        estimator=estimator_function,
+                        color=palette[(i+1) % len(palette)],
                         linestyle='',marker='o',
                         markersize=10,  # Increase the size of the dots
                         )
@@ -469,9 +484,11 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
                         y='Values',
                         data=data_melted,
                         err_style="bars", errorbar=errorbar_function,
-                        color=palette[i+1 % len(palette)],
+                        color=palette[(i+1) % len(palette)],
                         linestyle='',
-                        markersize=10  # Increase the size of the dots
+                        marker='o',
+                        markersize=10,  # Increase the size of the dots
+                        estimator=estimator_function
                         )
         
         # sns.pointplot(x='Data Point',
@@ -1004,7 +1021,8 @@ if __name__ == "__main__":
     global GLOBAL_MEAN_BITRATE_WITH_RIS
     GLOBAL_MEAN_BITRATE_WITH_RIS = "Mean bitrate with RIS"
 
-    
+    global GLOBAL_MAX_CURVE
+    GLOBAL_MAX_CURVE = "Max from all methods"    
 
     #select patterns by functions
 
@@ -1149,8 +1167,6 @@ if __name__ == "__main__":
         glob_curve_vals, glob_curve_pats_amount = global_max_curve_finder_from_heuristics_results(yy[3:], yy_number_of_patterns[3:])
         yy.append([[value,value] for value in glob_curve_vals])
         yy_number_of_patterns.append(glob_curve_pats_amount)
-        global GLOBAL_MAX_CURVE
-        GLOBAL_MAX_CURVE = "Max from all methods"
         yy_legend.append(GLOBAL_MAX_CURVE)
 
         # Dump the arrays to files
@@ -1178,6 +1194,11 @@ if __name__ == "__main__":
     # plot_heatmap_powers_snr_to_mean_ris(powers=powers, mean_ris_pow=mean_power_with_ris, yy_legend=yy_legend, yy_number_of_patterns=yy_number_of_patterns)
     # plot_heatmap_bitrate(powers)
     # plot_heatmap_powers(powers=powers)    
+
+    glob_curve_vals, glob_curve_pats_amount = global_max_curve_finder_from_heuristics_results(yy[3:], yy_number_of_patterns[3:])
+    yy.append([[value,value] for value in glob_curve_vals])
+    yy_number_of_patterns.append(glob_curve_pats_amount)
+    yy_legend.append(GLOBAL_MAX_CURVE)
 
     #Zbiorowy PLOT
     ci = 2
