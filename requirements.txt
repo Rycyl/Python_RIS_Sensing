@@ -6,3 +6,5 @@ matplotlib
 python-periphery
 bitstring
 scipy
+pandas
+seaborn
