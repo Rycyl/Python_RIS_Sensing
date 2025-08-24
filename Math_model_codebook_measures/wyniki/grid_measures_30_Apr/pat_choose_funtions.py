@@ -18,6 +18,15 @@ import copy
 import threading
 import math
 import os
+import pickle
+
+def dump_array_to_file(array, filename):
+    with open(filename, 'wb') as file:
+        pickle.dump(array, file)
+def read_array_from_file(filename):
+    with open(filename, 'rb') as file:
+        return pickle.load(file)
+
 
 def dbm_to_mw(x):
     mW=10**(x/10)
@@ -1019,7 +1028,7 @@ if __name__ == "__main__":
     #     continue
 
 
-    I_BOUND = 25
+    I_BOUND = 50
     RANGE_MAX = 16 #max 16
     RANGE_LOW = 2
 
@@ -1029,106 +1038,148 @@ if __name__ == "__main__":
 
     #selection_functions = ["Greedy"]
     if FAST_RUN:
+        selection_functions = ["Random", "Greedy"]
         random_params = [[100]]
         genetic_params = [[5,10,0.3]]
         RANGE_MAX = 10
         I_BOUND = 10
 
     # Loop through each selection function and generate data
-    powers = [[[ref_mes.results[0].powers]],[[global_maximum_powers]], [[mean_power_with_ris]]]
-    powers_greedy = []
-    powers_gen = []
-    powers_rand = []
-    yy = [ref_metric, global_max_metric, mean_bitrate_with_ris]
-    yy_legend = ["NO_RIS", GLOBAL_MAX_LABEL, GLOBAL_MEAN_BITRATE_WITH_RIS]
-    yy_number_of_patterns = [np.linspace(1,500,500),np.linspace(1,500,500),np.linspace(1,500,500)]
-    positions = []
-    yy_greedy = []
-    yy_gen = []
-    yy_rand = []
-    yy_legend_greedy =[]
-    yy_legend_gen =[]
-    yy_legend_rand = []
-    yy_number_of_patterns_greedy = []
-    yy_number_of_patterns_gen = []
-    yy_number_of_patterns_rand = []
+    try:
+        powers = read_array_from_file('powers_data.pkl')
+        powers_greedy = read_array_from_file('powers_greedy_data.pkl')
+        powers_gen = read_array_from_file('powers_gen_data.pkl')
+        powers_rand = read_array_from_file('powers_rand_data.pkl')
+        yy = read_array_from_file('yy_data.pkl')
+        yy_legend = read_array_from_file('yy_legend_data.pkl')
+        yy_number_of_patterns = read_array_from_file('yy_number_of_patterns_data.pkl')
+        positions = read_array_from_file('positions_data.pkl')
+        yy_greedy = read_array_from_file('yy_greedy_data.pkl')
+        yy_gen = read_array_from_file('yy_gen_data.pkl')
+        yy_rand = read_array_from_file('yy_rand_data.pkl')
+        yy_legend_greedy = read_array_from_file('yy_legend_greedy_data.pkl')
+        yy_legend_gen = read_array_from_file('yy_legend_gen_data.pkl')
+        yy_legend_rand = read_array_from_file('yy_legend_rand_data.pkl')
+        yy_number_of_patterns_greedy = read_array_from_file('yy_number_of_patterns_greedy_data.pkl')
+        yy_number_of_patterns_gen = read_array_from_file('yy_number_of_patterns_gen_data.pkl')
+        yy_number_of_patterns_rand = read_array_from_file('yy_number_of_patterns_rand_data.pkl')
+    except:
+        powers = [[[ref_mes.results[0].powers]],[[global_maximum_powers]], [[mean_power_with_ris]]]
+        powers_greedy = []
+        powers_gen = []
+        powers_rand = []
+        yy = [ref_metric, global_max_metric, mean_bitrate_with_ris]
+        yy_legend = ["NO_RIS", GLOBAL_MAX_LABEL, GLOBAL_MEAN_BITRATE_WITH_RIS]
+        yy_number_of_patterns = [np.linspace(1,500,500),np.linspace(1,500,500),np.linspace(1,500,500)]
+        positions = []
+        yy_greedy = []
+        yy_gen = []
+        yy_rand = []
+        yy_legend_greedy =[]
+        yy_legend_gen =[]
+        yy_legend_rand = []
+        yy_number_of_patterns_greedy = []
+        yy_number_of_patterns_gen = []
+        yy_number_of_patterns_rand = []
     
 
-    for i,merge in enumerate(merge_list):
-        if FAST_RUN and i > 2: #breaking early to fasten run
-            break
-        phi_s_step = selections_list[i].phi_s_step
-        pattern_selector = PatternSelector(data=merge, mean_power_with_ris=mean_power_with_ris, iterations=10)
+        for i,merge in enumerate(merge_list):
+            if FAST_RUN and i > 2: #breaking early to fasten run
+                break
+            phi_s_step = selections_list[i].phi_s_step
+            pattern_selector = PatternSelector(data=merge, mean_power_with_ris=mean_power_with_ris, iterations=10)
 
-        for selection_function in selection_functions:
-            print(f"Using function: {selection_function}")
-            if selection_function=="Random":
-                for p in random_params:
-                    print("RANDOM", p)
+            for selection_function in selection_functions:
+                print(f"Using function: {selection_function}")
+                if selection_function=="Random":
+                    for p in random_params:
+                        print("RANDOM", p)
+                        t0 = time.time()
+                        pattern_selector.iterations = p[0]
+                        y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                        # print(y)
+                        powers_rand.append(pow)
+                        # print(pow)
+                        # print(pos)
+                        positions.append(pos)
+                        yy_rand.append(y)
+                        yy_number_of_patterns_rand.append(get_patterns_amount_from_sel(pos, selections_list[i]))
+                        yy_legend_rand.append(selection_function +" " + "ϕs_step" +str(phi_s_step) + "° I= " + str(p[0])) # +" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s"
+                elif selection_function=="Genetic":
+                    range_low_bac = None
+                    if RANGE_LOW<2:
+                        range_low_bac = copy.copy(RANGE_LOW)
+                        RANGE_LOW=2
+                    for p in genetic_params:
+                        print("GENETIC", p)
+                        t0 = time.time()
+                        pattern_selector.iterations=p[1]
+                        pattern_selector.population_size=p[0]
+                        pattern_selector.mutation_rate=p[2]
+                        # pattern_selector.setup_constants(population_size=p[0], iterations=p[1], mutation_rate=p[2])
+                        y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                        # print(y)
+                        powers_gen.append(pow)
+                        # print(pow)
+                        # print(pos)
+                        positions.append(pos)
+                        yy_gen.append(y)
+                        yy_number_of_patterns_gen.append(get_patterns_amount_from_sel(pos, selections_list[i]))
+                        yy_legend_gen.append(selection_function +" " + "ϕs_step" +str(phi_s_step) + "° " +str(p)) #+" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s"
+                    RANGE_LOW=range_low_bac
+                elif selection_function == "Greedy":
+                    print("greedy running",)
                     t0 = time.time()
-                    pattern_selector.iterations = p[0]
-                    y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=I_BOUND, pat_sel_function_name=selection_function)
+                    y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=2, pat_sel_function_name=selection_function)
                     # print(y)
-                    powers_rand.append(pow)
+                    powers_greedy.append(pow)
                     # print(pow)
                     # print(pos)
                     positions.append(pos)
-                    yy_rand.append(y)
-                    yy_number_of_patterns_rand.append(get_patterns_amount_from_sel(pos, selections_list[i]))
-                    yy_legend_rand.append(selection_function +" " + "ϕs_step" +str(phi_s_step) + "° I= " + str(p[0])) # +" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s"
-            elif selection_function=="Genetic":
-                range_low_bac = None
-                if RANGE_LOW<2:
-                    range_low_bac = copy.copy(RANGE_LOW)
-                    RANGE_LOW=2
-                for p in genetic_params:
-                    print("GENETIC", p)
-                    t0 = time.time()
-                    pattern_selector.iterations=p[1]
-                    pattern_selector.population_size=p[0]
-                    pattern_selector.mutation_rate=p[2]
-                    # pattern_selector.setup_constants(population_size=p[0], iterations=p[1], mutation_rate=p[2])
-                    y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=I_BOUND, pat_sel_function_name=selection_function)
-                    # print(y)
-                    powers_gen.append(pow)
-                    # print(pow)
-                    # print(pos)
-                    positions.append(pos)
-                    yy_gen.append(y)
-                    yy_number_of_patterns_gen.append(get_patterns_amount_from_sel(pos, selections_list[i]))
-                    yy_legend_gen.append(selection_function +" " + "ϕs_step" +str(phi_s_step) + "° " +str(p)) #+" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s"
-            elif selection_function == "Greedy":
-                print("greedy running",)
-                t0 = time.time()
-                y, pow, pos = run_select_function(merge, pattern_selector, range_low=RANGE_LOW, range_max=RANGE_MAX, i_bound=2, pat_sel_function_name=selection_function)
-                # print(y)
-                powers_greedy.append(pow)
-                # print(pow)
-                # print(pos)
-                positions.append(pos)
-                yy_greedy.append(y)
-                yy_number_of_patterns_greedy.append(get_patterns_amount_from_sel(pos, selections_list[i]))
-                yy_legend_greedy.append(selection_function +" "+"ϕs_step" +str(phi_s_step) + "°") # +" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s"
+                    yy_greedy.append(y)
+                    yy_number_of_patterns_greedy.append(get_patterns_amount_from_sel(pos, selections_list[i]))
+                    yy_legend_greedy.append(selection_function +" "+"ϕs_step" +str(phi_s_step) + "°") # +" "+ str((time.time()-t0)/I_BOUND)[0:3] + "s"
+        
     
-   
-    
-    yy = yy + yy_greedy + yy_rand + yy_gen
-    yy_legend = yy_legend + yy_legend_greedy + yy_legend_rand + yy_legend_gen
-    yy_number_of_patterns= yy_number_of_patterns + yy_number_of_patterns_greedy + yy_number_of_patterns_rand + yy_number_of_patterns_gen
-    powers = powers + powers_greedy + powers_rand + powers_gen
+        
+        yy = yy + yy_greedy + yy_rand + yy_gen
+        yy_legend = yy_legend + yy_legend_greedy + yy_legend_rand + yy_legend_gen
+        yy_number_of_patterns= yy_number_of_patterns + yy_number_of_patterns_greedy + yy_number_of_patterns_rand + yy_number_of_patterns_gen
+        powers = powers + powers_greedy + powers_rand + powers_gen
+        glob_curve_vals, glob_curve_pats_amount = global_max_curve_finder_from_heuristics_results(yy[3:], yy_number_of_patterns[3:])
+        yy.append([[value,value] for value in glob_curve_vals])
+        yy_number_of_patterns.append(glob_curve_pats_amount)
+        global GLOBAL_MAX_CURVE
+        GLOBAL_MAX_CURVE = "Max from all methods"
+        yy_legend.append(GLOBAL_MAX_CURVE)
+
+        # Dump the arrays to files
+        dump_array_to_file(powers, 'powers_data.pkl')
+        dump_array_to_file(powers_greedy, 'powers_greedy_data.pkl')
+        dump_array_to_file(powers_gen, 'powers_gen_data.pkl')
+        dump_array_to_file(powers_rand, 'powers_rand_data.pkl')
+        dump_array_to_file(yy, 'yy_data.pkl')
+        dump_array_to_file(yy_legend, 'yy_legend_data.pkl')
+        dump_array_to_file(yy_number_of_patterns, 'yy_number_of_patterns_data.pkl')
+        dump_array_to_file(positions, 'positions_data.pkl')
+        dump_array_to_file(yy_greedy, 'yy_greedy_data.pkl')
+        dump_array_to_file(yy_gen, 'yy_gen_data.pkl')
+        dump_array_to_file(yy_rand, 'yy_rand_data.pkl')
+        dump_array_to_file(yy_legend_greedy, 'yy_legend_greedy_data.pkl')
+        dump_array_to_file(yy_legend_gen, 'yy_legend_gen_data.pkl')
+        dump_array_to_file(yy_legend_rand, 'yy_legend_rand_data.pkl')
+        dump_array_to_file(yy_number_of_patterns_greedy, 'yy_number_of_patterns_greedy_data.pkl')
+        dump_array_to_file(yy_number_of_patterns_gen, 'yy_number_of_patterns_gen_data.pkl')
+        dump_array_to_file(yy_number_of_patterns_rand, 'yy_number_of_patterns_rand_data.pkl')
+        #end except
+
+
     # plot_reg_series(yy[1:], yy_legend[1:], CI=95)
     # plot_heatmap_powers_snr_to_mean_ris(powers=powers, mean_ris_pow=mean_power_with_ris, yy_legend=yy_legend, yy_number_of_patterns=yy_number_of_patterns)
     # plot_heatmap_bitrate(powers)
     # plot_heatmap_powers(powers=powers)    
 
-    glob_curve_vals, glob_curve_pats_amount = global_max_curve_finder_from_heuristics_results(yy[3:], yy_number_of_patterns[3:])
-    yy.append([[value,value] for value in glob_curve_vals])
-    yy_number_of_patterns.append(glob_curve_pats_amount)
-    global GLOBAL_MAX_CURVE
-    GLOBAL_MAX_CURVE = "Max from all methods"
-    yy_legend.append(GLOBAL_MAX_CURVE)
     #Zbiorowy PLOT
-
     ci = 2
     plot_reg_series_by_no_of_patterns(yy[1:], yy_legend[1:], yy_number_of_patterns[1:], CI=ci, XLOG=True, FONTSIZE=18, SHOW=show, SAVE=save, SAVE_NAME="Reg_plot_i_20_joint", SAVE_FORMAT='svg')
     
