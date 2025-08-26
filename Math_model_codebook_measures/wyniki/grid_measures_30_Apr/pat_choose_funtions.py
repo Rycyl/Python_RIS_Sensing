@@ -739,7 +739,7 @@ def plot_heatmap_powers(powers, SAVE=True):
             i+=1
         j+=1
 
-def plot_heatmap_powers_snr_to_mean_ris(powers, mean_ris_pow, yy_legend, yy_number_of_patterns, SAVE=True):
+def plot_heatmap_powers_snr_to_mean_ris(powers, mean_ris_pow, yy_legend, yy_number_of_patterns,SAVE_FORMAT='png', SAVE=True):
     #HEATMAPS POWER
     white_noise_lvls = np.full(15, white_noise(20e6)) # SET NOISE LVL 
 
@@ -748,13 +748,13 @@ def plot_heatmap_powers_snr_to_mean_ris(powers, mean_ris_pow, yy_legend, yy_numb
     x_y = [(0,0), (0,1), (0,2), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (3,1), (4,2), (4,1), (3,0), (4,0)]
 
     heat_map_data = input_dat(powers[0][0][0]-np.array(mean_ris_pow), ref_x_y)
-    plot_heat_map(heat_map_data, SAVE=True,SCALE_LABEL="SNR to mean RIS [dB]", SAVE_NAME=f"heatmap_power_no_ris_to_mean_ris", SAVE_FORMAT='png',V_MIN=0, V_MAX=10)
+    plot_heat_map(heat_map_data, SAVE=True,SCALE_LABEL="SNR to mean RIS [dB]", SAVE_NAME=f"heatmap_power_no_ris_to_mean_ris", SAVE_FORMAT=SAVE_FORMAT,V_MIN=0, V_MAX=10)
 
     heat_map_data = input_dat(powers[1][0][0]-np.array(mean_ris_pow), x_y)
-    plot_heat_map(heat_map_data, SAVE=True,SCALE_LABEL="SNR to mean RIS [dB]", SAVE_NAME=f"heatmap_power_glob_max_to_mean_ris", SAVE_FORMAT='png',V_MIN=0, V_MAX=10)
+    plot_heat_map(heat_map_data, SAVE=True,SCALE_LABEL="SNR to mean RIS [dB]", SAVE_NAME=f"heatmap_power_glob_max_to_mean_ris", SAVE_FORMAT=SAVE_FORMAT,V_MIN=0, V_MAX=10)
 
     heat_map_data = input_dat(powers[2][0][0]-np.array(mean_ris_pow), x_y)
-    plot_heat_map(heat_map_data, SAVE=True,SCALE_LABEL="SNR to mean RIS [dB]", SAVE_NAME=f"heatmap_power_ris_mean_to_mean_ris", SAVE_FORMAT='png',V_MIN=0, V_MAX=10)
+    plot_heat_map(heat_map_data, SAVE=True,SCALE_LABEL="SNR to mean RIS [dB]", SAVE_NAME=f"heatmap_power_ris_mean_to_mean_ris", SAVE_FORMAT=SAVE_FORMAT,V_MIN=0, V_MAX=10)
 
     j = 0
     x_y = [(0,0), (0,1), (0,2), (1,2), (1,1), (1,0), (2,2), (2,1), (3,2), (2,0), (3,1), (4,2), (4,1), (3,0), (4,0)]
@@ -779,7 +779,7 @@ def plot_heatmap_powers_snr_to_mean_ris(powers, mean_ris_pow, yy_legend, yy_numb
                               SAVE=True,
                               SCALE_LABEL="SNR to mean ris [dB]",
                               SAVE_NAME=f"heatmap_snr_to_mean_ris_liczba_wzorcy_{j+1}_{yy_legend[i]}",
-                              SAVE_FORMAT='png',
+                              SAVE_FORMAT=SAVE_FORMAT,
                               V_MIN=0, V_MAX=10
                               )
             i+=1
@@ -943,6 +943,29 @@ def get_patterns_amount_from_sel(positions, select):
         ret_len.append(temp)
     return ret_len
 
+def metric_cohenence_time(N, R, T_coh=0.1, T_ris=0.022):
+    eta = (T_coh - (N * T_ris)) * R / T_coh
+    return eta
+
+def plot_metric_cohenence_time(Ns, Rs, T_coh=0.1, T_ris=0.022, FONTSIZE=16):
+    metrics = [[]]*len(Rs)
+    for i,R in enumerate(Rs):
+        metrics[i]=metric_cohenence_time(Ns[i], R, T_coh, T_ris)
+    
+    # Plotting
+    plt.figure(figsize=(10,6))
+    plt.rcParams['font.size'] = FONTSIZE
+    plt.tight_layout()
+    plt.plot(Ns, metrics, marker='o', markersize=10, linewidth=2, color='r')
+    # plt.title('Metrics vs Ns')
+    plt.xlabel('Amount of patterns')
+    plt.ylabel('η [b/s/Hz]')
+    plt.grid()
+    #plt.xticks(Ns)  # Set x-ticks to match Ns
+    plt.xscale('log')
+    plt.xlim(1, 200)
+    plt.yscale('symlog')
+    plt.show()
 
 if __name__ == "__main__":
     #### INIT #####
@@ -1189,20 +1212,22 @@ if __name__ == "__main__":
         dump_array_to_file(yy_number_of_patterns_rand, 'yy_number_of_patterns_rand_data.pkl')
         #end except
 
-
-    # plot_reg_series(yy[1:], yy_legend[1:], CI=95)
-    # plot_heatmap_powers_snr_to_mean_ris(powers=powers, mean_ris_pow=mean_power_with_ris, yy_legend=yy_legend, yy_number_of_patterns=yy_number_of_patterns)
-    # plot_heatmap_bitrate(powers)
-    # plot_heatmap_powers(powers=powers)    
-
+    
     glob_curve_vals, glob_curve_pats_amount = global_max_curve_finder_from_heuristics_results(yy[3:], yy_number_of_patterns[3:])
     yy.append([[value,value] for value in glob_curve_vals])
     yy_number_of_patterns.append(glob_curve_pats_amount)
     yy_legend.append(GLOBAL_MAX_CURVE)
 
+    # plot_reg_series(yy[1:], yy_legend[1:], CI=95)
+    #plot_heatmap_powers_snr_to_mean_ris(powers=powers, mean_ris_pow=mean_power_with_ris, yy_legend=yy_legend, yy_number_of_patterns=yy_number_of_patterns, SAVE_FORMAT='svg')
+    # plot_heatmap_bitrate(powers)
+    # plot_heatmap_powers(powers=powers)    
+
+    plot_metric_cohenence_time(glob_curve_pats_amount, glob_curve_vals, T_coh=0.03, T_ris=0.00022)
+
     #Zbiorowy PLOT
     ci = 2
-    plot_reg_series_by_no_of_patterns(yy[1:], yy_legend[1:], yy_number_of_patterns[1:], CI=ci, XLOG=True, FONTSIZE=18, SHOW=show, SAVE=save, SAVE_NAME="Reg_plot_i_20_joint", SAVE_FORMAT='svg')
+    #plot_reg_series_by_no_of_patterns(yy[1:], yy_legend[1:], yy_number_of_patterns[1:], CI=ci, XLOG=True, FONTSIZE=18, SHOW=show, SAVE=save, SAVE_NAME="Reg_plot_i_20_joint", SAVE_FORMAT='svg')
     
     yys=[yy[:3]+yy_greedy, yy[:3]+yy_rand, yy[:3]+yy_gen]
     yys_labels=[yy_legend[:3]+yy_legend_greedy, yy_legend[:3]+yy_legend_rand, yy_legend[:3]+yy_legend_gen]
@@ -1213,7 +1238,7 @@ if __name__ == "__main__":
         yys[iterator].append([[value,value] for value in glob_curve_vals])
         yys_labels[iterator].append(GLOBAL_MAX_CURVE)
         yys_number_of_patterns[iterator].append(glob_curve_pats_amount)
-        plot_reg_series_by_no_of_patterns(yys[iterator][1:], yys_labels[iterator][1:], yys_number_of_patterns[iterator][1:],SHOW=show,SAVE_NAME=f'Reg_plot_i_20_{iterator}', SAVE=save, CI=ci, XLOG=True, FONTSIZE=18, SAVE_FORMAT='svg')
+        #plot_reg_series_by_no_of_patterns(yys[iterator][1:], yys_labels[iterator][1:], yys_number_of_patterns[iterator][1:],SHOW=show,SAVE_NAME=f'Reg_plot_i_20_{iterator}', SAVE=save, CI=ci, XLOG=True, FONTSIZE=18, SAVE_FORMAT='svg')
     
 
     

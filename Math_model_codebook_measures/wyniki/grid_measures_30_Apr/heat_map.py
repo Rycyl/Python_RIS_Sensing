@@ -12,7 +12,7 @@ def plot_heat_map(heatmap_data,
                 SAVE = False,
                 SAVE_NAME = 'figure',
                 SAVE_FORMAT = 'png',
-                FONTSIZE=20):
+                FONTSIZE=26):
 
     # Plotting
     plt.figure(figsize=(10, 6))
@@ -20,7 +20,7 @@ def plot_heat_map(heatmap_data,
         np.flip(heatmap_data.T, axis=1),
         annot=True, cmap='viridis',
         cbar_kws={'label': SCALE_LABEL},
-        annot_kws={"size": 14, "weight": "bold",},
+        annot_kws={"size": FONTSIZE, "weight": "bold",},
         vmax=V_MAX, # Maximum value for the color scale
         vmin=V_MIN  # Minimum value for the color scale
         ) 
@@ -29,16 +29,16 @@ def plot_heat_map(heatmap_data,
     colorbar.ax.yaxis.label.set_size(FONTSIZE)
     #colorbar.ax.yaxis.label.set_weight("bold")
     colorbar.ax.tick_params(labelsize=FONTSIZE, width=1.5)
-    for tick in colorbar.ax.get_yticklabels():
-        tick.set_weight("bold")
+    # for tick in colorbar.ax.get_yticklabels():
+    #     tick.set_weight("bold")
     x_labels = np.arange(2.64, -0.66, -0.66)
     x_labels = [abs(round(x, 2)) for x in x_labels]
     plt.xticks(ticks=np.arange(0.5, 5.5, step=1), labels=x_labels, fontsize = FONTSIZE)
     plt.yticks(ticks=np.arange(0.5, 3, step=1), labels=np.arange(1.5, 3, 0.5), fontsize = FONTSIZE)
     if title!="":
         plt.title(title, fontsize=FONTSIZE, fontweight='bold') #f"Heatmap for Pattern: {pattern_title}"
-    plt.xlabel("Odległość Rx od Osi Y RIS'a [m]", fontsize=FONTSIZE)
-    plt.ylabel("Odległość Rx od Osi X RIS'a [m]", fontsize=FONTSIZE)
+    plt.xlabel("Rx distance to RIS Y-axis [m]", fontsize=FONTSIZE)
+    plt.ylabel("Rx distance to RIS X-axis [m]", fontsize=FONTSIZE)
     plt.gca().invert_yaxis()  # Optional: match matrix orientation
     plt.tight_layout()
     if SAVE:
