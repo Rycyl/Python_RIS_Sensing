@@ -22,7 +22,9 @@ plot(katy_pomiarowe_RX,10*log10(abs(AF).^2), "linewidth",3)
 xticks(-90:20:90);
 yticks(-10:10:30);
 set(gca, "linewidth", 1, "fontsize", 20)
-legend("Liniowy", "Binarny", "Binarny z rotacją")
+
+leg = legend("Liniowy", "Binarny", "Binarny z rotacją");
+legend(leg, "location", "north","orientation", "horizontal")
 xlabel('Kąt położenia Rx [stopnie]')
 ylabel('AF (dB)')
 % title(['AF for TX at ' num2str(kat_TX) ' and RIS pattern for TX angle=' num2str(kat_TX) ' and RX angle=' num2str(kat_RX)])

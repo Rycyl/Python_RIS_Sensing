@@ -1,0 +1,30 @@
+0 ::  NO_RIS
+1 ::  Full Codebook
+2 ::  Mean bitrate with RIS
+3 ::  Greedy ϕs_step1°
+4 ::  Greedy ϕs_step30°
+5 ::  Greedy ϕs_step90°
+6 ::  Greedy ϕs_step180°
+7 ::  Greedy ϕs_step360°
+8 ::  Random ϕs_step1° I= 200
+9 ::  Random ϕs_step1° I= 1000
+10 ::  Random ϕs_step30° I= 200
+11 ::  Random ϕs_step30° I= 1000
+12 ::  Random ϕs_step90° I= 200
+13 ::  Random ϕs_step90° I= 1000
+14 ::  Random ϕs_step180° I= 200
+15 ::  Random ϕs_step180° I= 1000
+16 ::  Random ϕs_step360° I= 200
+17 ::  Random ϕs_step360° I= 1000
+18 ::  Genetic ϕs_step1° [10, 20, 0.3]
+19 ::  Genetic ϕs_step1° [50, 20, 0.3]
+20 ::  Genetic ϕs_step30° [10, 20, 0.3]
+21 ::  Genetic ϕs_step30° [50, 20, 0.3]
+22 ::  Genetic ϕs_step90° [10, 20, 0.3]
+23 ::  Genetic ϕs_step90° [50, 20, 0.3]
+24 ::  Genetic ϕs_step180° [10, 20, 0.3]
+25 ::  Genetic ϕs_step180° [50, 20, 0.3]
+26 ::  Genetic ϕs_step360° [10, 20, 0.3]
+27 ::  Genetic ϕs_step360° [50, 20, 0.3]
+28 ::  Max from all methods
+29 ::  Max from all methods

@@ -391,7 +391,7 @@ def plot_reg_series(yy, # plot data
 def plot_reg_series_by_no_of_patterns(yy, # plot data
                     YY_LABELS=None,
                     YY_NUMBER_OF_PATTERNS=None,
-                    X_LABEL='N patterns',
+                    X_LABEL='Number of patterns',
                     Y_LABEL='Total spectrum efficiency [b/s/Hz]',
                     CI=80,
                     TITLE='',
@@ -402,7 +402,9 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
                     XLOG=False,
                     GLOBAL_MAX_CURVE=True,
                     SHOW=True,
-                    FONTSIZE=20):
+                    FONTSIZE=20,
+                    color_offset=1,
+                    color_palette="tab20"):
     if PRINT_TITLE:
         if TITLE=='':
             TITLE = f'Regression Plot with {CI}% Confidence Interval'
@@ -412,14 +414,14 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
         rows -> kolejne wartosci f(x)
         3d -> series
     '''
-    plt.figure(figsize=(10, 8))  # Create a single figure for all series
+    plt.figure(figsize=(10, 10))  # Create a single figure for all series
     plt.rcParams['font.size'] = FONTSIZE
     plt.rcParams['lines.linewidth']= 2
     if YY_NUMBER_OF_PATTERNS is not None:
         plt.xlim(1, max(max(row) for row in YY_NUMBER_OF_PATTERNS))
     else:
         plt.xlim(1, 301)
-    palette = sns.color_palette("tab20")
+    palette = sns.color_palette(color_palette)
     for i, y in enumerate(yy):
         # Convert to a DataFrame, transposing the data
         data = pd.DataFrame(y).T  # Transpose to have each point in a column
@@ -476,7 +478,7 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
                         err_style="band",
                         errorbar=errorbar_function,
                         estimator=estimator_function,
-                        color=palette[(i+1) % len(palette)],
+                        color=palette[(i+color_offset) % len(palette)],
                         linestyle='',marker='o',
                         markersize=10,  # Increase the size of the dots
                         )
@@ -484,7 +486,7 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
                         y='Values',
                         data=data_melted,
                         err_style="bars", errorbar=errorbar_function,
-                        color=palette[(i+1) % len(palette)],
+                        color=palette[(i+color_offset) % len(palette)],
                         linestyle='',
                         marker='o',
                         markersize=10,  # Increase the size of the dots
@@ -505,7 +507,8 @@ def plot_reg_series_by_no_of_patterns(yy, # plot data
     plt.title(TITLE)
     plt.xlabel(X_LABEL)
     plt.ylabel(Y_LABEL)
-    plt.grid()
+    #plt.grid()
+    plt.grid(True, which="both", ls="-", color='0.65')
     plt.rcParams['lines.linewidth']= 2
     # Add legend if labels are provided
     if YY_LABELS:
@@ -792,7 +795,7 @@ def merge_selections(selected):
     merge = np.array(merge)
     return merge
 
-def run_select_function(merge, pattern_selector, range_low = 1, range_max = 16, i_bound = 1, pat_sel_function_name='Genetic'):
+def run_select_function(merge, pattern_selector, range_low = 1, range_max = 16, i_bound = 2, pat_sel_function_name='Genetic'):
     y, powss, poss = [], [], []
     # Get the method from the pattern_selector instance
     pat_sel_function = getattr(pattern_selector, pat_sel_function_name)
@@ -945,26 +948,39 @@ def get_patterns_amount_from_sel(positions, select):
 
 def metric_cohenence_time(N, R, T_coh=0.1, T_ris=0.022):
     eta = (T_coh - (N * T_ris)) * R / T_coh
-    return eta
+    if eta<0:
+        return 0
+    else:
+        return eta
 
-def plot_metric_cohenence_time(Ns, Rs, T_coh=0.1, T_ris=0.022, FONTSIZE=16):
-    metrics = [[]]*len(Rs)
-    for i,R in enumerate(Rs):
-        metrics[i]=metric_cohenence_time(Ns[i], R, T_coh, T_ris)
-    
-    # Plotting
+def plot_metric_cohenence_time(NS, RS, T_coh=0.03, T_ris=[0.022, 0.0022], FONTSIZE=16):
+    """
+    Ns: lista/array wartości N (oś x)
+    Rs: pojedyncza wartość R lub lista o tej samej długości co Ns
+    T_coh: stała
+    T_ris: lista wartości T_ris do narysowania
+    """
+    Rs=RS[1:]
+    Ns=NS[1:]
     plt.figure(figsize=(10,6))
     plt.rcParams['font.size'] = FONTSIZE
-    plt.tight_layout()
-    plt.plot(Ns, metrics, marker='o', markersize=10, linewidth=2, color='r')
-    # plt.title('Metrics vs Ns')
-    plt.xlabel('Amount of patterns')
+
+    for idx, T in enumerate(T_ris):
+        metrics = []
+        for i, N in enumerate(Ns):
+            R = Rs[i] if hasattr(Rs, "__iter__") and len(Rs) == len(Ns) else Rs
+            metrics.append(metric_cohenence_time(N, R, T_coh, T))
+        plt.plot(Ns, metrics, marker='o', markersize=8, linewidth=2,
+                 label=f"T_ris = {T} s")
+
+    plt.xlabel('Number of patterns')
     plt.ylabel('η [b/s/Hz]')
-    plt.grid()
-    #plt.xticks(Ns)  # Set x-ticks to match Ns
+    plt.grid(True, which="both", ls="-", color='0.65')
     plt.xscale('log')
-    plt.xlim(1, 200)
-    plt.yscale('symlog')
+    plt.xlim(1, Ns[-1]+100)
+    #plt.yscale('symlog')
+    lgd = plt.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05), ncol=2)
+    plt.tight_layout()
     plt.show()
 
 if __name__ == "__main__":
@@ -1071,7 +1087,7 @@ if __name__ == "__main__":
 
     I_BOUND = 50
     RANGE_MAX = 16 #max 16
-    RANGE_LOW = 2
+    RANGE_LOW = 1
 
     FAST_RUN=False
     save=True
@@ -1083,7 +1099,7 @@ if __name__ == "__main__":
         random_params = [[100]]
         genetic_params = [[5,10,0.3]]
         RANGE_MAX = 10
-        I_BOUND = 10
+        I_BOUND = 6
 
     # Loop through each selection function and generate data
     try:
@@ -1125,8 +1141,6 @@ if __name__ == "__main__":
     
 
         for i,merge in enumerate(merge_list):
-            if FAST_RUN and i > 2: #breaking early to fasten run
-                break
             phi_s_step = selections_list[i].phi_s_step
             pattern_selector = PatternSelector(data=merge, mean_power_with_ris=mean_power_with_ris, iterations=10)
 
@@ -1218,27 +1232,87 @@ if __name__ == "__main__":
     yy_number_of_patterns.append(glob_curve_pats_amount)
     yy_legend.append(GLOBAL_MAX_CURVE)
 
+    for i,etykieta in enumerate(yy_legend):
+        print(i, ":: ", etykieta)
+
     # plot_reg_series(yy[1:], yy_legend[1:], CI=95)
     #plot_heatmap_powers_snr_to_mean_ris(powers=powers, mean_ris_pow=mean_power_with_ris, yy_legend=yy_legend, yy_number_of_patterns=yy_number_of_patterns, SAVE_FORMAT='svg')
     # plot_heatmap_bitrate(powers)
     # plot_heatmap_powers(powers=powers)    
+    T_ris = [0.022, 0.011, 0.002, 0.0004, 0.00004, 0.000004]
+    #plot_metric_cohenence_time(glob_curve_pats_amount, glob_curve_vals, T_coh=0.03, T_ris=T_ris)
 
-    plot_metric_cohenence_time(glob_curve_pats_amount, glob_curve_vals, T_coh=0.03, T_ris=0.00022)
-
-    #Zbiorowy PLOT
     ci = 2
-    #plot_reg_series_by_no_of_patterns(yy[1:], yy_legend[1:], yy_number_of_patterns[1:], CI=ci, XLOG=True, FONTSIZE=18, SHOW=show, SAVE=save, SAVE_NAME="Reg_plot_i_20_joint", SAVE_FORMAT='svg')
+    #Zbiorowy PLOT
     
-    yys=[yy[:3]+yy_greedy, yy[:3]+yy_rand, yy[:3]+yy_gen]
-    yys_labels=[yy_legend[:3]+yy_legend_greedy, yy_legend[:3]+yy_legend_rand, yy_legend[:3]+yy_legend_gen]
-    yys_number_of_patterns=[yy_number_of_patterns[:3]+yy_number_of_patterns_greedy, yy_number_of_patterns[:3]+yy_number_of_patterns_rand, yy_number_of_patterns[:3]+yy_number_of_patterns_gen]
+    # selected_indices = [18,19,20,21]
+    # plot_reg_series_by_no_of_patterns(
+    # [yy[i] for i in selected_indices],
+    # [yy_legend[i] for i in selected_indices],
+    # [yy_number_of_patterns[i] for i in selected_indices],
+    # CI=ci,
+    # XLOG=True,
+    # FONTSIZE=18,
+    # SHOW=True,
+    # SAVE=False,
+    # SAVE_NAME=f"Reg_plot_i_{I_BOUND}_c1000",
+    # SAVE_FORMAT='svg'
+    # )
+
+    selected_indices = [1,2,6,19,21,23,25,28]
+    plot_reg_series_by_no_of_patterns(
+    [yy[i] for i in selected_indices],
+    [yy_legend[i] for i in selected_indices],
+    [yy_number_of_patterns[i] for i in selected_indices],
+    CI=ci,
+    XLOG=True,
+    FONTSIZE=18,
+    SHOW=True,
+    SAVE=False,
+    SAVE_NAME=f"Reg_plot_i_{I_BOUND}_gen_comp",
+    SAVE_FORMAT='svg',
+    color_offset=6,
+    color_palette="tab10"
+    )
+
+    # selected_indices = [1, 24, 22, 20, 14, 12, 10, 29]
+    # plot_reg_series_by_no_of_patterns(
+    # [yy[i] for i in selected_indices],
+    # [yy_legend[i] for i in selected_indices],
+    # [yy_number_of_patterns[i] for i in selected_indices],
+    # CI=ci,
+    # XLOG=True,
+    # FONTSIZE=18,
+    # SHOW=show,
+    # SAVE=save,
+    # SAVE_NAME=f"Reg_plot_i_{I_BOUND}_c200",
+    # SAVE_FORMAT='svg'
+    # )
+
+    # selected_indices = [1,2,3,4,5,6,7,9,11,13,15,17,19,21,23,25,27]
+    # plot_reg_series_by_no_of_patterns(
+    # [yy[i] for i in selected_indices],
+    # [yy_legend[i] for i in selected_indices],
+    # [yy_number_of_patterns[i] for i in selected_indices],
+    # XLOG=True,
+    # FONTSIZE=18,
+    # SHOW=True,
+    # SAVE=False,
+    # SAVE_NAME=f"Reg_plot_i_{I_BOUND}_all_methods",
+    # SAVE_FORMAT='svg'
+    # )
+    #plot_reg_series_by_no_of_patterns(yy[1:], yy_legend[1:], yy_number_of_patterns[1:], CI=ci, XLOG=True, FONTSIZE=18, SHOW=show, SAVE=save, SAVE_NAME=f"Reg_plot_i_{I_BOUND}_joint", SAVE_FORMAT='svg')
+    
+    # yys=[yy[:3]+yy_greedy, yy[:3]+yy_rand, yy[:3]+yy_gen]
+    # yys_labels=[yy_legend[:3]+yy_legend_greedy, yy_legend[:3]+yy_legend_rand, yy_legend[:3]+yy_legend_gen]
+    # yys_number_of_patterns=[yy_number_of_patterns[:3]+yy_number_of_patterns_greedy, yy_number_of_patterns[:3]+yy_number_of_patterns_rand, yy_number_of_patterns[:3]+yy_number_of_patterns_gen]
     #PLOTY DLA POSZCZEGOLNYCH ALGORYTMOW
-    for iterator in range(len(yys)):
-        print("plotting:", iterator)
-        yys[iterator].append([[value,value] for value in glob_curve_vals])
-        yys_labels[iterator].append(GLOBAL_MAX_CURVE)
-        yys_number_of_patterns[iterator].append(glob_curve_pats_amount)
-        #plot_reg_series_by_no_of_patterns(yys[iterator][1:], yys_labels[iterator][1:], yys_number_of_patterns[iterator][1:],SHOW=show,SAVE_NAME=f'Reg_plot_i_20_{iterator}', SAVE=save, CI=ci, XLOG=True, FONTSIZE=18, SAVE_FORMAT='svg')
+    # for iterator in range(len(yys)):
+    #     print("plotting:", iterator)
+    #     yys[iterator].append([[value,value] for value in glob_curve_vals])
+    #     yys_labels[iterator].append(GLOBAL_MAX_CURVE)
+    #     yys_number_of_patterns[iterator].append(glob_curve_pats_amount)
+        #plot_reg_series_by_no_of_patterns(yys[iterator][1:], yys_labels[iterator][1:], yys_number_of_patterns[iterator][1:],SHOW=show,SAVE_NAME=f'Reg_plot_i_{I_BOUND}_{iterator}', SAVE=save, CI=ci, XLOG=True, FONTSIZE=18, SAVE_FORMAT='svg')
     
 
     

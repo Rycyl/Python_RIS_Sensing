@@ -112,8 +112,7 @@ plt.ylabel('Przepływność kanału [MB/s]', fontsize=FONTSIZE)
 
 plt.xticks(fontsize=FONTSIZE)  # Ustawia rozmiar czcionki etykiet na osi X
 plt.yticks(fontsize=FONTSIZE)  # Ustawia rozmiar czcionki etykiet na osi Y
-#plt.legend(fontsize=FONTSIZE, loc='upper right')
-
+plt.legend(fontsize=FONTSIZE, loc='lower center', bbox_to_anchor=(0.5, 1.02), ncol=3)
 plt.ylim(0, 40)
 
 plt.grid()
