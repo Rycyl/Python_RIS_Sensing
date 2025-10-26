@@ -71,6 +71,7 @@ class Analyzer(RsInstrument, Analyzer_virtual):
 
     def __init__(self, config, phy_device = True):
         self.resource = f'TCPIP::{config.IP_ADDRESS_ANALYZER}::{config.PORT_ANALYZER}::{config.CONNECTION_TYPE}'  # Resource string for the device
+        print(self.resource)
         if phy_device:
             try:
                 print("Physical Analyzer connection attepmt")
@@ -132,6 +133,16 @@ class Analyzer(RsInstrument, Analyzer_virtual):
             return trace_data   
         except:
             return super().trace_get()
+    
+    def get_freq_range(self):
+        start_freq = self.query_float_with_opc('FREQuency:STARt?')
+        span = self.query_float_with_opc('FREQuency:SPAN?')
+        trace_len = self.query_int_with_opc('SWEep:POINts?')
+        
+        step_size = span/(trace_len-1)
+
+        x = [(start_freq + f *step_size) for f in range(trace_len)]
+        return x
         
     def trace_get_mean_and_csv_save_trace(self, trace_file = "trace_file.csv"):
         try:

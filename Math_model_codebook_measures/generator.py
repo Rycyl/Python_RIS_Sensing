@@ -48,6 +48,17 @@ class Generator(RsSmw):
         response = self.utilities.query_str('*IDN?')
         print(f'Direct SCPI response on *IDN?: {response}')
 
+    def meas_prep_fOFMD(self, set, c_freq, cp_no_symbols, total_sub_car, sub_car_offset, seq_len, no_occ_sub):
+        self.output.state.set_value(set)
+        self.source.frequency.fixed.set_value(c_freq)
+
+        self.source.bb.ofdm.set_modulation(mod_type=enums.C5Gmod.FOFDm)
+        self.source.bb.ofdm.set_cp_symbols(cp_no_symbols)
+        self.source.bb.ofdm.set_nsubcarriers(total_sub_car)
+        self.source.bb.ofdm.set_offset(offset= sub_car_offset)
+        self.source.bb.ofdm.set_seq_length(seq_len)
+        self.source.bb.ofdm.set_noccupied(no_occ_sub)
+
 
 
 if __name__ == "__main__":
