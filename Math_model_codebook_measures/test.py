@@ -2,25 +2,27 @@ from analyzer_sensing import Analyzer
 from config_obj import Config
 import numpy as np
 from RIS import RIS
+import time
 
 conf = Config(config_path = "config_test.json")
-
+rbw = 50000
+span = 102400000
 anal = Analyzer(conf)
 print("Analyzer Created")
 anal.write_str_with_opc('*RST')
-anal.write_str_with_opc(f'FREQuency:CENTer {5.36E9}')
-anal.write_str_with_opc(f'FREQuency:SPAN {102400000}')
-anal.write_str_with_opc(f'BAND {10000}')
+anal.write_str_with_opc(f'FREQuency:CENTer {5.36E9 - (rbw/2)}')
+anal.write_str_with_opc(f'FREQuency:SPAN {span}')
+anal.write_str_with_opc(f'BAND {rbw}')
 anal.write_str_with_opc(f'DISPlay:TRACe1:MODE WRITe')
 anal.write_str_with_opc(f'DISPlay:WINDow:TRACe:Y:SCALe:RLEVel {-50}')
 anal.write_str_with_opc(f'DET RMS')
 anal.write_str_with_opc(f'SWE:COUNT {1}')
 anal.write_str_with_opc(f'SWEep:TIME:AUTO 1')
-swepnt = int(102400000/10000)
+swepnt = int(span/rbw)
 anal.write_str_with_opc(f'SWEep:POINts {swepnt}')
 anal.write_str_with_opc('INITiate:CONTinuous OFF')
 anal.write_str_with_opc('SWEep:TYPE FFT')
-anal.write_str_with_opc(f'BWIDth:VIDeo {10000 * 10}')
+anal.write_str_with_opc(f'BWIDth:VIDeo {rbw * 10}')
 mst = anal.query_float('SWEep:DUR?')
 print(f'Measurement time: {mst} s')
 
@@ -29,16 +31,19 @@ tens = np.ones(swepnt) * 10
 power = []
 
 freq = anal.get_freq_range()
+#print(freq)
+# for n in range(256):
+ris = RIS("COM5", set_wait_time=0.1)
 
-for n in range(256):
-    
-
-with open("temp_data.csv", "w+") as f:
+with open("temp_data_cfreq_p_half_rbw_no_synch_50_test_w_RIS2.csv", "w+") as f:
     for fq in freq:
         f.write(str(fq)+";")
     f.write("\n")
-    for i in range(100):
+    for i in range(10):
+        ris.set_pattern("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000000000000000000000000000")
+        time.sleep(0.0023*i)
         power = anal.trace_get()
+        ris.set_pattern("0x0000000000000000000000000000000000000000000000000000000000000000")
         for p in power:
             f.write(str(p)+";")
         f.write("\n")
