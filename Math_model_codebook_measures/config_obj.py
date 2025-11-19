@@ -34,6 +34,7 @@ class Config:
                 self.step_resolution = config["STEP_RESOLUTION"]
                 self.header_steps_az = config["HEADER_STEPS_AZ"]
                 self.header_steps_el = config["HEADER_STEPS_EL"]
+                self.sweep_type = config["SWEEP_TYPE"]
         except FileNotFoundError:
             print("File with configuration doesn't exist.")
             exit()

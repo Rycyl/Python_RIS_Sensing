@@ -28,5 +28,6 @@
     "ELEVATION_STEP_TIME" : 0.2,
     "STEP_RESOLUTION" : 2,
     "HEADER_STEPS_AZ" : 10,
-    "HEADER_STEPS_EL" : 1
+    "HEADER_STEPS_EL" : 1,
+    "SWEEP_TYPE" : "FFT"
 }

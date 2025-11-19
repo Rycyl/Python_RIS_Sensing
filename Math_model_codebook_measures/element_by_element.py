@@ -15,7 +15,7 @@ from get_angle import Antenna_Geometry
 #     return bits
 
 class sing_pat_per_run():
-    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, geometry_obj: Antenna_Geometry, exit_file: str, codebook: str):
+    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, geometry_obj: Antenna_Geometry, exit_file: str, codebook: str, Get_Men_Pow: bool = True):
         self.Ris = ris
         self.Anal = anal
         self.Gen = gen
@@ -25,6 +25,7 @@ class sing_pat_per_run():
         self.Mes_pow = None
         self.All_measured = {}
         self.Geometry = geometry_obj
+        self.Get_Men_Pow = Get_Men_Pow
 
 
     def load_code_book(self, codebook):
@@ -39,8 +40,12 @@ class sing_pat_per_run():
             f.close()
         return codes
     
-    def do_measure(self):
+    def do_measure_mean(self):
         self.Mes_pow = self.Anal.trace_get_mean()
+        return self.Mes_pow
+    
+    def do_measure_whole(self):
+        self.Mes_pow = self.Anal.trace_get()
         return self.Mes_pow
     
     def do_get_angles(self):
@@ -56,11 +61,15 @@ class sing_pat_per_run():
     
     def start_measure(self):       
         self.All_measured = []
+        if self.Get_Men_Pow:
+            measure_fun = self.do_measure_mean
+        else:
+            measure_fun = self.do_measure_whole
         print("Get geometry")
         Tx_angle, Rx_angle, a, c, x, y, b = self.do_get_angles()
         print("Doing Measures")
         for datum in self.Codebook:
-            Do_Measure = threading.Thread(target = self.do_measure)
+            Do_Measure = threading.Thread(target = measure_fun)
             Do_Measure.start()
             self.Ris.set_pattern('0x' + datum[1].hex)
             Do_Measure.join()
@@ -80,7 +89,7 @@ class sing_pat_per_run():
     
 
 class sing_pat_per_run_w_wait():
-    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, exit_file: str, codebook: str):
+    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, exit_file: str, codebook: str, Get_Men_Pow: bool = True):
         self.Ris = ris
         self.Anal = anal
         self.Gen = gen
@@ -89,6 +98,7 @@ class sing_pat_per_run_w_wait():
         self.No_of_pats = len(self.Codebook)
         self.Mes_pow = None
         self.All_measured = {}
+        self.Get_Men_Pow = Get_Men_Pow
 
 
     def load_code_book(self, codebook):
@@ -100,8 +110,12 @@ class sing_pat_per_run_w_wait():
             f.close()
         return codes
     
-    def do_measure(self):
+    def do_measure_mean(self):
         self.Mes_pow = self.Anal.trace_get_mean()
+        return self.Mes_pow
+    
+    def do_measure_whole(self):
+        self.Mes_pow = self.Anal.trace_get()
         return self.Mes_pow
     
     def start_measure(self):       
@@ -114,7 +128,10 @@ class sing_pat_per_run_w_wait():
             # print("settin pattern")
             # t_1 = time.time()
             self.Ris.set_pattern('0x' + pattern.hex)
-            self.do_measure()
+            if self.Get_Men_Pow:
+                self.do_measure_mean()
+            else:
+                self.do_measure_whole()
             # print(time.time() - t_1)
             print("pattern set")
             # Do_Measure.join()
