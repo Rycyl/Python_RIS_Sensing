@@ -7,12 +7,12 @@ from file_creator import create_file, save_to_file
 from time import time, sleep
 from search_patterns import find_best_pattern_element_wise
 from get_distances import UWB_module
-from get_angle import Antenna_Geometry
+from get_angle import Antenna_Geometry, Antenna_Geometry_dummy
 
 
 
 if __name__ == "__main__":
-    Conf = Config()
+    Conf = Config("config_test.json")
     phy_device_input = True
     ris_dist = 0.815
     custom_sweptime = 0
@@ -21,23 +21,23 @@ if __name__ == "__main__":
 
     analyzer = Analyzer(Conf, phy_device_input)
     generator = "DUMMY GENERATOR -- RUN WAVEFORM MANUALY"#Generator(Conf, phy_device_input)
-    ris = RIS(port='/dev/ttyUSB0', phy_device=phy_device_input)
+    ris = RIS(port='COM5', phy_device=phy_device_input)
     print("RIS done")
     #generator.meas_prep(True, Conf.generator_mode, Conf.generator_amplitude, Conf.freq)
     analyzer.meas_prep(Conf.freq, Conf.sweptime, Conf.span, Conf.analyzer_mode, Conf.detector, Conf.revlevel, Conf.rbw, Conf.swepnt, swtcnt=1, sweptype= Conf.sweep_type)
     # GENERATOR.meas_prep(True, Conf.generator_mode, Conf.generator_amplitude, Conf.freq)
     # ANALYZER.meas_prep(Conf.freq, Conf.sweptime, Conf.span, Conf.analyzer_mode, Conf.detector, Conf.revlevel, Conf.rbw, Conf.swepnt)
 
-    meas_file_name = "Big_codebook_measure_pos_w_grid_sec_run"
+    meas_file_name = "Test of system"#"Big_codebook_measure_pos_w_grid_sec_run"
     #meas_file_name = 'test'
     #meas_file_name = "Ref_power_no_ris"
     code_book_file = "Codebook.csv"
     meas_file = create_file(meas_file_name)
     print("Measure initated")
-    UWB_A0 = UWB_module()
+    UWB_A0 = "Dummy UWB"#UWB_module()
     #print("UWB gothered")
-    print("Calculating geometry")
-    geometry_obj = Antenna_Geometry(UWB_A0, ris_dist)
+    #print("Calculating geometry")
+    geometry_obj = Antenna_Geometry_dummy(UWB_A0, ris_dist)
     # while True:
     #     try:
     #         geometry = geometry_obj.get_angles()

@@ -19,7 +19,10 @@ class Config:
                 self.generator_amplitude = config["GENERATOR_AMPLITUDE"]
                 self.detector = config["DETECTOR"]
                 self.sweptime = config["SWEEP_TIME"]
-                self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3]))) if (int(self.sweptime/(1/int(self.rbw[0:-3])))>=101) else 101
+                if self.span == 0:
+                    self.swepnt = int(self.sweptime/(1/int(self.rbw[0:-3]))) if (int(self.sweptime/(1/int(self.rbw[0:-3])))>=101) else 101
+                else:
+                    self.swepnt = int(self.span/int(self.rbw[0:-3])) if int(self.span/int(self.rbw[0:-3]))>=101 else 101
                 self.generator_mode = enums.FreqMode.CW if config["GENERATOR_MODE"] == "CW" else enums.FreqMode.CW
                 self.IP_ADDRESS_ANALYZER = config["IP_ADDRESS_ANALYZER"]
                 self.PORT_ANALYZER = config["PORT"]

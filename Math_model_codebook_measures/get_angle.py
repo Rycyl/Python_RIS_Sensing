@@ -81,8 +81,18 @@ class Antenna_Geometry():
             print(f"Tx Dystance a = {a/1000} \nTx Dystance c = {c/1000} \nRx Dystance  x = {x/1000} \nRx Dystance  y = {y/1000}\nTx angle = {Tx} \nRx angle = {Rx}\n\n")
         return Rx, Tx, a, c, y, x, self.ris_dist
     
+class Antenna_Geometry_dummy():
+    def __init__(self, Anchor: str, ris_dist):
+        self.ris_dist = ris_dist
 
-
+    def get_angles(self, Print_vals = False):
+        Rx = -48
+        Tx = 80
+        a = 3000
+        c = 2000
+        y = 1000
+        x = 500
+        return Rx, Tx, a, c, y, x, self.ris_dist
     
 
 if __name__ == "__main__":

@@ -33,17 +33,17 @@ power = []
 freq = anal.get_freq_range()
 #print(freq)
 # for n in range(256):
-ris = RIS("COM5", set_wait_time=0.1)
+ris = RIS("COM5", set_wait_time=0.000001)
 
-with open("temp_data_cfreq_p_half_rbw_no_synch_50_test_w_RIS2.csv", "w+") as f:
+with open("temp_data_cfreq_p_half_rbw_no_synch_50_test_w_RIS5.csv", "w+") as f:
     for fq in freq:
         f.write(str(fq)+";")
     f.write("\n")
-    for i in range(10):
-        ris.set_pattern("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000000000000000000000000000")
+    for i in range(11):
+        ris.set_pattern("0x0000000000000000000000000000000000000000000000000000000000000000")
         time.sleep(0.0023*i)
         power = anal.trace_get()
-        ris.set_pattern("0x0000000000000000000000000000000000000000000000000000000000000000")
+        ris.set_pattern("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
         for p in power:
             f.write(str(p)+";")
         f.write("\n")

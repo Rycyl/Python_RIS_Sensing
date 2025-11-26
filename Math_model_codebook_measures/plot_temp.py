@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # === Configuration ===
-csv_file = "temp_data_cfreq_p_half_rbw_no_synch_50.csv"   # Change this to your CSV filename
+csv_file = "temp_data_cfreq_p_half_rbw_no_synch_50_test_w_RIS5.csv"   # Change this to your CSV filename
 
 # === Load the CSV file (semicolon-separated) ===
 data = pd.read_csv(csv_file, header=None, sep=';')
@@ -64,12 +64,14 @@ i = -1
 for row in y_data_truncked:
     #print(len(row))
     i += 1
+    if i < 1:
+        continue
     plt.scatter(row.axes, row, label=f"Delay {i*0.0023}", marker="o")
 
 # # === Add labels, grid, legend ===
 
 # #plt.xlim(5.36E9-1E6, 5.36E9+1E6)
-plt.ylim(-25,-21)
+plt.ylim(-100,-72)
 plt.xlabel("X-axis")
 plt.ylabel("Y-axis")
 plt.title(csv_file)
