@@ -8,6 +8,7 @@ import threading
 import time
 from copy import copy
 from get_angle import Antenna_Geometry
+from numpy import mean
 
 # def negate(bits):
 #     ones = BitArray(hex='F' * 64)
@@ -152,7 +153,7 @@ class sing_pat_per_run_w_wait():
 
 
 class element_by_element():
-    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, exit_file: str, mask = '0b1', find_min = False, no_start_from_zero = False):
+    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, exit_file: str, mask = '0b1', find_min = False, no_start_from_zero = False, Get_Men_Pow: bool = True, subcar_to_maxi: tuple = (10, 20)):
         self.Ris = ris
         self.Anal = anal
         self.Gen = gen
@@ -168,11 +169,23 @@ class element_by_element():
         self.Best_pow = 100000 if find_min else -100000
         self.All_measured = []
         self.Best_pattern = BitArray(length=256)
+        self.Get_Men_Pow = Get_Men_Pow
+        self.Subcar_to_Maxi = subcar_to_maxi
+        self.Whole_Trace = None
 
-    def do_measure(self):
+    def do_measure_mean(self):
         self.Mes_pow = self.Anal.trace_get_mean()
         return self.Mes_pow
     
+    def do_measure_whole(self):
+        trace = self.Anal.trace_get()
+        self.Whole_Trace = trace[:]
+        trace = trace[224:1824:2]
+        data = trace[self.Subcar_to_Maxi[0], self.Subcar_to_Maxi[1]]
+        lin_data = [10**(x/10) for x in data]
+        self.Mes_pow = mean(lin_data)
+        return self.Mes_pow
+        
     def check_if_better(self):
         if self.Find_Min:
             #print(self.Find_Min)
@@ -191,10 +204,14 @@ class element_by_element():
         self.All_measured = []
         print(self.Current_pattern)
         print(len(self.Current_pattern))
+        if self.Get_Men_Pow:
+            mesure_fun = self.do_measure_mean
+        else:
+            mesure_fun = self.do_measure_whole
         for c in range(256):
             #print("Iteration: ", c)
             #print("Current pattern: ", self.Current_pattern)
-            Do_measure = threading.Thread(target=self.do_measure)
+            Do_measure = threading.Thread(target=mesure_fun)
             s_time = time.time()
             Do_measure.start()
             
@@ -209,7 +226,7 @@ class element_by_element():
             Do_measure.join()
             #print(time.time() - s_time)
             self.check_if_better()
-            c_datum_2 = self.Mes_pow
+            c_datum_2 = self.Mes_pow if(self.Get_Men_Pow) else self.Whole_Trace
             c_datum = (c_datum_0, 'N/A', c_datum_2)
             self.All_measured.append(c_datum)
             self.Current_pattern = self.Best_pattern ^ mask_pattern
@@ -229,7 +246,7 @@ class element_by_element():
         return self.Best_pattern, self.Best_pow
     
 class stripe_by_stripe():
-    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, geometry_obj: Antenna_Geometry, exit_file: str, find_min = False, no_start_from_zero = False):
+    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, geometry_obj: Antenna_Geometry, exit_file: str, find_min = False, no_start_from_zero = False, Get_Men_Pow: bool = True, subcar_to_maxi: tuple = (10, 20)):
         self.Ris = ris
         self.Anal = anal
         self.Gen = gen
@@ -242,9 +259,21 @@ class stripe_by_stripe():
         self.All_measured = []
         self.Best_pattern = BitArray(length=256)
         self.Geometry = geometry_obj
+        self.Get_Men_Pow = Get_Men_Pow
+        self.Subcar_to_Maxi = subcar_to_maxi
+        self.Whole_Trace = None
 
-    def do_measure(self):
+    def do_measure_mean(self):
         self.Mes_pow = self.Anal.trace_get_mean()
+        return self.Mes_pow
+    
+    def do_measure_whole(self):
+        trace = self.Anal.trace_get()
+        self.Whole_Trace = trace[:]
+        trace = trace[224:1824:2]
+        data = trace[self.Subcar_to_Maxi[0], self.Subcar_to_Maxi[1]]
+        lin_data = [10**(x/10) for x in data]
+        self.Mes_pow = mean(lin_data)
         return self.Mes_pow
     
     def check_if_better(self):
@@ -271,6 +300,10 @@ class stripe_by_stripe():
     def start_measure(self):
         self.All_measured = []
         Tx_angle, Rx_angle, a, cc, x, y, b = self.do_get_angles()
+        if self.Get_Men_Pow:
+            mesure_fun = self.do_measure_mean
+        else:
+            mesure_fun = self.do_measure_whole
         if self.Find_Min:
             n = 2000
         else:
@@ -278,7 +311,7 @@ class stripe_by_stripe():
         for c in range(17):
             #print("Iteration: ", c)
             #print("Pattern: ", self.Current_pattern)
-            Do_measure = threading.Thread(target=self.do_measure)
+            Do_measure = threading.Thread(target=mesure_fun)
             Do_measure.start()
             self.Ris.set_pattern('0x'+self.Current_pattern.hex)
             c_datum_0 = copy(self.Current_pattern)
@@ -287,17 +320,17 @@ class stripe_by_stripe():
             mask_pattern = mask_pattern[:256]
             Do_measure.join()
             self.check_if_better()
-            c_datum_2 = self.Mes_pow
+            c_datum_2 = self.Mes_pow if(self.Get_Men_Pow) else self.Whole_Trace
             c_datum = [n, c_datum_0, c_datum_2, Tx_angle, Rx_angle, a, cc, x, y, b]
             self.All_measured.append(c_datum)
             self.Current_pattern = self.Best_pattern ^ mask_pattern
             n += 1
-        negated = copy(self.Best_pattern)
-        negated.invert()
-        self.Ris.set_pattern('0x'+negated.hex)
-        self.do_measure()
-        negated_measure = [n, negated, self.Mes_pow, Tx_angle, Rx_angle, a, cc, x, y, b]
-        self.All_measured.append(negated_measure)
+        # negated = copy(self.Best_pattern)
+        # negated.invert()
+        # self.Ris.set_pattern('0x'+negated.hex)
+        # self.do_measure()
+        # negated_measure = [n, negated, self.Mes_pow, Tx_angle, Rx_angle, a, cc, x, y, b]
+        # self.All_measured.append(negated_measure)
         return self.All_measured
     
     def save_to_file(self):
