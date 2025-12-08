@@ -31,7 +31,7 @@ for i in range(data.shape[0]):
     plt.ylim(-85, -50)  # Ustawienie stałego zakresu osi Y
     plt.grid(True)  # Włączenie linii pomocniczych
     plt.legend()
-    
+    plt.show()
     # Zapisz wykres do pliku w folderze "plots"
-    plt.savefig(os.path.join(plots_folder, f'wykres_wiersz_{i+1}.png'))
+    #plt.savefig(os.path.join(plots_folder, f'wykres_wiersz_{i+1}.png'))
     plt.close()  # Zamknij figurę, aby nie pokazywać podglądu

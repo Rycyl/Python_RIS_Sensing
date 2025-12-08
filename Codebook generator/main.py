@@ -20,7 +20,7 @@ LAMBDA = C / FQ # [m/s / 1/s = m/s * s = m]
 K0 = 2 * np.pi / LAMBDA
 x_ris = 0.02
 y_ris = 0.013
-print("LAMBDA = ", LAMBDA, "K0 = ", K0)
+# print("LAMBDA = ", LAMBDA, "K0 = ", K0)
 
 def ris_x_distance(m):
     return ((x_ris / 2) + (m * x_ris))
@@ -184,7 +184,7 @@ def thread_target(θ_i, θ_d, quant):
     AFs.append(result)
 
 #######################
-## PATTERN GENERATOR ##
+## CODEBOOK GENERATOR #
 #######################
 
 def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_treshold=90, theta_d_step=1, θ_d_start=0, stack_repeats=True, phase_shift=0, phase_shift_step=1):
@@ -205,7 +205,7 @@ def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_tr
             for i in range(len(p_b)):
                 #print(degs[i])
                 #pat_print(p_b[i])
-                c_pat = BitArray(p_b[i]) # tu trzeba by 16 razy powielać, wtedy codebook eval bedzie niepotrzebne bo sie poprawnie zmerguja
+                c_pat = BitArray(p_b[i]) # tu trzeba by 16 razy powielać, wtedy codebook eval bedzie niepotrzebne bo sie poprawnie zmerguja ale z jakiegos powodu nie dziala wtedy
                 if c_pat not in RIS_patterns:
                     pat_counter += 1
                     RIS_patterns.append(c_pat*16)  # dodaj pattern do listy
@@ -328,51 +328,52 @@ def plot_pattern_occurence(codebook_dumpfile):
     plt.grid(True)
     plt.show()
 
+""" AF """
+# af_lin = 10*np.log10(AF(-48,40,quant=False))
+# af_1 = 10*np.log10(AF(-48,40,quant=True))
+# # af_2 = 10*np.log10(AF(-48,40,quant=True,phase_shift=45))
+# plt.figure(figsize=(10, 6))
+# x = range(-90,90)
+# plt.plot(x, af_lin, linestyle="--", label="Linear")
+# plt.plot(x, af_1, label="Binary")
+# # plt.plot(x, af_2, label="Binary rotated")
+# plt.legend()
+# plt.xticks(np.arange(-90, 91, 10))
+# plt.yticks(np.arange(-10, 50, 5))
+# plt.xlim(-90, 90)
+# plt.ylim(-10, 25)
+# plt.xlabel("Rx location [°]")
+# plt.ylabel("AF [dB]")
+# plt.grid()
+# plt.show()
 
-af_lin = 10*np.log10(AF(-48,40,quant=False))
-af_1 = 10*np.log10(AF(-48,40,quant=True))
-# af_2 = 10*np.log10(AF(-48,40,quant=True,phase_shift=45))
-plt.figure(figsize=(10, 6))
-x = range(-90,90)
-plt.plot(x, af_lin, linestyle="--", label="Linear")
-plt.plot(x, af_1, label="Binary")
-# plt.plot(x, af_2, label="Binary rotated")
-plt.legend()
-plt.xticks(np.arange(-90, 91, 10))
-plt.yticks(np.arange(-10, 50, 5))
-plt.xlim(-90, 90)
-plt.ylim(-10, 25)
-plt.xlabel("Rx location [°]")
-plt.ylabel("AF [dB]")
-plt.grid()
-plt.show()
+"""Patterns occurances in codebook plotting"""
+phase_shift_step_list = range(1,90)#[1,2,4,10,20,30,45,90,180]
+theta_d_step_list = range(1,90)
+pattern_amount = []
+pattern_amount_phi = []
+pattern_amount_theta=[]
+unique_pattern_amount = []
+phi_s_stepping = []
+theta_d_stepping = []
 
-# phase_shift_step_list = range(1,90)#[1,2,4,10,20,30,45,90,180]
-# theta_d_step_list = range(1,90)
-# pattern_amount = []
-# pattern_amount_phi = []
-# pattern_amount_theta=[]
-# unique_pattern_amount = []
-# phi_s_stepping = []
-# theta_d_stepping = []
+for theta_d_step in theta_d_step_list:
+    phase_shift_step = 1
+    print(theta_d_step, phase_shift_step)
+    pat_no = codebook_generate(phase_shift_step=phase_shift_step, theta_d_step=theta_d_step)
+    unique_pattern_amount.append(pat_no)
+    theta_d_stepping.append(pat_no)
+    pattern_amount.append(90//theta_d_step * 360//phase_shift_step)
+    pattern_amount_theta.append(90//theta_d_step * 360//phase_shift_step)
 
-# for theta_d_step in theta_d_step_list:
-#     phase_shift_step = 1
-#     print(theta_d_step, phase_shift_step)
-#     pat_no = codebook_generate(phase_shift_step=phase_shift_step, theta_d_step=theta_d_step)
-#     unique_pattern_amount.append(pat_no)
-#     theta_d_stepping.append(pat_no)
-#     pattern_amount.append(90//theta_d_step * 360//phase_shift_step)
-#     pattern_amount_theta.append(90//theta_d_step * 360//phase_shift_step)
+for phase_shift_step in phase_shift_step_list:
+    theta_d_step = 1
+    print(theta_d_step, phase_shift_step)
+    pat_no = codebook_generate(phase_shift_step=phase_shift_step, theta_d_step=theta_d_step)
+    phi_s_stepping.append(pat_no)
+    unique_pattern_amount.append(pat_no)
+    pattern_amount.append(90//theta_d_step * 360//phase_shift_step)
+    pattern_amount_phi.append(90//theta_d_step * 360//phase_shift_step)
 
-# for phase_shift_step in phase_shift_step_list:
-#     theta_d_step = 1
-#     print(theta_d_step, phase_shift_step)
-#     pat_no = codebook_generate(phase_shift_step=phase_shift_step, theta_d_step=theta_d_step)
-#     phi_s_stepping.append(pat_no)
-#     unique_pattern_amount.append(pat_no)
-#     pattern_amount.append(90//theta_d_step * 360//phase_shift_step)
-#     pattern_amount_phi.append(90//theta_d_step * 360//phase_shift_step)
-
-# plot_no_unique_patterns([phi_s_stepping, theta_d_stepping], [phase_shift_step_list, theta_d_step_list], ['φ_s', "θ_d"])
-# print("AAAAAAA")
+plot_no_unique_patterns([phi_s_stepping, theta_d_stepping], [phase_shift_step_list, theta_d_step_list], ['φ_s', "θ_d"])
+print("DONE")
