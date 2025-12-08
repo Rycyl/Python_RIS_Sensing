@@ -4,7 +4,7 @@ import pickle
 from bitstring import BitArray
 
 class Pattern:
-    def __init__(self, idx, pattern, angles):
+    def __init__(self, idx, pattern, angles = None):
         self.idx = int(idx)
         self.pattern = BitArray(hex=pattern)
         self.angles = angles
@@ -13,9 +13,10 @@ class Pattern:
         return f"Pattern(number={self.idx}, pat='{self.pattern}', angle={self.angles[0]}, total pattern angles: {len(self.angles)}"
 
 class Codebook:
-    def __init__(self, dumpfile="codebook.pkl", filename="Codebook.csv"):
+    def __init__(self, dumpfile="codebook.pkl", filename="Codebook.csv", do_load = True):
         self.patterns = []
-        self.load_codebook(dumpfile, filename)
+        if do_load:
+            self.load_codebook(dumpfile, filename)
 
     def add_pattern(self, pattern):
         if isinstance(pattern, Pattern):
