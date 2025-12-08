@@ -9,6 +9,7 @@ import cmath
 from bitstring import BitArray
 from class_codebook import Codebook
 import matplotlib.cm as cm
+import os
 
 global FQ, C, LAMBDA, K0, j, x_ris, y_ris, DEBUG
 DEBUG = False
@@ -188,9 +189,11 @@ def thread_target(θ_i, θ_d, quant):
 #######################
 
 def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_treshold=90, theta_d_step=1, θ_d_start=0, stack_repeats=True, phase_shift=0, phase_shift_step=1):
+    directory = "codebooks"
+    os.makedirs(directory, exist_ok=True)
     try:
         print("try load codebook")
-        filename = "Big_Codebook_by_"+str(phase_shift_step)+"_phi_s_step_"+ str(theta_d_step)+ "_theta_d_step.csv"
+        filename = os.path.join(directory, "Big_Codebook_by_" + str(phase_shift_step) + "_phi_s_step_" + str(theta_d_step) + "_theta_d_step.csv")
         filename = filename[0:-4] + "_v2.csv"
         codebook_object = Codebook(dumpfile=(filename[0:-4]+".pkl"), filename=filename)
         return len(codebook_object.patterns)
@@ -227,7 +230,7 @@ def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_tr
 
 
         #  # Write to CSV
-        filename = "Big_Codebook_by_"+str(phase_shift_step)+"_phi_s_step_"+ str(theta_d_step)+ "_theta_d_step.csv"
+        filename = os.path.join(directory, "Big_Codebook_by_" + str(phase_shift_step) + "_phi_s_step_" + str(theta_d_step) + "_theta_d_step.csv")
         with open(filename, mode='w', newline='') as file:
             for i in range(len(RIS_patterns)):
                 #file.write(RIS_patterns[i].hex + ";" + "θ_i=" + str(degs[i][0]) + " θ_d=" + str(degs[i][1]) + "\n")
