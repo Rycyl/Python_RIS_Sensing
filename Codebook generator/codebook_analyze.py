@@ -126,6 +126,11 @@ def AF_from_pattern(pattern, theta_Tx, phi_Tx=0, silent = False):
     return abs_AF
 
 def plot_AFs(AFs):
+    """
+    Plot Array Factors
+    Inputs:
+    AFs : a list of array factors: [[AF1],[AF2],[AF3]....]
+    """
     plt.figure(figsize=(10, 6))
     x = range(-90,90)
     for y in AFs:  
