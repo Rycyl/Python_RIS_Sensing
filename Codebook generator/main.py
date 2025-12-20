@@ -78,7 +78,6 @@ def AF_single_q(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0, phase_shift=0):
     three = np.exp(c)
     #print(three)
     ret_val =  one * two * three
-    print((ret_val))
     #if DEBUG:
         #print(ret_val)
     return ret_val
@@ -125,10 +124,9 @@ def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0, phase_shift=0):
     abs_AF = []
     for x in AFs:
         #print(abs(x))
-        abs_AF.append(abs(x))
+        abs_AF.append(10*np.log10(abs(x)))
     max_value = max(abs_AF)  # Znajdź maksymalną wartość
     max_index = abs_AF.index(max_value) - 90 # Znajdź indeks maksymalnej wartości
-    max_value = 10*np.log10(max_value)
 
     print(f'Maksymalna wartość: {max_value}, Indeks: {max_index}')
     return abs_AF
