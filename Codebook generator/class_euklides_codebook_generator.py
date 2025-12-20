@@ -137,7 +137,7 @@ class Euklides_codebook():
         i = 0
         k = 0
         while i < self.i_bound:
-            print("i,k", i, k)
+            
             min_index = metrics.index(min(metrics))
             #select non selected patter from codebook
             not_done = True
@@ -153,9 +153,12 @@ class Euklides_codebook():
                 patterns[min_index] = new_pattern
                 metrics[min_index]  = new_metric
                 i = i + 1
+                print("i: ", i)
                 k = 0
             k+=1
             if k>k_bound:
+                print("k bound reached, breaking loop, returning codebook for")
+                print("Q = ", self.Q, "; i_bound = ", self.i_bound, "; k_bound = ", k_bound, "; i = ", i, "; k = ", k)
                 break
         
         codebook = Codebook(do_load=False)
@@ -165,30 +168,35 @@ class Euklides_codebook():
         return codebook
 
 if __name__=="__main__":
-    # euklides_codebook = Euklides_codebook(64, 640)
-    # try:
-    #     e_codebook_64 = Codebook(dumpfile="codebooks/euklides_codebook64.pkl")
-    # except:
-    #     e_codebook_64 = euklides_codebook.generate_codebook(Q=64)
-    #     e_codebook_64.dump_class_to_file(dumpfile="codebooks/euklides_codebook64.pkl")
-    #     print("codebook 64 dumpted")
-    # e_codebook_32 = euklides_codebook.generate_codebook(Q=32, i_bound=480)
-    # e_codebook_32.dump_class_to_file(dumpfile="codebooks/euklides_codebook32.pkl")
-    # # e_codebook_16 = euklides_codebook.generate_codebook(Q=16)
-    # e_codebook_32_from = euklides_codebook.generate_codebook_from_codebook(e_codebook_64, Q=32, i_bound=100, k_bound=1000)
-    # e_codebook_32_from.dump_class_to_file(dumpfile="codebooks/euklides_codebook32_from_64.pkl")
-    # # e_codebook_16_from = euklides_codebook.generate_codebook_from_codebook(e_codebook_64, Q=16)
+    euklides_codebook = Euklides_codebook(64, 640)
+    try:
+        e_codebook_64 = Codebook(dumpfile="codebooks/euklides_codebook64.pkl")
+        e_codebook_16 = Codebook(dumpfile="codebooks/euklides_codebook16.pkl")
+        e_codebook_16_from_64 = Codebook(dumpfile="codebooks/euklides_codebook16_from_64.pkl")
+    except:
+        e_codebook_64 = euklides_codebook.generate_codebook(Q=64)
+        e_codebook_64.dump_class_to_file(dumpfile="codebooks/euklides_codebook64.pkl")
+        e_codebook_16 = euklides_codebook.generate_codebook(Q=16, i_bound=2048, k_bound=100000)
+        e_codebook_16.dump_class_to_file(dumpfile="codebooks/euklides_codebook16.pkl")
+        e_codebook_16_from = euklides_codebook.generate_codebook_from_codebook(e_codebook_64, Q=16, i_bound=512, k_bound=8096)
+        e_codebook_16_from.dump_class_to_file(dumpfile="codebooks/euklides_codebook16_from_64.pkl")
+        print("codebooks dumpted")
+   
+    from codebook_analyze import *
 
-    # patterns64 = get_patterns_from_codebook(e_codebook_64)
-    # patterns32 = get_patterns_from_codebook(e_codebook_32)
-    # patterns32_from = get_patterns_from_codebook(e_codebook_32_from)
-    # # patterns16 = get_patterns_from_codebook(e_codebook_16)
-    # # patterns16_from = get_patterns_from_codebook(e_codebook_16_from)
+    reduced_by_hamming_codebooks = []
+    # reduced_by_hamming_codebooks.append((reduce_by_hamming(e_codebook_64), "Euclidean codebook, s=64"))
+    reduced_by_hamming_codebooks.append((reduce_codebook_by_hamming(e_codebook_16_from_64), "Euclidean codebook from s=64, s=16"))
+    reduced_by_hamming_codebooks.append((reduce_codebook_by_hamming(e_codebook_16), "Euclidean codebook, s=16"))
+    plot_codebooks_reduce_by_hamming(reduced_by_hamming_codebooks)
+    codebooks_AFs = []
+    for x in [e_codebook_16_from_64, e_codebook_16]:
+        AFs = []
+        for i,pattern in enumerate(x.patterns):
+            print(i+1, "/", len(x.patterns)) 
+            AFs.append(AF_from_pattern(pattern.pattern, -48))
+        codebooks_AFs.append(AFs)
+    plot_codebooks_AFs(codebooks_AFs, ["Euclidean codebook from s=64, s=16", "Euclidean codebook, s=16"])
 
-    from codebook_analyze import plot_codebook_reduce_by_hamming
-    plot_codebook_reduce_by_hamming(dumpfile="codebooks/euklides_codebook32.pkl")
-    plot_codebook_reduce_by_hamming(dumpfile="codebooks/euklides_codebook32_from_64.pkl")
 
     pass
-    pass
-
