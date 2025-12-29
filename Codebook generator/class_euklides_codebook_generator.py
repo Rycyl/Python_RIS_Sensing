@@ -173,13 +173,18 @@ if __name__=="__main__":
         e_codebook_64 = Codebook(dumpfile="codebooks/euklides_codebook64.pkl")
         e_codebook_16 = Codebook(dumpfile="codebooks/euklides_codebook16.pkl")
         e_codebook_16_from_64 = Codebook(dumpfile="codebooks/euklides_codebook16_from_64.pkl")
+        e_codebook_16_from.dump_class_to_csv(filename="codebooks/euklides_codebook16_from_64.csv")
+
     except:
         e_codebook_64 = euklides_codebook.generate_codebook(Q=64)
         e_codebook_64.dump_class_to_file(dumpfile="codebooks/euklides_codebook64.pkl")
+        e_codebook_64.dump_class_to_csv(filename="codebooks/euklides_codebook64.csv")
         e_codebook_16 = euklides_codebook.generate_codebook(Q=16, i_bound=2048, k_bound=100000)
         e_codebook_16.dump_class_to_file(dumpfile="codebooks/euklides_codebook16.pkl")
+        e_codebook_16.dump_class_to_csv(filename="codebooks/euklides_codebook16.csv")
         e_codebook_16_from = euklides_codebook.generate_codebook_from_codebook(e_codebook_64, Q=16, i_bound=512, k_bound=8096)
         e_codebook_16_from.dump_class_to_file(dumpfile="codebooks/euklides_codebook16_from_64.pkl")
+        e_codebook_16_from.dump_class_to_csv(filename="codebooks/euklides_codebook16_from_64.csv")
         print("codebooks dumpted")
    
     from codebook_analyze import *
