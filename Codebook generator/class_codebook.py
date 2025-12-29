@@ -30,6 +30,13 @@ class Codebook:
             pickle.dump(self, file)
         print("Codebook class dumpted to a file: ", dumpfile)
 
+    def dump_class_to_csv(self, filename):
+        with open(filename, 'w+') as file:
+            for pattern in self.patterns:
+                file.write(f"{pattern.idx};{pattern.pattern.hex};{pattern.angles}")
+                file.write("\n")
+        pass
+
     def load_codebook(self, dumpfile, filename):
         print("codebook loading....")
         try:
