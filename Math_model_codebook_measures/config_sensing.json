@@ -1,5 +1,5 @@
 {
-    "IP_ADDRESS_ANALYZER" : "192.168.8.20",
+    "IP_ADDRESS_ANALYZER" : "192.168.1.30",
     "IP_ADDRESS_GENERATOR" : "192.168.8.30",
     "PORT" : 5025,
     "CONNECTION_TYPE" : "SOCKET",
@@ -16,17 +16,18 @@
     "NUMBER_OF_ANGLES" : 101,
     "RIS_PORT_COMMENT": "COM7 - Windows, /dev/tty.usbserial-D382L3CH - MacOS, linux-/dev/ttyUSB0",
     "RIS_PORT" : "/dev/ttyUSB0", 
-    "SPAN" : 0,
+    "SPAN" : 102400000,
     "ANALYZER_MODE":"WRITe",
     "REVLEVEL" : -50,
-    "RBW" : "2000 Hz",
+    "RBW" : "50000 Hz",
     "GENERATOR_AMPLITUDE" : 10,
     "GENERATOR_MODE" : "CW",
-    "DETECTOR" : "SAMP",
+    "DETECTOR" : "RMS",
     "SWEEP_TIME" : 0.064,
     "AZIMUTH_STEP_TIME" : 0.2,
     "ELEVATION_STEP_TIME" : 0.2,
     "STEP_RESOLUTION" : 2,
     "HEADER_STEPS_AZ" : 10,
-    "HEADER_STEPS_EL" : 1
+    "HEADER_STEPS_EL" : 1,
+    "SWEEP_TYPE" : "FFT"
 }
