@@ -173,7 +173,7 @@ def reduce_codebook_by_hamming(codebook):
                     haming = hamming_distance(pattern, current_codebook_pattern)/16 #get current pat distance
                     if haming < hamming_min: #if smalller - store
                         haming_min = haming
-                if haming > distance_lim: # if min distance to others > limit distance - add to codebook
+                if haming >= distance_lim: # if min distance to others > limit distance - add to codebook
                         codebooks_haming[-1].append(pattern)
         #print(codebooks_haming[-1])
         #print("\n\n\n")
