@@ -15,7 +15,7 @@ def mw_to_dbm(x):
     return dbm
 
 powers   = []
-
+#wez wartości z metody opt kolumnami i wylicz które to min/max
 ma1 = (results.maxs[-3].powers)
 ma2 = (results.maxs[-2].powers)
 mi1 = (results.mins[-3].powers)
@@ -34,7 +34,8 @@ for i in range(len(mi1)):
         mins.append(mi1[i])
     else:
         mins.append(mi2[i])
-
+#############################
+#codebook zeby wybrac tylko patterny z niego
 codebook_tx48=Codebook(dumpfile='Codebook_tx48.pkl')
 for result in results.results:
     for pat in codebook_tx48.patterns:
