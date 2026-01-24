@@ -36,7 +36,7 @@ def get_patterns_from_codebook(codebook):
 
 def calculate_metric(patterns, i, pat=None):
     """
-    calculate hamming distance metric of given set of patterns
+    calculate hamming distance metric (from idx=i) of given set of patterns
     Inptuts:
         patterns: set of patterns (BitArray format)
         i: idx of pattern which metric is calculated
@@ -122,7 +122,11 @@ class Euklides_codebook():
 
         #inicjalizacja algorytmu
         for i in range(self.Q):
-            patterns.append(self.generate_random_bitarray(16))
+            while True:
+                pattern = self.generate_random_bitarray(16)
+                if pattern not in patterns:
+                    break
+            patterns.append(pattern)
 
         for i,pattern in enumerate(patterns):
             metrics.append(self.calculate_metric(patterns, i))
@@ -133,7 +137,10 @@ class Euklides_codebook():
         while i < self.i_bound:
             #print("i,k", i, k)
             min_index = metrics.index(min(metrics))
-            new_pattern = self.generate_random_bitarray(16)
+            while True:
+                new_pattern = self.generate_random_bitarray(16)
+                if new_pattern not in patterns:
+                    break
             new_metric = self.calculate_metric(patterns, min_index, pat=new_pattern)
             if new_metric>metrics[min_index]:
                 patterns[min_index] = new_pattern
@@ -177,11 +184,13 @@ class Euklides_codebook():
             k_bound = (len(patterns_from_codebook)-Q) * 50 #50 times a number of posibilites
 
         #select Q random patterns from given codebook
-        for i in range(self.Q): 
-            pat = random.choice(patterns_from_codebook)
-            patterns.append(pat)
-
-
+        for i in range(self.Q):
+            while True: 
+                pattern = random.choice(patterns_from_codebook)
+                if pattern not in patterns:
+                    break
+            patterns.append(pattern)
+        
         #count metrics
         for i,pattern in enumerate(patterns):
             metrics.append(self.calculate_metric(patterns, i))
@@ -190,25 +199,24 @@ class Euklides_codebook():
         i = 0
         k = 0
         while i < self.i_bound:
-            
             min_index = metrics.index(min(metrics))
             #select non selected patter from codebook
-            not_done = True
-            while not_done:
+            while True:
                 new_pattern = random.choice(patterns_from_codebook)
-                if new_pattern in patterns:
-                    new_pattern = random.choice(patterns_from_codebook)
-                else:
-                    not_done = False
-
+                if new_pattern not in patterns:
+                    break
+            if new_pattern in patterns:
+                print("PANIC_PATTERN_REAPEATED!!")
+                exit()
             new_metric = self.calculate_metric(patterns, min_index, pat=new_pattern)
             if new_metric>metrics[min_index]:
                 patterns[min_index] = new_pattern
                 metrics[min_index]  = new_metric
-                i = i + 1
                 print("i: ", i)
+                i = i + 1
                 k = 0
-            k+=1
+            else:
+                k+=1
             if k>k_bound:
                 print("k bound reached, breaking loop, returning codebook for")
                 print("Q = ", self.Q, "; i_bound = ", self.i_bound, "; k_bound = ",
@@ -249,7 +257,7 @@ def generate_euclidean_codebooks_of_size(codebooks_sizes, i_bound=2048, k_bound=
     return e_codebooks
 
 def generate_euclidean_codebooks_of_size_from_codebook(
-    bigger_codebook, codebooks_sizes, i_bound=2048, k_bound=1000000):
+    bigger_codebook, codebooks_sizes, i_bound=2024, k_bound=100000):
     """
     Generates a codebook based on a previously generated codebook 
         using the Euclidean (Hamming) method.
@@ -264,11 +272,13 @@ def generate_euclidean_codebooks_of_size_from_codebook(
     """
     e_c = Euklides_codebook(64, 640)
     e_codebooks = []
-    pats_from_bigger_codebook = get_patterns_from_codebook(bigger_codebook)
-    bigger_codebook_size = len(pats_from_bigger_codebook)
+    bigger_codebook_size = len(bigger_codebook.patterns)
     for i in codebooks_sizes:
+        if i>=bigger_codebook_size:
+            print(f"i={i} >= {bigger_codebook_size} (codebook size), skipping")
+            continue
         try:
-            print(f"Loading codebook of size {i}")
+            print(f"Loading codebook of size {i} from {bigger_codebook_size}")
             e_codebooks.append(
                 Codebook(
                     dumpfile=f"codebooks/euklides_codebook{i}_from_{bigger_codebook_size}.pkl"
@@ -277,7 +287,7 @@ def generate_euclidean_codebooks_of_size_from_codebook(
         except:
             print(f"Loading failed, generating codebook of size {i} from {bigger_codebook_size}")
             e_codebooks.append(e_c.generate_codebook_from_codebook(
-                    pats_from_bigger_codebook, Q=i, i_bound=i_bound, k_bound=k_bound
+                    bigger_codebook, Q=i, i_bound=i_bound, k_bound=k_bound
                     ))
             e_codebooks[-1].dump_class_to_file(
                 dumpfile=f"codebooks/euklides_codebook{i}_from_{bigger_codebook_size}.pkl"
@@ -287,43 +297,80 @@ def generate_euclidean_codebooks_of_size_from_codebook(
     
     return e_codebooks
 
-if __name__=="__main__":
-<<<<<<< Updated upstream
-    euklides_codebook = Euklides_codebook(64, 640)
-    try:
-        e_codebook_64 = Codebook(dumpfile="codebooks/euklides_codebook64.pkl")
-        e_codebook_16 = Codebook(dumpfile="codebooks/euklides_codebook16.pkl")
-        e_codebook_16_from_64 = Codebook(dumpfile="codebooks/euklides_codebook16_from_64.pkl")
-        e_codebook_16_from.dump_class_to_csv(filename="codebooks/euklides_codebook16_from_64.csv")
+def calculate_metric_for_codebook(codebook_patterns):
+    """
+    Calculates the aggregate metric for a single codebook based on its patterns.
+    This function iterates through the given patterns of a codebook and 
+    accumulates a metric value by invoking the `calculate_metric` function 
+    for each pattern.
+    Parameters:
+    ----------
+    codebook_patterns : list
+        A list of patterns from codebook
+    Returns:
+    -------
+    float
+        The accumulated metric value for the provided codebook patterns.
+    """
+    metric = 0
+    for i, pattern in enumerate(codebook_patterns):
+        metric += calculate_metric(codebook_patterns, i)
+    return metric
 
-    except:
-        e_codebook_64 = euklides_codebook.generate_codebook(Q=64)
-        e_codebook_64.dump_class_to_file(dumpfile="codebooks/euklides_codebook64.pkl")
-        e_codebook_64.dump_class_to_csv(filename="codebooks/euklides_codebook64.csv")
-        e_codebook_16 = euklides_codebook.generate_codebook(Q=16, i_bound=2048, k_bound=100000)
-        e_codebook_16.dump_class_to_file(dumpfile="codebooks/euklides_codebook16.pkl")
-        e_codebook_16.dump_class_to_csv(filename="codebooks/euklides_codebook16.csv")
-        e_codebook_16_from = euklides_codebook.generate_codebook_from_codebook(e_codebook_64, Q=16, i_bound=512, k_bound=8096)
-        e_codebook_16_from.dump_class_to_file(dumpfile="codebooks/euklides_codebook16_from_64.pkl")
-        e_codebook_16_from.dump_class_to_csv(filename="codebooks/euklides_codebook16_from_64.csv")
-        print("codebooks dumpted")
-   
-=======
+def calculate_metric_for_codebooks(codebooks):
+    """
+    Calculates metrics for multiple codebooks.
+
+    This function processes a list of codebooks to extract their patterns and computes
+    the corresponding metrics using the `calculate_metric_for_codebook` function for each codebook.
+
+    Parameters:
+    ----------
+    codebooks : list of Codebook() objects
+
+    Returns:
+    -------
+    list of floats/int?
+        A list of metric values calculated for each codebook.
+    """
+    metrics = []
+    for codebook in codebooks:
+        codebook_patterns = get_patterns_from_codebook(codebook)
+        metric = calculate_metric_for_codebook(codebook_patterns=codebook_patterns)
+        metrics.append(metric)
+    return metrics
+
+if __name__=="__main__":
     sizes = range(2,17)
+    #ec_obj = Euklides_codebook(1,1)
+    #a = ec_obj.generate_codebook(64, 10000, 10000000)
+    #a.dump_class_to_file(dumpfile="codebooks/euklides_codebook64.pkl")
     e_codebook_64 = Codebook(dumpfile="codebooks/euklides_codebook64.pkl")
+    e_codebooks = generate_euclidean_codebooks_of_size(sizes)
     e_codebook_16 = Codebook(dumpfile="codebooks/euklides_codebook16.pkl")
-    generate_euclidean_codebooks_of_size_from_codebook(e_codebook_16, sizes)
-    generate_euclidean_codebooks_of_size_from_codebook(e_codebook_64, sizes)
-    exit()
->>>>>>> Stashed changes
+    e_codebooks_from16 = generate_euclidean_codebooks_of_size_from_codebook(e_codebook_16, sizes)
+    e_codebooks_from64 = generate_euclidean_codebooks_of_size_from_codebook(e_codebook_64, sizes)
+    #exit()
     from codebook_analyze import *
 
-    metrics = len(e_codebooks)*[0]
-    for codebook in e_codebooks:
-        metric = 0
-        for i, pattern in enumerate(codebook):
-            metric += calculate_metric(codebook, i)
-        metrics.append(metric)
+    # Calculate metrics for each set of codebooks
+    metrics = calculate_metric_for_codebooks(e_codebooks)
+    metrics_from16 = calculate_metric_for_codebooks(e_codebooks_from16)
+    metrics_from64 = calculate_metric_for_codebooks(e_codebooks_from64)
 
-    #TODO: write a plotting method
+    # Get lengths of the codebooks
+    lengths = [len(codebook.patterns) for codebook in e_codebooks]
+    lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
+    lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
+
+    # Prepare data for plotting
+    all_metrics = [metrics, metrics_from16, metrics_from64]
+    all_lengths = [lengths, lengths_from16, lengths_from64]
+    labels = [
+        'euclidean codebooks generated directly',
+        'euclidean codebooks generated from codebook of size 16',
+        'euclidean codebooks generated from codebook of size 64'
+    ]
+    plot_codebooks_metrics(all_metrics, all_lengths, labels)
+
     pass
