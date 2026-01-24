@@ -207,3 +207,34 @@ def plot_codebooks_reduce_by_hamming(codebooks_list, FONTSIZE=16):
     plt.rcParams['font.size'] = FONTSIZE
     plt.grid(True)
     plt.show()
+
+
+
+def plot_codebooks_metrics(codebooks_metrics, codebooks_lenght, labels):
+    """
+    This function generates a line plot to visualize the performance metrics of codebooks
+    Parameters:
+    codebooks_metrics : list of lists
+        A list where each inner list contains the metric values for the corresponding codebook. 
+    codebooks_length : list
+        A list of integers where each integer corresponds to the length of the codebook for which
+        the metrics are provided. It should have the same length as the `codebooks_metrics`.
+    labels:
+        A list of string labels for each codebook
+    """
+    # Plotting
+    labels = labels
+
+    plt.figure(figsize=(10, 6))
+
+    import matplotlib.pyplot as plt
+    # Plot each set of metrics
+    for i in range(len(all_metrics_modified)):
+        plt.plot(all_lengths[i], all_metrics[i], marker='o', label=labels[i])
+
+    #plt.title("Sum of metric of Codebook")
+    plt.xlabel("Length of Codebook")
+    plt.ylabel("Metric Value")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
