@@ -12,6 +12,9 @@ class Pattern:
     def __repr__(self):
         return f"Pattern(number={self.idx}, pat='{self.pattern}', angle={self.angles[0]}, total pattern angles: {len(self.angles)}"
 
+    def __str__(self):
+        return self.pattern.hex  # For user-friendly display
+
 class Codebook:
     def __init__(self, dumpfile="codebook.pkl", filename="Codebook.csv", do_load = True):
         self.patterns = []
