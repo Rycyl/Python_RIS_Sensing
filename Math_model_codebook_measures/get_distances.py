@@ -67,18 +67,20 @@ class UWB_module():
         
     
 class New_UWB_module():
-    def __init__(self, port = 'dev/ttyACM0', b_rate = 115200, timeout = 1):
+    def __init__(self, port = '/dev/ttyACM0', b_rate = 115200, timeout = 1):
         try:
-            self.uwb_dev = serial.Serial(port, b_rate, timeout)
+            self.uwb_dev = serial.Serial(port, b_rate, timeout=timeout)
             self.uwb_dev.reset_input_buffer()
             self.uwb_dev.reset_output_buffer()
-        except:
+        except Exception as e:
             print("NIE DZIAŁA AAAAAAAAAAAAAAAAAAAAAAAA")
-            return
+            print(f"Error:: {e}")
+            exit()
+            
         
 
 
-    def read_cont(self, save_to_file = False, dump_file = 'UWB_dump.txt'):
+    def read_cont(self, save = False, dump_file = 'UWB_dump.txt'):
         lines_to_save = []
         max_no_of_lines = 1000
 
@@ -116,4 +118,4 @@ class New_UWB_module():
     
 if __name__ == "__main__":
     uwb = New_UWB_module()
-    uwb.read_cont(save_to_file=True)
+    uwb.read_cont(save=True)
