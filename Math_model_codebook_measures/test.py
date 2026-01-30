@@ -76,8 +76,9 @@
 
 
 
-print(type("L"))
-print(type(["L"]))
+L = []
 
-if type(["L"]) == list:
-    print("TAK")
+print(len(L))
+
+if len(L):
+    print("XD")

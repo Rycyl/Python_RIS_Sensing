@@ -1,5 +1,13 @@
 import serial
 from numpy import average
+import time
+
+def save_to_file(data_array, file_name):
+    with open (file_name, "+a") as f:
+        for datum in data_array:
+            f.write(datum)
+            f.write("\n")
+        f.close()
 
 class UWB_module():
     def __init__(self, port = '/dev/ttyACM0', b_rate = 115200, no_of_lines = 100, max_attempts = 500):
@@ -58,3 +66,54 @@ class UWB_module():
         return calc_dist_tag, calc_dist_anchor
         
     
+class New_UWB_module():
+    def __init__(self, port = 'dev/ttyACM0', b_rate = 115200, timeout = 1):
+        try:
+            self.uwb_dev = serial.Serial(port, b_rate, timeout)
+            self.uwb_dev.reset_input_buffer()
+            self.uwb_dev.reset_output_buffer()
+        except:
+            print("NIE DZIAŁA AAAAAAAAAAAAAAAAAAAAAAAA")
+            return
+        
+
+
+    def read_cont(self, save_to_file = False, dump_file = 'UWB_dump.txt'):
+        lines_to_save = []
+        max_no_of_lines = 1000
+
+        try: 
+            self.uwb_dev.write(b'\r\r')
+            time.sleep(1)
+
+            self.uwb_dev.write(b'lec\r')
+
+            print("Reading UWB data continuously... (Ctrl+C to stop)")
+
+            while True:
+                line = self.uwb_dev.readline().decode('utf-8').strip()
+
+                if line:
+                    print("Raw line::")
+                    print(line)
+
+                    if save_to_file:
+                        lines_to_save.append(line)
+                        if len(lines_to_save) >= max_no_of_lines:
+                            print("\nMax data collected, Stopping data collection and saveing to file")
+                            save_to_file(lines_to_save, dump_file)
+                            break
+        except serial.SerialException as e:
+            print(f"SERIAL ERROR:: {e}")
+        except KeyboardInterrupt:
+            print(f"\nKeyboardInterrupt, Stopping data collection and saving to {dump_file}")
+            save_to_file(lines_to_save, dump_file)
+        finally:
+            if self.uwb_dev.is_open:
+                self.uwb_dev.write(b'\r')
+                self.uwb_dev.close()
+                print("Connection to UWB closed")
+    
+if __name__ == "__main__":
+    uwb = New_UWB_module()
+    uwb.read_cont(save_to_file=True)

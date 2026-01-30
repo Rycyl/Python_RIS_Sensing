@@ -56,13 +56,41 @@ def crate_results(file_name_pattern):
             res = Results(dumpfile, file)
             return res
 
+def load_patts_with_rotation_pk():
+    file = "NEW_PK_codebook.csv"
+    list_of_azimuths = []
+    prev_azimuth = None
+    Temp = []
+    with open(file, 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            data = line.split(";")
+            if prev_azimuth is None or prev_azimuth != data[-1]:
+                if len(Temp):
+                    list_of_azimuths.append(Temp)
+                Temp = []
+                Temp.append(data[1])
+                prev_azimuth = data[-1]
+            else:
+                Temp.append(data[1])
+        list_of_azimuths.append(Temp)
+        f.close()
+    return list_of_azimuths
+
+
+
             
 if __name__ == "__main__":
-    file_patern = ["Edited_mean_Mesure_Eu_16_29_Dec_2025", "Edited_mean_Mesure_Eu_16_f_64_29_Dec_2025", "Edited_mean_Mesure_Eu_64_29_Dec_2025", "Edited_mean_Mesure_PK_29_Dec_2025", "Edited_spec_Mesure_Eu_16_29_Dec_2025", "Edited_spec_Mesure_Eu_16_f_64_29_Dec_2025", "Edited_spec_Mesure_Eu_64_29_Dec_2025", "Edited_spec_Mesure_PK_29_Dec_2025"]
-    #result_list = crate_results(file_name_pattern=file_patern)
-    for file in file_patern:
-        print(file)
-        results = crate_results(file)
-        power_in_position(results, file)
-        pattern_characteristic(results, file)
-        hamming_plot(results, file)
+    l = load_patts_with_rotation_pk()
+    for x in l:
+        for y in x:
+            print(y)
+        print("##############################")
+    # file_patern = ["Edited_mean_Mesure_Eu_16_29_Dec_2025", "Edited_mean_Mesure_Eu_16_f_64_29_Dec_2025", "Edited_mean_Mesure_Eu_64_29_Dec_2025", "Edited_mean_Mesure_PK_29_Dec_2025", "Edited_spec_Mesure_Eu_16_29_Dec_2025", "Edited_spec_Mesure_Eu_16_f_64_29_Dec_2025", "Edited_spec_Mesure_Eu_64_29_Dec_2025", "Edited_spec_Mesure_PK_29_Dec_2025"]
+    # #result_list = crate_results(file_name_pattern=file_patern)
+    # for file in file_patern:
+    #     print(file)
+    #     results = crate_results(file)
+    #     power_in_position(results, file)
+    #     pattern_characteristic(results, file)
+    #     hamming_plot(results, file)

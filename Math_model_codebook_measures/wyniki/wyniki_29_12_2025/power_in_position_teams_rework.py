@@ -66,7 +66,7 @@ def power_in_position(results: Results, file_name: str):
         plt.title(f'Tx {int(results.results[0].Tx_Angle[i])}, Rx {i}')#{int(results.results[0].Rx_Angle[i])}')
         plt.xlabel('N\'th pattern in recieved power')
         plt.ylabel('Recieved power [dBm]')
-        #plt.ylim(-95, -80)  # Ustawienie stałego zakresu osi Y
+        plt.ylim(-103, -80)  # Ustawienie stałego zakresu osi Y - 103
         plt.grid(True)  # Włączenie linii pomocniczych
         plt.legend(loc='lower left')
         
