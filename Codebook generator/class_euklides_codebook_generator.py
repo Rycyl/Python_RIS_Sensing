@@ -284,8 +284,8 @@ def generate_euclidean_codebooks_of_size_from_codebook(
     codebooks_sizes: sizes of codebooks to generate
     n_repeats: number of codebooks to generate of each size
     i_bound: the number of iterations for the algorithm
-    k_bound: the limit on searching for a new better candidate;
-            if exceeded - break
+    k_bound: OLD FEATURE - does nothing - now break is specifed as searching throught all 
+                     patterns without finding better metric
     Returns:
     a list of Codebook() objs [book1, book2 ....]
     """
@@ -554,162 +554,170 @@ def calculate_metric_for_codebooks_div_div(codebooks):
     return metrics
 
 if __name__=="__main__":
+    #generate codebooks of size 64
+    generate_euclidean_codebooks_of_size([64], 10, 10000, 1000000000)
+
+    #generate codebooks of sizes 2-16
     sizes = range(2,17)
-    # ec_obj = Euklides_codebook(1,1)
-    # a = ec_obj.generate_codebook(64, 10000, 10000000)
-    # a.dump_class_to_file(dumpfile="codebooks/euklides_codebook64.pkl")
-    e_codebook_64 = Codebook(dumpfile="codebooks/euklides_codebook64.pkl")
-    e_codebooks = generate_euclidean_codebooks_of_size(sizes)
-    e_codebook_16 = Codebook(dumpfile="codebooks/euklides_codebook16.pkl")
-    e_codebooks_from16 = generate_euclidean_codebooks_of_size_from_codebook(e_codebook_16, sizes)
-    e_codebooks_from64 = generate_euclidean_codebooks_of_size_from_codebook(e_codebook_64, sizes)
+    e_cbs = generate_euclidean_codebooks_of_size(sizes, 10, 10000, 1000000000)
+
+    #generate codebooks of sizes from codebooks of size 16,64
+    e_cb_64 = Codebook(dumpfile="codebooks/euklides_codebook_64_1.pkl")
+    e_cb_16 = Codebook(dumpfile="codebooks/euklides_codebook_16_1.pkl")
+    e_cbs_from_16 = generate_euclidean_codebooks_of_size_from_codebook(
+        e_cb_16, sizes, n_repeats=10, i_bound=100000)
+    e_cbs_from_64 = generate_euclidean_codebooks_of_size_from_codebook(
+        e_cb_64, sizes, n_repeats=10, i_bound=100000)
+    print("all codebooks done")
     #exit()
-    from codebook_analyze import *
 
-    # M / Q-1 / Q
-    # Calculate metrics for each set of codebooks
-    metrics = calculate_metric_for_codebooks(e_codebooks)
-    metrics_from16 = calculate_metric_for_codebooks(e_codebooks_from16)
-    metrics_from64 = calculate_metric_for_codebooks(e_codebooks_from64)
 
-    # Get lengths of the codebooks
-    lengths = [len(codebook.patterns) for codebook in e_codebooks]
-    lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
-    lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
+    # from codebook_analyze import *
 
-    # Prepare data for plotting
-    all_metrics = [metrics, metrics_from16, metrics_from64]
-    all_lengths = [lengths, lengths_from16, lengths_from64]
-    labels = [
-        'euclidean codebooks generated directly',
-        'euclidean codebooks generated from codebook of size 16',
-        'euclidean codebooks generated from codebook of size 64'
-    ]
-    plot_codebooks_metrics(all_metrics, all_lengths, labels, TITLE="M / (Q-1) / Q")
+    # # M / Q-1 / Q
+    # # Calculate metrics for each set of codebooks
+    # metrics = calculate_metric_for_codebooks(e_codebooks)
+    # metrics_from16 = calculate_metric_for_codebooks(e_codebooks_from16)
+    # metrics_from64 = calculate_metric_for_codebooks(e_codebooks_from64)
 
-    # Calculate metrics for each set of codebooks
-    metrics = calculate_metric_for_codebooks(e_codebooks)
-    metrics_from16 = calculate_metric_for_codebooks(e_codebooks_from16)
-    metrics_from64 = calculate_metric_for_codebooks(e_codebooks_from64)
+    # # Get lengths of the codebooks
+    # lengths = [len(codebook.patterns) for codebook in e_codebooks]
+    # lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
+    # lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
 
-    # Get lengths of the codebooks
-    lengths = [len(codebook.patterns) for codebook in e_codebooks]
-    lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
-    lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
+    # # Prepare data for plotting
+    # all_metrics = [metrics, metrics_from16, metrics_from64]
+    # all_lengths = [lengths, lengths_from16, lengths_from64]
+    # labels = [
+    #     'euclidean codebooks generated directly',
+    #     'euclidean codebooks generated from codebook of size 16',
+    #     'euclidean codebooks generated from codebook of size 64'
+    # ]
+    # plot_codebooks_metrics(all_metrics, all_lengths, labels, TITLE="M / (Q-1) / Q")
 
-    # Prepare data for plotting
-    all_metrics = [metrics, metrics_from16, metrics_from64]
-    all_lengths = [lengths, lengths_from16, lengths_from64]
-    labels = [
-        'euclidean codebooks generated directly',
-        'euclidean codebooks generated from codebook of size 16',
-        'euclidean codebooks generated from codebook of size 64'
-    ]
-    plot_codebooks_metrics(all_metrics, all_lengths, labels, TITLE="M")
+    # # Calculate metrics for each set of codebooks
+    # metrics = calculate_metric_for_codebooks(e_codebooks)
+    # metrics_from16 = calculate_metric_for_codebooks(e_codebooks_from16)
+    # metrics_from64 = calculate_metric_for_codebooks(e_codebooks_from64)
 
-    # METRIC / Q-1
-    # Calculate metrics for each set of codebooks
-    metrics = calculate_metric_for_codebooks_div_by_len(e_codebooks)
-    metrics_from16 = calculate_metric_for_codebooks_div_by_len(e_codebooks_from16)
-    metrics_from64 = calculate_metric_for_codebooks_div_by_len(e_codebooks_from64)
+    # # Get lengths of the codebooks
+    # lengths = [len(codebook.patterns) for codebook in e_codebooks]
+    # lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
+    # lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
 
-    # Get lengths of the codebooks
-    lengths = [len(codebook.patterns) for codebook in e_codebooks]
-    lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
-    lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
+    # # Prepare data for plotting
+    # all_metrics = [metrics, metrics_from16, metrics_from64]
+    # all_lengths = [lengths, lengths_from16, lengths_from64]
+    # labels = [
+    #     'euclidean codebooks generated directly',
+    #     'euclidean codebooks generated from codebook of size 16',
+    #     'euclidean codebooks generated from codebook of size 64'
+    # ]
+    # plot_codebooks_metrics(all_metrics, all_lengths, labels, TITLE="M")
 
-    # Prepare data for plotting
-    all_metrics = [metrics, metrics_from16, metrics_from64]
-    all_lengths = [lengths, lengths_from16, lengths_from64]
-    labels = [
-        'euclidean codebooks generated directly',
-        'euclidean codebooks generated from codebook of size 16',
-        'euclidean codebooks generated from codebook of size 64'
-    ]
-    plot_codebooks_metrics(all_metrics, all_lengths, labels, TITLE="M / (Q-1)")
+    # # METRIC / Q-1
+    # # Calculate metrics for each set of codebooks
+    # metrics = calculate_metric_for_codebooks_div_by_len(e_codebooks)
+    # metrics_from16 = calculate_metric_for_codebooks_div_by_len(e_codebooks_from16)
+    # metrics_from64 = calculate_metric_for_codebooks_div_by_len(e_codebooks_from64)
 
-    # sqrt(M) / Q-1
-    # Calculate metrics for each set of codebooks
-    metrics = calculate_metric_for_codebooks_sqrt_div_by_len(e_codebooks)
-    metrics_from16 = calculate_metric_for_codebooks_sqrt_div_by_len(e_codebooks_from16)
-    metrics_from64 = calculate_metric_for_codebooks_sqrt_div_by_len(e_codebooks_from64)
+    # # Get lengths of the codebooks
+    # lengths = [len(codebook.patterns) for codebook in e_codebooks]
+    # lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
+    # lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
 
-    # Get lengths of the codebooks
-    lengths = [len(codebook.patterns) for codebook in e_codebooks]
-    lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
-    lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
+    # # Prepare data for plotting
+    # all_metrics = [metrics, metrics_from16, metrics_from64]
+    # all_lengths = [lengths, lengths_from16, lengths_from64]
+    # labels = [
+    #     'euclidean codebooks generated directly',
+    #     'euclidean codebooks generated from codebook of size 16',
+    #     'euclidean codebooks generated from codebook of size 64'
+    # ]
+    # plot_codebooks_metrics(all_metrics, all_lengths, labels, TITLE="M / (Q-1)")
 
-    # Prepare data for plotting
-    all_metrics = [metrics, metrics_from16, metrics_from64]
-    all_lengths = [lengths, lengths_from16, lengths_from64]
-    labels = [
-        'euclidean codebooks generated directly',
-        'euclidean codebooks generated from codebook of size 16',
-        'euclidean codebooks generated from codebook of size 64'
-    ]
-    plot_codebooks_metrics(all_metrics, all_lengths, labels, TITLE="sqrt(M) / (Q-1)")
+    # # sqrt(M) / Q-1
+    # # Calculate metrics for each set of codebooks
+    # metrics = calculate_metric_for_codebooks_sqrt_div_by_len(e_codebooks)
+    # metrics_from16 = calculate_metric_for_codebooks_sqrt_div_by_len(e_codebooks_from16)
+    # metrics_from64 = calculate_metric_for_codebooks_sqrt_div_by_len(e_codebooks_from64)
 
-    #sqrt(M) / (Q-1) / Q
-    # Calculate metrics for each set of codebooks
-    metrics = calculate_metric_for_codebooks_sqrt_div_by_len_div_by_len(e_codebooks)
-    metrics_from16 = calculate_metric_for_codebooks_sqrt_div_by_len_div_by_len(e_codebooks_from16)
-    metrics_from64 = calculate_metric_for_codebooks_sqrt_div_by_len_div_by_len(e_codebooks_from64)
+    # # Get lengths of the codebooks
+    # lengths = [len(codebook.patterns) for codebook in e_codebooks]
+    # lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
+    # lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
 
-    # Get lengths of the codebooks
-    lengths = [len(codebook.patterns) for codebook in e_codebooks]
-    lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
-    lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
+    # # Prepare data for plotting
+    # all_metrics = [metrics, metrics_from16, metrics_from64]
+    # all_lengths = [lengths, lengths_from16, lengths_from64]
+    # labels = [
+    #     'euclidean codebooks generated directly',
+    #     'euclidean codebooks generated from codebook of size 16',
+    #     'euclidean codebooks generated from codebook of size 64'
+    # ]
+    # plot_codebooks_metrics(all_metrics, all_lengths, labels, TITLE="sqrt(M) / (Q-1)")
 
-    # Prepare data for plotting
-    all_metrics = [metrics, metrics_from16, metrics_from64]
-    all_lengths = [lengths, lengths_from16, lengths_from64]
-    labels = [
-        'euclidean codebooks generated directly',
-        'euclidean codebooks generated from codebook of size 16',
-        'euclidean codebooks generated from codebook of size 64'
-    ]
-    plot_codebooks_metrics(all_metrics, all_lengths, labels, TITLE="sqrt(M) / (Q-1) / Q")
+    # #sqrt(M) / (Q-1) / Q
+    # # Calculate metrics for each set of codebooks
+    # metrics = calculate_metric_for_codebooks_sqrt_div_by_len_div_by_len(e_codebooks)
+    # metrics_from16 = calculate_metric_for_codebooks_sqrt_div_by_len_div_by_len(e_codebooks_from16)
+    # metrics_from64 = calculate_metric_for_codebooks_sqrt_div_by_len_div_by_len(e_codebooks_from64)
 
-    # sqrt(M/(Q-1))
-    # Calculate metrics for each set of codebooks
-    metrics = calculate_metric_for_codebooks_div_by_len_sqrt(e_codebooks)
-    metrics_from16 = calculate_metric_for_codebooks_div_by_len_sqrt(e_codebooks_from16)
-    metrics_from64 = calculate_metric_for_codebooks_div_by_len_sqrt(e_codebooks_from64)
+    # # Get lengths of the codebooks
+    # lengths = [len(codebook.patterns) for codebook in e_codebooks]
+    # lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
+    # lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
 
-    # Get lengths of the codebooks
-    lengths = [len(codebook.patterns) for codebook in e_codebooks]
-    lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
-    lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
+    # # Prepare data for plotting
+    # all_metrics = [metrics, metrics_from16, metrics_from64]
+    # all_lengths = [lengths, lengths_from16, lengths_from64]
+    # labels = [
+    #     'euclidean codebooks generated directly',
+    #     'euclidean codebooks generated from codebook of size 16',
+    #     'euclidean codebooks generated from codebook of size 64'
+    # ]
+    # plot_codebooks_metrics(all_metrics, all_lengths, labels, TITLE="sqrt(M) / (Q-1) / Q")
 
-    # Prepare data for plotting
-    all_metrics = [metrics, metrics_from16, metrics_from64]
-    all_lengths = [lengths, lengths_from16, lengths_from64]
-    labels = [
-        'euclidean codebooks generated directly',
-        'euclidean codebooks generated from codebook of size 16',
-        'euclidean codebooks generated from codebook of size 64'
-    ]
-    plot_codebooks_metrics(all_metrics, all_lengths, labels,TITLE="sqrt(M/(Q-1))")
+    # # sqrt(M/(Q-1))
+    # # Calculate metrics for each set of codebooks
+    # metrics = calculate_metric_for_codebooks_div_by_len_sqrt(e_codebooks)
+    # metrics_from16 = calculate_metric_for_codebooks_div_by_len_sqrt(e_codebooks_from16)
+    # metrics_from64 = calculate_metric_for_codebooks_div_by_len_sqrt(e_codebooks_from64)
 
-    # sqrt(M)
-    # Calculate metrics for each set of codebooks
-    metrics = calculate_metric_for_codebooks_sqrt(e_codebooks)
-    metrics_from16 = calculate_metric_for_codebooks_sqrt(e_codebooks_from16)
-    metrics_from64 = calculate_metric_for_codebooks_sqrt(e_codebooks_from64)
+    # # Get lengths of the codebooks
+    # lengths = [len(codebook.patterns) for codebook in e_codebooks]
+    # lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
+    # lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
 
-    # Get lengths of the codebooks
-    lengths = [len(codebook.patterns) for codebook in e_codebooks]
-    lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
-    lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
+    # # Prepare data for plotting
+    # all_metrics = [metrics, metrics_from16, metrics_from64]
+    # all_lengths = [lengths, lengths_from16, lengths_from64]
+    # labels = [
+    #     'euclidean codebooks generated directly',
+    #     'euclidean codebooks generated from codebook of size 16',
+    #     'euclidean codebooks generated from codebook of size 64'
+    # ]
+    # plot_codebooks_metrics(all_metrics, all_lengths, labels,TITLE="sqrt(M/(Q-1))")
 
-    # Prepare data for plotting
-    all_metrics = [metrics, metrics_from16, metrics_from64]
-    all_lengths = [lengths, lengths_from16, lengths_from64]
-    labels = [
-        'euclidean codebooks generated directly',
-        'euclidean codebooks generated from codebook of size 16',
-        'euclidean codebooks generated from codebook of size 64'
-    ]
-    plot_codebooks_metrics(all_metrics, all_lengths, labels,TITLE="sqrt(M)")
+    # # sqrt(M)
+    # # Calculate metrics for each set of codebooks
+    # metrics = calculate_metric_for_codebooks_sqrt(e_codebooks)
+    # metrics_from16 = calculate_metric_for_codebooks_sqrt(e_codebooks_from16)
+    # metrics_from64 = calculate_metric_for_codebooks_sqrt(e_codebooks_from64)
 
-    pass
+    # # Get lengths of the codebooks
+    # lengths = [len(codebook.patterns) for codebook in e_codebooks]
+    # lengths_from16 = [len(codebook.patterns) for codebook in e_codebooks_from16]
+    # lengths_from64 = [len(codebook.patterns) for codebook in e_codebooks_from64]
+
+    # # Prepare data for plotting
+    # all_metrics = [metrics, metrics_from16, metrics_from64]
+    # all_lengths = [lengths, lengths_from16, lengths_from64]
+    # labels = [
+    #     'euclidean codebooks generated directly',
+    #     'euclidean codebooks generated from codebook of size 16',
+    #     'euclidean codebooks generated from codebook of size 64'
+    # ]
+    # plot_codebooks_metrics(all_metrics, all_lengths, labels,TITLE="sqrt(M)")
+
+    # pass
