@@ -1,11 +1,15 @@
-import numpy as np
-from math import  radians, degrees
-import matplotlib.pyplot as plt
-from bitstring import BitArray
-from class_codebook import Codebook
-import matplotlib.cm as cm
 import copy
+from math import  radians, degrees
+
+from class_codebook import Codebook
+
+import numpy as np
+from bitstring import BitArray
+
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 from matplotlib.cm import get_cmap
+
 
 def ris_x_distance(m, x_ris=0.02):
     return ((x_ris / 2) + (m * x_ris))
@@ -132,7 +136,6 @@ def plot_codebooks_AFs(codebooks_AFs, labels):
     plt.grid()
     plt.show()
 
-
 def reduce_codebook_by_hamming(codebook):
     """
         Limits the size of a codebook based on Hamming distances between patterns.
@@ -208,9 +211,7 @@ def plot_codebooks_reduce_by_hamming(codebooks_list, FONTSIZE=16):
     plt.grid(True)
     plt.show()
 
-
-
-def plot_codebooks_metrics(codebooks_metrics, codebooks_lenght, labels):
+def plot_codebooks_metrics(codebooks_metrics, codebooks_lenght, labels, TITLE = None):
     """
     This function generates a line plot to visualize the performance metrics of codebooks
     Parameters:
@@ -227,14 +228,15 @@ def plot_codebooks_metrics(codebooks_metrics, codebooks_lenght, labels):
 
     plt.figure(figsize=(10, 6))
 
-    import matplotlib.pyplot as plt
     # Plot each set of metrics
-    for i in range(len(all_metrics_modified)):
-        plt.plot(all_lengths[i], all_metrics[i], marker='o', label=labels[i])
+    for i in range(len(codebooks_metrics)):
+        plt.plot(codebooks_lenght[i], codebooks_metrics[i], marker='o', label=labels[i])
 
     #plt.title("Sum of metric of Codebook")
     plt.xlabel("Length of Codebook")
     plt.ylabel("Metric Value")
+    if TITLE:
+        plt.title(TITLE)
     plt.legend()
     plt.grid(True)
     plt.show()
