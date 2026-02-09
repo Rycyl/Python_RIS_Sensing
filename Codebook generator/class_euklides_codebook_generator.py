@@ -238,12 +238,15 @@ class Euklides_codebook():
 
         return codebook
 
-def generate_euclidean_codebooks_of_size(codebooks_sizes, i_bound=2048, k_bound=1000000):
+def generate_euclidean_codebooks_of_size(
+    codebooks_sizes, n_repeats,
+    i_bound=2048, k_bound=1000000):
     """
     Generates a codebook based on a previously generated codebook 
         using the Euclidean (Hamming) method.
     IN:
     codebooks_sizes: sizes of codebooks to generate
+    n_repeats: number of codebooks to generate of each size
     i_bound: the number of iterations for the algorithm
     k_bound: the limit on searching for a new better candidate;
             if exceeded - break
@@ -252,27 +255,34 @@ def generate_euclidean_codebooks_of_size(codebooks_sizes, i_bound=2048, k_bound=
     """
     e_c = Euklides_codebook(64, 640)
     e_codebooks = []
-    for i in codebooks_sizes:
-        try:
-            print(f"Loading codebook of size {i}")
-            e_codebooks.append(Codebook(dumpfile=f"codebooks/euklides_codebook{i}.pkl"))           
-        except:
-            print(f"Loading failed, generating codebook of size {i}...")
-            e_codebooks.append(e_c.generate_codebook(Q=i, i_bound=i_bound, k_bound=k_bound))
-            e_codebooks[-1].dump_class_to_file(dumpfile=f"codebooks/euklides_codebook{i}.pkl")
-            print(f"codebook of size {i} dumpted")
-    print("codebooks done")
-    
+
+    for size in codebooks_sizes:
+        for n in range(n_repeats):
+            dumpfile = f"codebooks/euklides_codebook_{size}_{n}.pkl"
+            try:
+                print(f"Loading codebook size={size}, n={n}")
+                e_codebooks.append(Codebook(dumpfile=dumpfile))
+            except:
+                print(f"Loading failed, generating codebook size={size}, n={n}")
+                cb = e_c.generate_codebook(
+                    Q=size, i_bound=i_bound, k_bound=k_bound
+                )
+                cb.dump_class_to_file(dumpfile=dumpfile)
+                e_codebooks.append(cb)
+                print(f"Codebook size={size}, n={n} dumped")
+
+    print("Codebooks done")
     return e_codebooks
 
 def generate_euclidean_codebooks_of_size_from_codebook(
-    bigger_codebook, codebooks_sizes, i_bound=10000, k_bound=1000000):
+    bigger_codebook, codebooks_sizes, n_repeats=1, i_bound=10000, k_bound=1000000):
     """
     Generates a codebook based on a previously generated codebook 
         using the Euclidean (Hamming) method.
     IN:
     bigger_codebook: previously generated Codebook() obj
     codebooks_sizes: sizes of codebooks to generate
+    n_repeats: number of codebooks to generate of each size
     i_bound: the number of iterations for the algorithm
     k_bound: the limit on searching for a new better candidate;
             if exceeded - break
@@ -282,28 +292,33 @@ def generate_euclidean_codebooks_of_size_from_codebook(
     e_c = Euklides_codebook(64, 640)
     e_codebooks = []
     bigger_codebook_size = len(bigger_codebook.patterns)
-    for i in codebooks_sizes:
-        if i>=bigger_codebook_size:
-            print(f"i={i} >= {bigger_codebook_size} (codebook size), skipping")
+
+    for size in codebooks_sizes:
+        if size >= bigger_codebook_size:
+            print(f"size={size} >= {bigger_codebook_size}, skipping")
             continue
-        try:
-            print(f"Loading codebook of size {i} from {bigger_codebook_size}")
-            e_codebooks.append(
-                Codebook(
-                    dumpfile=f"codebooks/euklides_codebook{i}_from_{bigger_codebook_size}.pkl"
-                    )
-                )           
-        except:
-            print(f"Loading failed, generating codebook of size {i} from {bigger_codebook_size}")
-            e_codebooks.append(e_c.generate_codebook_from_codebook(
-                    bigger_codebook, Q=i, i_bound=i_bound, k_bound=k_bound
-                    ))
-            e_codebooks[-1].dump_class_to_file(
-                dumpfile=f"codebooks/euklides_codebook{i}_from_{bigger_codebook_size}.pkl"
+
+        for n in range(n_repeats):
+            dumpfile = (
+                f"codebooks/euklides_codebook_"
+                f"{size}_from_{bigger_codebook_size}_{n}.pkl"
+            )
+            try:
+                print(f"Loading codebook size={size} from {bigger_codebook_size}, n={n}")
+                e_codebooks.append(Codebook(dumpfile=dumpfile))
+            except:
+                print(f"Generating codebook size={size} from {bigger_codebook_size}, n={n}")
+                cb = e_c.generate_codebook_from_codebook(
+                    bigger_codebook,
+                    Q=size,
+                    i_bound=i_bound,
+                    k_bound=k_bound
                 )
-            print(f"codebook of size {i} from {bigger_codebook_size} dumpted")
-    print("codebooks from codebook done")
-    
+                cb.dump_class_to_file(dumpfile=dumpfile)
+                e_codebooks.append(cb)
+                print(f"Codebook size={size} from {bigger_codebook_size}, n={n} dumped")
+
+    print("Codebooks from codebook done")
     return e_codebooks
 
 def calculate_metric_for_codebook(codebook_patterns):
