@@ -167,8 +167,8 @@ class Euklides_codebook():
             bigger_codebook: previously generated Codebook() obj
             Q: the number of RIS elements (default = 16 [columns])
             i_bound: the number of iterations for the algorithm
-            k_bound: the limit on searching for a new better candidate;
-                    if exceeded - break
+            k_bound: OLD FEATURE - does nothing - now break is specifed as searching throught all 
+                     patterns without finding better metric
             Returns a Codebook() object
         """
         patterns_from_codebook = get_patterns_from_codebook(bigger_codebook)
@@ -180,8 +180,6 @@ class Euklides_codebook():
             self.Q = Q
         if i_bound != None:
             self.i_bound = i_bound
-        if k_bound == None:
-            k_bound = (len(patterns_from_codebook)-Q) * 50 #50 times a number of posibilites
 
         #select Q random patterns from given codebook
         for i in range(self.Q):
@@ -196,33 +194,44 @@ class Euklides_codebook():
             metrics.append(self.calculate_metric(patterns, i))
         
         #main loop
+        # main loop
         i = 0
         k = 0
+        codebook_len = len(patterns_from_codebook)
+
         while i < self.i_bound:
+            print("i:", i)
             min_index = metrics.index(min(metrics))
-            #select non selected patter from codebook
-            while True:
-                new_pattern = random.choice(patterns_from_codebook)
-                if new_pattern not in patterns:
-                    break
+
+            # cyclic select patterns - specified end of the loop
+            new_pattern = patterns_from_codebook[i % codebook_len]
+
+            # do not use patterns from codebook -- check
             if new_pattern in patterns:
-                print("PANIC_PATTERN_REAPEATED!!")
-                exit()
-            new_metric = self.calculate_metric(patterns, min_index, pat=new_pattern)
-            if new_metric>metrics[min_index]:
-                patterns[min_index] = new_pattern
-                metrics[min_index]  = new_metric
-                print("i: ", i)
-                i = i + 1
-                k = 0
+                k += 1
             else:
-                k+=1
-            if k>k_bound:
-                print("k bound reached, breaking loop, returning codebook for")
-                print("Q = ", self.Q, "; i_bound = ", self.i_bound, "; k_bound = ",
-                       k_bound, "; i = ", i, "; k = ", k)
+                new_metric = self.calculate_metric(patterns, min_index, pat=new_pattern)
+                if new_metric > metrics[min_index]:
+                    patterns[min_index] = new_pattern
+                    metrics[min_index] = new_metric
+                    k = 0
+                else:
+                    k += 1
+
+            if k > codebook_len:
+                print("k bound reached, breaking loop, returning codebook")
+                print(
+                    "Q = ", self.Q,
+                    "; i_bound = ", self.i_bound,
+                    "; k_bound = ", codebook_len,
+                    "; i = ", i,
+                    "; k = ", k
+                )
                 break
-        
+            
+            i += 1 # <-- loop iteration
+            #END WHILE (main loop)
+
         codebook = Codebook(do_load=False)
         for i,pattern in enumerate(patterns):
             codebook.add_pattern(pattern=Pattern(idx=i, pattern=pattern.hex))
@@ -257,7 +266,7 @@ def generate_euclidean_codebooks_of_size(codebooks_sizes, i_bound=2048, k_bound=
     return e_codebooks
 
 def generate_euclidean_codebooks_of_size_from_codebook(
-    bigger_codebook, codebooks_sizes, i_bound=2024, k_bound=100000):
+    bigger_codebook, codebooks_sizes, i_bound=10000, k_bound=1000000):
     """
     Generates a codebook based on a previously generated codebook 
         using the Euclidean (Hamming) method.
