@@ -31,7 +31,7 @@ plt.ylabel('Power')
 plt.title('Power for patterns')
 plt.legend()
 plt.grid(True)
-    
+plt.show()
 # Zapisz wykres do pliku w folderze "plots"
-plt.savefig(os.path.join(plots_folder, f'wykres.png'))
+#plt.savefig(os.path.join(plots_folder, f'wykres.png'))
 plt.close()  # Zamknij figurę, aby nie pokazywać podglądu

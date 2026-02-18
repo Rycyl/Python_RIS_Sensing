@@ -2,9 +2,26 @@ import ast
 import time
 import pickle
 from bitstring import BitArray
+from pathlib import Path
+
+def dump_all_codebooks_to_csv(folder_path="euclidean_codebooks"):
+    """
+    Function to dump all codebooks in pkl to csv from given folder
+    Parameters:
+    folder_path: folder path/name with pkl codebooks
+    """
+    folder = Path(folder_path)
+    print("converting pkl to csv's from: ", Path(folder_path))
+    for pkl_file in folder.glob("*.pkl"):
+        current_loaded = Codebook(dumpfile=str(pkl_file))
+        print("loaded: ", str(pkl_file))
+        csv_filename = pkl_file.with_suffix(".csv")
+        current_loaded.dump_class_to_csv(str(csv_filename))
+        print("csv saved: ", str(csv_filename))
+    return
 
 class Pattern:
-    def __init__(self, idx, pattern, angles):
+    def __init__(self, idx, pattern, angles = None):
         self.idx = int(idx)
         self.pattern = BitArray(hex=pattern)
         self.angles = angles
@@ -12,10 +29,14 @@ class Pattern:
     def __repr__(self):
         return f"Pattern(number={self.idx}, pat='{self.pattern}', angle={self.angles[0]}, total pattern angles: {len(self.angles)}"
 
+    def __str__(self):
+        return self.pattern.hex  # For user-friendly display
+
 class Codebook:
-    def __init__(self, dumpfile="codebook.pkl", filename="Codebook.csv"):
+    def __init__(self, dumpfile="codebook.pkl", filename="Codebook.csv", do_load = True):
         self.patterns = []
-        self.load_codebook(dumpfile, filename)
+        if do_load:
+            self.load_codebook(dumpfile, filename)
 
     def add_pattern(self, pattern):
         if isinstance(pattern, Pattern):
@@ -28,6 +49,13 @@ class Codebook:
         with open(dumpfile, 'wb') as file:
             pickle.dump(self, file)
         print("Codebook class dumpted to a file: ", dumpfile)
+
+    def dump_class_to_csv(self, filename):
+        with open(filename, 'w+') as file:
+            for pattern in self.patterns:
+                file.write(f"{pattern.idx};{pattern.pattern.hex};{pattern.angles}")
+                file.write("\n")
+        pass
 
     def load_codebook(self, dumpfile, filename):
         print("codebook loading....")

@@ -9,6 +9,7 @@ import cmath
 from bitstring import BitArray
 from class_codebook import Codebook
 import matplotlib.cm as cm
+import os
 
 global FQ, C, LAMBDA, K0, j, x_ris, y_ris, DEBUG
 DEBUG = False
@@ -20,7 +21,7 @@ LAMBDA = C / FQ # [m/s / 1/s = m/s * s = m]
 K0 = 2 * np.pi / LAMBDA
 x_ris = 0.02
 y_ris = 0.013
-print("LAMBDA = ", LAMBDA, "K0 = ", K0)
+# print("LAMBDA = ", LAMBDA, "K0 = ", K0)
 
 def ris_x_distance(m):
     return ((x_ris / 2) + (m * x_ris))
@@ -77,7 +78,6 @@ def AF_single_q(x_m, y_n, θ, φ, θi, θd, φ_i=0, φ_d=0, phase_shift=0):
     three = np.exp(c)
     #print(three)
     ret_val =  one * two * three
-    print((ret_val))
     #if DEBUG:
         #print(ret_val)
     return ret_val
@@ -124,10 +124,9 @@ def AF(θi, θd, quant=True, af_deg_step = 1, φ_i=0, φ_d=0, phase_shift=0):
     abs_AF = []
     for x in AFs:
         #print(abs(x))
-        abs_AF.append(abs(x))
+        abs_AF.append(10*np.log10(abs(x)))
     max_value = max(abs_AF)  # Znajdź maksymalną wartość
     max_index = abs_AF.index(max_value) - 90 # Znajdź indeks maksymalnej wartości
-    max_value = 10*np.log10(max_value)
 
     print(f'Maksymalna wartość: {max_value}, Indeks: {max_index}')
     return abs_AF
@@ -184,13 +183,15 @@ def thread_target(θ_i, θ_d, quant):
     AFs.append(result)
 
 #######################
-## PATTERN GENERATOR ##
+## CODEBOOK GENERATOR #
 #######################
 
 def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_treshold=90, theta_d_step=1, θ_d_start=0, stack_repeats=True, phase_shift=0, phase_shift_step=1):
+    directory = "codebooks"
+    os.makedirs(directory, exist_ok=True)
     try:
         print("try load codebook")
-        filename = "Big_Codebook_by_"+str(phase_shift_step)+"_phi_s_step_"+ str(theta_d_step)+ "_theta_d_step.csv"
+        filename = os.path.join(directory, "Big_Codebook_by_" + str(phase_shift_step) + "_phi_s_step_" + str(theta_d_step) + "_theta_d_step.csv")
         filename = filename[0:-4] + "_v2.csv"
         codebook_object = Codebook(dumpfile=(filename[0:-4]+".pkl"), filename=filename)
         return len(codebook_object.patterns)
@@ -205,7 +206,7 @@ def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_tr
             for i in range(len(p_b)):
                 #print(degs[i])
                 #pat_print(p_b[i])
-                c_pat = BitArray(p_b[i]) # tu trzeba by 16 razy powielać, wtedy codebook eval bedzie niepotrzebne bo sie poprawnie zmerguja
+                c_pat = BitArray(p_b[i]) # tu trzeba by 16 razy powielać, wtedy codebook eval bedzie niepotrzebne bo sie poprawnie zmerguja ale z jakiegos powodu nie dziala wtedy
                 if c_pat not in RIS_patterns:
                     pat_counter += 1
                     RIS_patterns.append(c_pat*16)  # dodaj pattern do listy
@@ -227,7 +228,7 @@ def codebook_generate(θ_i_treshold=-90, θ_i_step=-100, θ_i_start=-48, θ_d_tr
 
 
         #  # Write to CSV
-        filename = "Big_Codebook_by_"+str(phase_shift_step)+"_phi_s_step_"+ str(theta_d_step)+ "_theta_d_step.csv"
+        filename = os.path.join(directory, "Big_Codebook_by_" + str(phase_shift_step) + "_phi_s_step_" + str(theta_d_step) + "_theta_d_step.csv")
         with open(filename, mode='w', newline='') as file:
             for i in range(len(RIS_patterns)):
                 #file.write(RIS_patterns[i].hex + ";" + "θ_i=" + str(degs[i][0]) + " θ_d=" + str(degs[i][1]) + "\n")
@@ -328,10 +329,10 @@ def plot_pattern_occurence(codebook_dumpfile):
     plt.grid(True)
     plt.show()
 
-
-af_lin = 10*np.log10(AF(-48,40,quant=False))
-af_1 = 10*np.log10(AF(-48,40,quant=True))
-# af_2 = 10*np.log10(AF(-48,40,quant=True,phase_shift=45))
+""" AF """
+af_lin = (AF(-8,40,quant=False))
+af_1 = (AF(-8,40,quant=True))
+# # af_2 = 10*np.log10(AF(-48,40,quant=True,phase_shift=45))
 plt.figure(figsize=(10, 6))
 x = range(-90,90)
 plt.plot(x, af_lin, linestyle="--", label="Linear")
@@ -347,6 +348,7 @@ plt.ylabel("AF [dB]")
 plt.grid()
 plt.show()
 
+# """Patterns occurances in codebook plotting"""
 # phase_shift_step_list = range(1,90)#[1,2,4,10,20,30,45,90,180]
 # theta_d_step_list = range(1,90)
 # pattern_amount = []
@@ -375,4 +377,4 @@ plt.show()
 #     pattern_amount_phi.append(90//theta_d_step * 360//phase_shift_step)
 
 # plot_no_unique_patterns([phi_s_stepping, theta_d_stepping], [phase_shift_step_list, theta_d_step_list], ['φ_s', "θ_d"])
-# print("AAAAAAA")
+# print("DONE")
