@@ -2,6 +2,23 @@ import ast
 import time
 import pickle
 from bitstring import BitArray
+from pathlib import Path
+
+def dump_all_codebooks_to_csv(folder_path="euclidean_codebooks"):
+    """
+    Function to dump all codebooks in pkl to csv from given folder
+    Parameters:
+    folder_path: folder path/name with pkl codebooks
+    """
+    folder = Path(folder_path)
+    print("converting pkl to csv's from: ", Path(folder_path))
+    for pkl_file in folder.glob("*.pkl"):
+        current_loaded = Codebook(dumpfile=str(pkl_file))
+        print("loaded: ", str(pkl_file))
+        csv_filename = pkl_file.with_suffix(".csv")
+        current_loaded.dump_class_to_csv(str(csv_filename))
+        print("csv saved: ", str(csv_filename))
+    return
 
 class Pattern:
     def __init__(self, idx, pattern, angles = None):
