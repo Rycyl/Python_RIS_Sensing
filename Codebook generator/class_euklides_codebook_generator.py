@@ -6,7 +6,7 @@ import random
 import numpy as np
 from bitstring import BitArray
 
-from class_codebook import Codebook, Pattern
+from class_codebook import *
 from codebook_analyze import *
 
 def pattern_hamming_distance(a, b):
@@ -649,9 +649,11 @@ if __name__=="__main__":
     sizes = range(2,17)
     N_range = range(0,10)
     metric_functions=[calculate_metric_for_codebooks_sqrt_div_by_len_div_by_len]
-
+        
     analyze_codebooks_with_metrics(
         sizes, N_range,
         metric_functions=metric_functions,
         titles=["M / (Q-1) / Q"]
     )
+
+    dump_all_codebooks_to_csv()
