@@ -144,6 +144,20 @@ class Antenna_Geometry_MDEK1001():
         self.alfa = None
         self.beta = None
 
+    def print_values(self):
+        print("A1:    ", self.loc_a1)
+        print("A2:    ", self.loc_a2)
+        print("TX:    ", self.loc_tx)
+        print("RIS:   ", self.loc_ris)
+        print("RX_tag:", self.loc_tag)
+        print("a", self.a)
+        print("b", self.b)
+        print("c", self.c)
+        print("d", self.d)
+        print("e", self.e)
+        print("f", self.f)
+        return
+
     def calc_distances(self):
         '''
         calculate distances of devices from locations
@@ -174,23 +188,14 @@ class Antenna_Geometry_MDEK1001():
             line = self.tag.read_line(save_to_file=False)
             self.loc_a1, self.loc_a2, self.loc_ris, self.loc_tx, self.loc_tag = \
                 self.tag.parse_line(line, self.a1_id, self.a2_id, self.ris_id, self.tx_id)
-
+            
             if Print_vals:
-                print("A1:    ", self.loc_a1)
-                print("A2:    ", self.loc_a2)
-                print("TX:    ", self.loc_tx)
-                print("RIS:   ", self.loc_ris)
-                print("RX_tag:", self.loc_tag)
-                print("a", self.a)
-                print("b", self.b)
-                print("c", self.c)
-                print("d", self.d)
-                print("e", self.e)
-                print("f", self.f)
+                self.print_values()
 
-            self.calc_distances()
-            self.calc_angles()
-        
+        self.calc_distances()
+        self.calc_angles()
+        if Print_vals:
+            self.print_values()
         return self.alfa, self.beta, self.a, self.b, self.c, self.d, self.e, self.f
 
 if __name__ == "__main__":

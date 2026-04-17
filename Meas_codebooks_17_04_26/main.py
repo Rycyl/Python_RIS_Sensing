@@ -34,45 +34,30 @@ if __name__ == "__main__":
     #meas_file_name = "Ref_power_no_ris"
     #code_book_file = "Codebook.csv"
     codebooks = []
-    path = os.path.dirname(os.path.realpath(__file__)) + '\euclidean_codebooks'
+    path = os.path.dirname(os.path.realpath(__file__)) + '/codebooks'
     for root, dirs, files in os.walk(path):
         for file in files:
             if file.endswith('.csv'):
                 codebooks.append(file)
     meas_file_ref = create_file('ref_strp_by_strp')
     meas_files = [create_file(file.strip('.csv')) for file in codebooks]
-
+    print(codebooks)
 
     print("Measure initated")
     #UWB_A0 = "Dummy UWB"#UWB_module()##
     print("UWB connected")
     print("Calculating geometry")
     geometry_obj = Antenna_Geometry_MDEK1001(uwb, *devices_ids)
-    while True:
-        try:
-            angle = geometry_obj.get_angles(Print_vals=True)
-            break
-        except:
-            pass
-    # while True:
-    #     try:
-    #         geometry = geometry_obj.get_angles()
-    #         break
-    #     except:
-    #         pass
+    angle = geometry_obj.get_angles(Print_vals=True)
+    print("ANGLE\n", angle)
     print("Geometry obtained")
     print("creating obj...")
-    meas_obj_ref = stripe_by_stripe(ris, analyzer, meas_file_ref, Geometry=angle)
+    meas_obj_ref = stripe_by_stripe(ris, analyzer, meas_file_ref,Get_Men_Pow= False, Geometry=angle)
     codebook_meas_objcts = []
+
     for i in range(len(meas_files)):
-        meas_obj = sing_pat_per_run(ris, analyzer, meas_files[i], codebooks[i], False, angle)
+        meas_obj = sing_pat_per_run(ris, analyzer, meas_files[i], "codebooks/"+codebooks[i], False, angle)
         codebook_meas_objcts.append(meas_obj)
-    # meas_obj_PK = sing_pat_per_run(ris, analyzer, meas_file_PK, pk_codebook, False, angle)
-    # meas_obj_eu_16 = sing_pat_per_run(ris, analyzer, meas_file_Eu_16, codebook_16, False, angle)
-    # meas_obj_eu_64 = sing_pat_per_run(ris, analyzer, meas_file_Eu_64, codebook_64, False, angle)
-    # meas_obj_eu_16_form_64 = sing_pat_per_run(ris, analyzer, meas_file_Eu_16_f_64, codebook_16_from64, False, angle)
-    # stripes_max = stripe_by_stripe(ris, analyzer, generator, geometry_obj, meas_file, False)
-    # stripes_min = stripe_by_stripe(ris, analyzer, generator, geometry_obj, meas_file, True)
     codebook_data = []
     print("All good starting in 10 seconds...")
     sleep(10)
@@ -88,12 +73,6 @@ if __name__ == "__main__":
     save_to_file(meas_file_ref, ref_data)
     for i in range(len(codebook_data)):
         save_to_file(meas_files[i], codebook_data[i])
-    # save_to_file(meas_file_PK, codebook_PK_data)
-    # save_to_file(meas_file_Eu_16, codebook_eu_16_data)
-    # save_to_file(meas_file_Eu_64, codebook_eu_64_data)
-    # save_to_file(meas_file_Eu_16_f_64, codebook_eu_16_from_64_data)
-    # save_to_file(meas_file, stripes_max_data)
-    # save_to_file(meas_file, stripes_min_data)
-    # save_to_file(meas_file, data_to_save)
+
     print("All Done :)")
     exit()

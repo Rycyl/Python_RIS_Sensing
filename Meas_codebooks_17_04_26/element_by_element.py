@@ -72,7 +72,7 @@ class sing_pat_per_run():
             Do_Measure.start()
             self.Ris.set_pattern('0x' + datum[1].hex)
             Do_Measure.join()
-            self.All_measured.append([datum[0],datum[1],self.Mes_pow, Tx_angle, Rx_angle, a, c, x, y, b, f])
+            self.All_measured.append([datum[0],datum[1],mean(self.Mes_pow), Tx_angle, Rx_angle, a, c, x, y, b, f, self.Mes_pow])
         return self.All_measured#self.save_to_file()
     
     def save_to_file(self):
@@ -266,12 +266,16 @@ class stripe_by_stripe():
         trace = self.Anal.trace_get()
         self.Whole_Trace = trace[:]
         trace = trace[224:1824:2]
-        data = trace[self.Subcar_to_Maxi[0], self.Subcar_to_Maxi[1]]
+        data = trace[self.Subcar_to_Maxi[0]:self.Subcar_to_Maxi[1]]
         lin_data = [10**(x/10) for x in data]
         self.Mes_pow = mean(lin_data)
+        #print("do_measure_whole")
+        #print(self.Mes_pow)
         return self.Mes_pow
     
     def check_if_better(self):
+        #print("check if better")
+        #print(self.Mes_pow)
         if self.Find_Min:
             if self.Mes_pow < self.Best_pow:
                 self.Best_pattern = copy(self.Current_pattern)
@@ -315,8 +319,8 @@ class stripe_by_stripe():
             mask_pattern = mask_pattern[:256]
             Do_measure.join()
             self.check_if_better()
-            c_datum_2 = self.Mes_pow if(self.Get_Men_Pow) else self.Whole_Trace
-            c_datum = [n, c_datum_0, c_datum_2, Tx_angle, Rx_angle, a, cc, x, y, b, f]
+            # c_datum_2 = self.Mes_pow if(self.Get_Men_Pow) else self.Whole_Trace
+            c_datum = [n, c_datum_0, self.Mes_pow, Tx_angle, Rx_angle, a, cc, x, y, b, f, self.Whole_Trace]
             self.All_measured.append(c_datum)
             self.Current_pattern = self.Best_pattern ^ mask_pattern
             n += 1
