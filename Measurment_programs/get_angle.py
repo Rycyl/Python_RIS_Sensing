@@ -190,7 +190,7 @@ class Antenna_Geometry_MDEK1001():
             self.calc_distances()
             self.calc_angles()
         
-        return self.alfa, self.beta, self.loc_a1, self.loc_tx, self.loc_a2, self.loc_ris, self.loc_tag
+        return self.alfa, self.beta, self.a, self.b, self.c, self.d, self.e, self.f
 
 if __name__ == "__main__":
     uwb = New_UWB_module()
