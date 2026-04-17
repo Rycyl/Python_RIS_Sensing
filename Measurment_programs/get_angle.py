@@ -170,6 +170,7 @@ class Antenna_Geometry_MDEK1001():
         function does and invoke all logic to get angles and distaces of devices
         """
         while not(self.a and self.b and self.c and self.d and self.e and self.f):
+            #!!return only one localisation in one program run!!
             line = self.tag.read_line(save_to_file=False)
             self.loc_a1, self.loc_a2, self.loc_ris, self.loc_tx, self.loc_tag = \
                 self.tag.parse_line(line, self.a1_id, self.a2_id, self.ris_id, self.tx_id)
