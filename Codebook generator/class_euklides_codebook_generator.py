@@ -588,11 +588,11 @@ def load_euclidean_codebooks(
     return cbs
 
 def analyze_codebooks_with_metrics(
-    sizes,
-    N_range,
-    metric_functions,
-    titles=[""],
-):
+        sizes,
+        N_range,
+        metric_functions,
+        titles=[""],
+        ):
     """
     loads codebooks of given sizes and Nrange
     calculate mean metric value of given metric function for each codebook size
@@ -646,14 +646,16 @@ def analyze_codebooks_with_metrics(
     return
 
 if __name__=="__main__":
-    sizes = range(2,17)
-    N_range = range(0,10)
+    sizes = [16,64]
+    N_range = range(0,1)
     metric_functions=[calculate_metric_for_codebooks_sqrt_div_by_len_div_by_len]
-        
-    analyze_codebooks_with_metrics(
-        sizes, N_range,
-        metric_functions=metric_functions,
-        titles=["M / (Q-1) / Q"]
-    )
+
+    cbs = generate_euclidean_codebooks_of_size(sizes, 1, 2048, 100000)
+    generate_euclidean_codebooks_of_size_from_codebook(cbs[1], [16], 1, 10000, 100000)
+    # analyze_codebooks_with_metrics(
+    #     sizes, N_range,
+    #     metric_functions=metric_functions,
+    #     titles=["M / (Q-1) / Q"]
+    # )
 
     dump_all_codebooks_to_csv()
