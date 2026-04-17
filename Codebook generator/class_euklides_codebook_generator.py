@@ -646,12 +646,12 @@ def analyze_codebooks_with_metrics(
     return
 
 if __name__=="__main__":
-    sizes = [16,64]
+    sizes = [8,16,32,64]
     N_range = range(0,1)
     metric_functions=[calculate_metric_for_codebooks_sqrt_div_by_len_div_by_len]
 
-    cbs = generate_euclidean_codebooks_of_size(sizes, 1, 2048, 100000)
-    generate_euclidean_codebooks_of_size_from_codebook(cbs[1], [16], 1, 10000, 100000)
+    cbs = generate_euclidean_codebooks_of_size(sizes, 1, 2048, 500000)
+    generate_euclidean_codebooks_of_size_from_codebook(cbs[-1], [8,16,32], 1, 10000, 500000)
     # analyze_codebooks_with_metrics(
     #     sizes, N_range,
     #     metric_functions=metric_functions,
