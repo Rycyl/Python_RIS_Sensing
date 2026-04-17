@@ -1,6 +1,7 @@
 import serial
 from numpy import average
 import time
+import re
 import numpy as np
 
 def save_to_file(data_array, file_name):
@@ -101,7 +102,7 @@ class New_UWB_module():
             print("Reading UWB data... (Ctrl+C to stop)")
             while len(line)<50:
                 line = self.uwb_dev.readline().decode('utf-8').strip()
-            print(line)
+                print(line)
             if save_to_file:
                 print("Line collected, saving to file")
                 save_to_file(line, dump_file)
