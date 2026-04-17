@@ -89,6 +89,7 @@ class New_UWB_module():
     def close_conn(self):
         if self.uwb_dev.is_open:
             self.uwb_dev.write(b'\r')
+            self.uwb_dev.write(b'les\r')
             self.uwb_dev.close()
             print("Connection to UWB closed")
 
@@ -96,13 +97,12 @@ class New_UWB_module():
             self.close_conn()
 
     def read_line(self, save_to_file = False, dump_file = 'UWB_dump.txt'):
-        max_no_of_lines = 1
         try:
             line = [] 
             print("Reading UWB data... (Ctrl+C to stop)")
             while len(line)<70:
                 line = self.uwb_dev.readline().decode('utf-8').strip()
-                print(line)
+            print(line)
             if save_to_file:
                 print("Line collected, saving to file")
                 save_to_file(line, dump_file)

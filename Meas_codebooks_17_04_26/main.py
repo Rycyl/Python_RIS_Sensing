@@ -39,8 +39,7 @@ if __name__ == "__main__":
         for file in files:
             if file.endswith('.csv'):
                 codebooks.append(file)
-    meas_file_ref = create_file('ref_strp_by_strp')
-    meas_files = [create_file(file.strip('.csv')) for file in codebooks]
+    
     print(codebooks)
 
     print("Measure initated")
@@ -51,6 +50,9 @@ if __name__ == "__main__":
     angle = geometry_obj.get_angles(Print_vals=True)
     print("ANGLE\n", angle)
     print("Geometry obtained")
+    meas_file_ref = create_file('ref_strp_by_strp')
+    meas_files = [create_file(file.strip('.csv')) for file in codebooks]
+    
     print("creating obj...")
     meas_obj_ref = stripe_by_stripe(ris, analyzer, meas_file_ref,Get_Men_Pow= False, Geometry=angle)
     codebook_meas_objcts = []
