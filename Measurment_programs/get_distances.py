@@ -77,6 +77,9 @@ class New_UWB_module():
             self.uwb_dev = serial.Serial(port, b_rate, timeout=timeout)
             self.uwb_dev.reset_input_buffer()
             self.uwb_dev.reset_output_buffer()
+            self.uwb_dev.write(b'\r\r')
+            time.sleep(1)
+            self.uwb_dev.write(b'les\r')
         except Exception as e:
             print("!!!!!!Not working properly, see error:")
             print(f"Error:: {e}")
@@ -91,19 +94,16 @@ class New_UWB_module():
     def __exit__(self):
             self.close_conn()
 
-    def read_line(self, save = False, dump_file = 'UWB_dump.txt'):
-        line = []
+    def read_line(self, save_to_file = False, dump_file = 'UWB_dump.txt'):
         max_no_of_lines = 1
-        try: 
-            self.uwb_dev.write(b'\r\r')
-            time.sleep(1)
-            self.uwb_dev.write(b'les\r')
-
+        try:
+            line = [] 
             print("Reading UWB data... (Ctrl+C to stop)")
-
-            line = self.uwb_dev.readline().decode('utf-8').strip()
+            while len(line)<50:
+                line = self.uwb_dev.readline().decode('utf-8').strip()
+            print(line)
             if save_to_file:
-                print("\nLine collected, saving to file")
+                print("Line collected, saving to file")
                 save_to_file(line, dump_file)
             return line
         except serial.SerialException as e:
@@ -118,7 +118,7 @@ class New_UWB_module():
         Returns:
         tag_loc, *devices_locs (order of device ids)
         """
-
+        print("Parsing line....")
         coords = {}
 
         pattern = re.compile(r'([0-9A-F]{4})\[(.*?)\]')
