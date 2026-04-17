@@ -1,6 +1,7 @@
 import serial
 from numpy import average
 import time
+import re
 import numpy as np
 
 def save_to_file(data_array, file_name):
