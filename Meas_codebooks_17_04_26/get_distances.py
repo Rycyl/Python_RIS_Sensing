@@ -100,7 +100,7 @@ class New_UWB_module():
         try:
             line = [] 
             print("Reading UWB data... (Ctrl+C to stop)")
-            while len(line)<50:
+            while len(line)<70:
                 line = self.uwb_dev.readline().decode('utf-8').strip()
                 print(line)
             if save_to_file:
