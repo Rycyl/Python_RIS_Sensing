@@ -46,7 +46,7 @@ class Result:
                 f"c_values={self.c_values}, d_values={self.d_values}, e_values={self.e_values}, f_values={self.f_values})")
 
 class Results:
-    def __init__(self, dumpfile="results.pkl", resultfilename="euklides_codebook_"):
+    def __init__(self, dumpfile="results.pkl", resultfilename=""):
         self.results = []
         self.maxs = []
         self.mins = []
@@ -92,7 +92,7 @@ class Results:
             
         # Now perform the sorting
         sorted_indices = np.argsort(self.results[0].Rx_Angle)
-        
+
         for i in range(len(self.results)):
             self.results[i].Rx_Angle = self.results[i].Rx_Angle[sorted_indices]
             self.results[i].Tx_Angle = self.results[i].Tx_Angle[sorted_indices]
@@ -177,7 +177,7 @@ class Results:
             directory_path = os.path.dirname(os.path.abspath(__file__))
             for filename in os.listdir(directory_path):
                 # Sprawdzenie, czy nazwa pliku zaczyna się od "Big_codebook"
-                print("checking file:",filename)
+                #print("checking file:",filename)
                 if filename.startswith(resultfilename) and filename.endswith(".csv"):
                     # Pełna ścieżka do pliku
                     file_path = os.path.join(directory_path, filename)
