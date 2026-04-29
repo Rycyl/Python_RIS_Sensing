@@ -18,7 +18,7 @@ class Result:
         self.d_values = []  # List to store values of d
         self.e_values = []  # List to store values of e
         self.f_values = []  # List to store values of f
-        self.trace = []
+        self.trace = []     # List to store whole trace from measurement
 
     def __repr__(self):
         return(f"angle_RX {self.Rx_Angle}")
@@ -26,8 +26,8 @@ class Result:
     def add_measure(self, power, tx_angle, rx_angle, a,b,c,d,e,f,trace,garbage=None):
         #garbage is usually an empty element on list - artifact of loading .csv with "";"" at the line end
         self.powers.append(float(power))  # Add power measurement
-        self.Rx_Angle.append(float(tx_angle))  # Add transmission angle
-        self.Tx_Angle.append(float(rx_angle))  # Add reception angle
+        self.Rx_Angle.append(90-float(rx_angle))  # Add transmission angle
+        self.Tx_Angle.append(float(tx_angle))  # Add reception angle
         self.a_values.append(float(a))  # Add value of a
         self.b_values.append(float(b))  # Add value of b
         self.c_values.append(float(c))  # Add value of c

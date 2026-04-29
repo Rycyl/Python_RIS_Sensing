@@ -2,24 +2,49 @@
 from class_measures_result import Results
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 import os
 import math
 from class_codebook import *
 import copy
 
-def power_in_position(dumpfile):
+#TODO: @TJ
+#TODO: dumpfile zamien na results obj
+#TODO: napisz filt results po podanym codebook obj
+#TODO: wykres z teamsow: X codebook size, Y moc <- (uśrednij) <- Z-ite podnośne - max val
+
+#TODO: @CP
+#TODO: def do obcinania traceów do potrzebnych podnośnych
+#TODO: ref mes to dBm
+#TODO: ref - paste with high ID (1000+) to 64 codebook
+
+#TODO: overall
+#TODO: wykresy (power in position /and merged): shape rysować: min, median, max
+"""
+sns.lineplot(           err_style="band", errorbar=errorbar_function)
+
+sns.lineplot(errorbar=errorbar_function, estimator=estimator_function)
+patrz: pat_choose_functions.py
+"""
+def plot_power_in_position(
+        dumpfile, 
+        title=None,
+        ylabel = 'Power [dBm]',
+        xlabel = 'Index of pattern in codebook',
+        grid = True,
+        y_lim = (-100, -85),
+        savefig = True,
+        showfig = False,
+        label = ""
+        ):
     results = Results(dumpfile=dumpfile)
-
     powers   = []
-
-
 
     for result in results.results:
         powers.append(result.powers)
     #change axises
     powers_np_array = np.array(powers)
     data = powers_np_array.T 
-
     # Uzyskaj nazwę folderu, w którym znajduje się skrypt
     folder_name = os.path.dirname(os.path.abspath(__file__))
     plots_folder = os.path.join(folder_name, 'power_in_position')
@@ -31,10 +56,13 @@ def power_in_position(dumpfile):
     for i in range(data.shape[0]):
         plt.figure()  # Utwórz nową figurę dla każdego wykresu
         plt.plot(data[i], label=f'Wiersz {i+1}')
-        plt.title(f'Tx {int(results.results[0].Tx_Angle[i])}, Rx {int(results.results[0].Rx_Angle[i])}')
-        plt.xlabel('N-ty_pattern')
-        plt.ylabel('Moc [dBm]')
-        plt.ylim(-85, -50)  # Ustawienie stałego zakresu osi Y
+        if title == None:
+            plt.title(f'Tx {int(results.results[0].Tx_Angle[i])}, Rx {int(results.results[0].Rx_Angle[i])}')
+        else:
+            plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.ylim(-100, -85)  # Ustawienie stałego zakresu osi Y
         plt.grid(True)  # Włączenie linii pomocniczych
         plt.legend()
         
@@ -45,7 +73,6 @@ def power_in_position(dumpfile):
 def plot_pow_in_pos_teams(dumpfile):
     results = Results(dumpfile=dumpfile)
 
-
     def dbm_to_mw(x):
         mW=10**(x/10)
         return mW
@@ -54,6 +81,10 @@ def plot_pow_in_pos_teams(dumpfile):
         return dbm
 
     powers   = []
+    for result in results.results:
+        powers.append(result.powers)
+    
+    """
     #wez wartości z metody opt kolumnami i wylicz które to min/max
     ma1 = (results.maxs[-3].powers)
     ma2 = (results.maxs[-2].powers)
@@ -73,15 +104,10 @@ def plot_pow_in_pos_teams(dumpfile):
             mins.append(mi1[i])
         else:
             mins.append(mi2[i])
-    #############################
-    #codebook zeby wybrac tylko patterny z niego
-    codebook_tx48=Codebook(dumpfile='Codebook_tx48.pkl')
-    for result in results.results:
-        for pat in codebook_tx48.patterns:
-                if pat.pattern == result.pattern:
-                    pow = result.powers
-                    powers.append(pow)
+    ############################
+
     print(maxs, mins)
+    """
     #change axis
     powers_np_array = np.array(powers)
     data = powers_np_array.T #transpose
@@ -94,8 +120,9 @@ def plot_pow_in_pos_teams(dumpfile):
     os.makedirs(plots_folder, exist_ok=True)
     FONTSIZE=16
     # Rysowanie każdego wiersza na osobnym wykresie i zapisywanie do plików
+    print(data.shape)
     for i in range(data.shape[0]):
-        
+        print(i)
         dat = np.sort((data[i]))
         wat_dat = []
         for x in dat:
@@ -106,13 +133,14 @@ def plot_pow_in_pos_teams(dumpfile):
         plt.rcParams['font.size'] = FONTSIZE
         plt.rcParams['lines.linewidth']= 3
         plt.plot(dat, color='royalblue', label=f'Full codebook entries')
-        plt.axhline(y=maxs[i], color='orangered', linestyle='--', label='SC max')
+        #plt.axhline(y=maxs[i], color='orangered', linestyle='--', label='SC max')
         plt.axhline(y=avg, color='cyan', linestyle='--', label='Linear average')
-        plt.axhline(y=mins[i], color='violet', linestyle='--', label='SC min')
+        #plt.axhline(y=mins[i], color='violet', linestyle='--', label='SC min')
         #plt.title(f'Rx at {int(results.results[0].Rx_Angle[i])}°')
         plt.xlabel('N\'th sorted pattern in recieved power')
         plt.ylabel('Recieved power [dBm]')
-        plt.ylim((min(mins)//5)*5, ((max(maxs)//5)+2)*5)  # Ustawienie stałego zakresu osi Y
+        #plt.ylim((np.min(data)//5)*5, ((np.max(data.all())//5))*5)  # Ustawienie stałego zakresu osi Y
+        plt.ylim(-100, -85)
         plt.grid(True)  # Włączenie linii pomocniczych
         plt.margins()
         plt.legend(loc='lower right',  markerscale=4)
@@ -125,10 +153,7 @@ def plot_pow_in_pos_teams(dumpfile):
 
 def plot_pow_in_pos_merge(dumpfile):
     results = Results(dumpfile=dumpfile)
-
     powers   = []
-
-
 
     for result in results.results:
         powers.append(result.powers)
@@ -194,7 +219,7 @@ def plot_pattern_characteristics(dumpfile):
         plt.ylabel('Power')
         
         # Set y-axis limits
-        plt.ylim(-85, -50)
+        plt.ylim(-100, -85)
         
         # Add a legend
         plt.legend()
@@ -226,19 +251,28 @@ def plot_hamming(dumpfile):
     powers   = []
     patterns = []
 
-    max_pat = results.maxs[-2].pattern
-    min_pat = results.mins[-2].pattern
-
+    # max_pat = results.maxs[-2].pattern
+    # min_pat = results.mins[-2].pattern
     for result in results.results:
-        if result.idx < 1000:
-            patterns.append(result.pattern)
-            pow = result.powers
-            powers.append(pow)
-    print(len(patterns))
+        powers.append(result.powers)
+        patterns.append(result.pattern)
     #change axis
     powers_np_array = np.array(powers)
     data = powers_np_array.T #transpose
 
+    #weź najlepsze i najgorsze patterny
+    max_pat_idxs = np.argmax(powers_np_array, axis=0)
+    min_pat_idxs = np.argmin(powers_np_array, axis=0)
+    #print(min_pat, max_pat)
+    max_pats = []
+    min_pats = []
+    for k in max_pat_idxs:
+        max_pats.append(results.results[k].pattern)
+    for k in min_pat_idxs:
+        min_pats.append(results.results[k].pattern)
+    # max_pat = results.results[max_pat]
+    # min_pat = results.results[min_pat]
+    # print(max_pat)
     # Uzyskaj nazwę folderu, w którym znajduje się skrypt
     folder_name = os.path.dirname(os.path.abspath(__file__))
     plots_folder = os.path.join(folder_name, 'hamming')
@@ -254,15 +288,20 @@ def plot_hamming(dumpfile):
         pats = [pats[j] for j in sorted_indices]
         hamming_distances = []
         for x in pats:
-            hamming_distances.append(hamming_distance(x, max_pat[i])/16)
+            hamming_distances.append(hamming_distance(x, max_pats[i])/16)
         plt.figure()  # Utwórz nową figurę dla każdego wykresu
         plt.rcParams['font.size'] = FONTSIZE
         plt.plot(hamming_distances, label=f'Wiersz {i+1}')
         
         # plt.title(f'Tx {int(results.results[0].Tx_Angle[i])}, Rx {int(results.results[0].Rx_Angle[i])}')
         plt.xlabel('N\'th sorted pattern in recieved power')
-        plt.ylabel('Hamming distance to opt best')
+        plt.ylabel('Hamming distance to best')
         plt.ylim(0, 16)  # Ustawienie stałego zakresu osi Y
+
+        ax = plt.gca()                       # pobierz aktualne osie
+        ax.xaxis.set_major_locator(MultipleLocator(4))   # tick co 4 jednostki
+        ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))  # bez przecinków (całe liczby)
+
         plt.grid(True)  # Włączenie linii pomocniczych
         #plt.legend()
         plt.subplots_adjust(left=0.16, right=0.9, top=0.95, bottom=0.16, wspace=0.2, hspace=0.2)

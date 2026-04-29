@@ -50,7 +50,7 @@ def process_prefix(prefix: str) -> None:
     print("plotting pat char::")
     plot_pattern_characteristics(dumpfile)
     print("plotting hamming::")
-    plot_hamming(dumpfile)
+    #plot_hamming(dumpfile)
 
     print(f"[DONE] Zakończono przetwarzanie: {prefix}\n")
 
@@ -70,10 +70,10 @@ def main() -> None:
     print()
 
     for prefix in prefixes:
-        try:
+        #try:
             process_prefix(prefix)
-        except Exception as exc:
-            print(f"[ERROR] Prefix '{prefix}' nie został przetworzony: {exc}\n")
+        #except Exception as exc:
+        #    print(f"[ERROR] Prefix '{prefix}' nie został przetworzony: {exc}\n")
 
 
 if __name__ == "__main__":
