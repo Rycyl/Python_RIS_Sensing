@@ -41,16 +41,17 @@ def process_prefix(prefix: str) -> None:
     
     results_instance.dump_class_to_file(dumpfile)
     print(f"[OK] Zapisano dump: {dumpfile}")
+    
     print("plotting pow in pos::")
-    #plot_power_in_position(dumpfile)
+    plot_power_in_position(results_instance)
     print("plotting pow in pos teams::")
-    #plot_pow_in_pos_teams(dumpfile)
+    plot_pow_in_pos_teams(results_instance)
     print("plotting pow in pos merge::")
-    #plot_pow_in_pos_merge(dumpfile)
+    plot_pow_in_pos_merge(results_instance)
     print("plotting pat char::")
-    plot_pattern_characteristics(dumpfile)
+    plot_pattern_characteristics(results_instance)
     print("plotting hamming::")
-    #plot_hamming(dumpfile)
+    plot_hamming(results_instance)
 
     print(f"[DONE] Zakończono przetwarzanie: {prefix}\n")
 

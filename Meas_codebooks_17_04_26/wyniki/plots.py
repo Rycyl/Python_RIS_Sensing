@@ -27,7 +27,7 @@ sns.lineplot(errorbar=errorbar_function, estimator=estimator_function)
 patrz: pat_choose_functions.py
 """
 def plot_power_in_position(
-        dumpfile, 
+        results, 
         title=None,
         ylabel = 'Power [dBm]',
         xlabel = 'Index of pattern in codebook',
@@ -37,7 +37,7 @@ def plot_power_in_position(
         showfig = False,
         label = ""
         ):
-    results = Results(dumpfile=dumpfile)
+    #results = Results(dumpfile=dumpfile)
     powers   = []
 
     for result in results.results:
@@ -70,8 +70,8 @@ def plot_power_in_position(
         plt.savefig(os.path.join(plots_folder, f'{dumpfile}_wykres_wiersz_{i+1}.png'))
         plt.close()  # Zamknij figurę, aby nie pokazywać podglądu
 
-def plot_pow_in_pos_teams(dumpfile):
-    results = Results(dumpfile=dumpfile)
+def plot_pow_in_pos_teams(results):
+    #results = Results(dumpfile=dumpfile)
 
     def dbm_to_mw(x):
         mW=10**(x/10)
@@ -151,8 +151,8 @@ def plot_pow_in_pos_teams(dumpfile):
         plt.savefig(os.path.join(plots_folder, f'{dumpfile}_wykres_{i+1}_pow_sort_rx_{int(results.results[0].Rx_Angle[i])}.{save_format}'), format=save_format)
         plt.close()  # Zamknij figurę, aby nie pokazywać podglądu
 
-def plot_pow_in_pos_merge(dumpfile):
-    results = Results(dumpfile=dumpfile)
+def plot_pow_in_pos_merge(results):
+    #results = Results(dumpfile=dumpfile)
     powers   = []
 
     for result in results.results:
@@ -246,8 +246,8 @@ def mw_to_dbm(x):
     return dbm
 
 
-def plot_hamming(dumpfile):
-    results = Results(dumpfile=dumpfile)
+def plot_hamming(results):
+    #results = Results(dumpfile=dumpfile)
     powers   = []
     patterns = []
 
