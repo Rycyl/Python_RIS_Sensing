@@ -9,8 +9,6 @@ from class_codebook import *
 import copy
 
 #TODO: @TJ
-#TODO: dumpfile zamien na results obj
-#TODO: napisz filt results po podanym codebook obj
 #TODO: wykres z teamsow: X codebook size, Y moc <- (uśrednij) <- Z-ite podnośne - max val
 
 #TODO: @CP

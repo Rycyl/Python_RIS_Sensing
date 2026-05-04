@@ -46,11 +46,12 @@ class Result:
                 f"c_values={self.c_values}, d_values={self.d_values}, e_values={self.e_values}, f_values={self.f_values})")
 
 class Results:
-    def __init__(self, dumpfile="results.pkl", resultfilename=""):
+    def __init__(self, dumpfile="results.pkl", resultfilename="", load_results=True):
         self.results = []
         self.maxs = []
         self.mins = []
-        self.load_results(dumpfile, resultfilename)
+        if load_results:
+            self.load_results(dumpfile, resultfilename)
 
     def sort_by_RX(self):
         # Ensure that all relevant attributes are NumPy arrays
