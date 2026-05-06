@@ -3,7 +3,7 @@ from class_measures_result import Results
 
 import copy
 
-def select_results_for_codebook(result, codebook):
+def select_results_for_codebook(results, codebook):
     new_results = Results(load_results=False)
 
     for pat in codebook.patterns: #loop throught all patterns
