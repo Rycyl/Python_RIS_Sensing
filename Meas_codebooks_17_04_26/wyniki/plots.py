@@ -7,6 +7,8 @@ import os
 import math
 from class_codebook import *
 import copy
+from pathlib import Path
+from results_for_codebook import select_results_for_codebook
 
 #TODO: @TJ
 #TODO: wykres z teamsow: X codebook size, Y moc <- (uśrednij) <- Z-ite podnośne - max val
@@ -24,6 +26,20 @@ sns.lineplot(           err_style="band", errorbar=errorbar_function)
 sns.lineplot(errorbar=errorbar_function, estimator=estimator_function)
 patrz: pat_choose_functions.py
 """
+
+def plot_mean_max_trace(result, codebooks):
+    cb_results = []
+    x = []
+    y = []
+
+    for i in codebooks:
+        cb_results.append(select_results_for_codebook(results=result,codebook=i))
+        x.append(len(i.patterns))    
+
+    #TODO write Y-axis method: for po podnośnych w trace: Y = mean(Pi = max(cb_size, P_ita_podnośna), Pi has size of codebook)
+
+    pass
+
 def plot_power_in_position(
         results, 
         title=None,
@@ -307,3 +323,19 @@ def plot_hamming(results):
         save_format='svg'
         plt.savefig(os.path.join(plots_folder, f'{dumpfile}_plot{i+1}_hamming_rx_{int(results.results[0].Rx_Angle[i])}.{save_format}'))
         plt.close()  # Zamknij figurę, aby nie pokazywać podglądu        
+
+if __name__=="__main__":
+    dumpfile = "euklides_codebook_64_0_17_Apr_2026_.pkl"
+    results = Results(load_results=False)
+    results.load_picle_results(dumpfile=dumpfile)
+
+    codebooks_names = ["euklides_codebook_8_from_64_0.csv", "euklides_codebook_16_from_64_0.csv", "euklides_codebook_32_from_64_0.csv"]
+    cbs = []
+    for name in codebooks_names:
+        pwd = Path.cwd()                       # bieżący katalog
+        path = pwd / "codebooks" / name     # dołącz folder i plik
+        cb = Codebook(load=False)
+        print(path, str(path)[0:-4])
+        cbs.append(cb.load_csv_codebook(path, str(path)[0:-4]+".pkl", dump=False, ret=True))
+
+    plot_mean_max_trace(result=results, codebooks=cbs)
