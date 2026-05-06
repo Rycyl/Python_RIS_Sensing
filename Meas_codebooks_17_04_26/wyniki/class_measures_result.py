@@ -167,84 +167,90 @@ class Results:
     def load_results(self, dumpfile, resultfilename):
         print("results loading....")
         try:
-            print("picle try")
-            with open(dumpfile, 'rb') as file:
-                loaded_object = pickle.load(file)
-            self.results = loaded_object.results
-            self.maxs=loaded_object.maxs
-            self.mins=loaded_object.mins
-            print("Results loaded")
+            load_picle_results(dumpfile)
         except:
-            directory_path = os.path.dirname(os.path.abspath(__file__))
-            for filename in os.listdir(directory_path):
-                # Sprawdzenie, czy nazwa pliku zaczyna się od "Big_codebook"
-                #print("checking file:",filename)
-                if filename.startswith(resultfilename) and filename.endswith(".csv"):
-                    # Pełna ścieżka do pliku
-                    file_path = os.path.join(directory_path, filename)
-                    # Otwórz wyniki
-                    print("Reading: ",file_path)
-                    #angles_distances = self.calc_angle_distances(file_path)
-                    #print(angles_distances)
-                    with open(file_path, 'r', encoding='utf-8') as file:
-                        # Wczytaj wszystkie linie z pliku
-                        lines = file.readlines()
-                    # Przetwórz każdą linię, dzieląc dane na podstawie znaku ';'
-                    data = [line.strip().split(';') for line in lines]
-                    #print(data)
-                    for line in lines:
-                        #make a list from file data
-                        data = line.strip().split(';')
-                        if data[0] == "N":
-                            continue     
-                        #split for idx and pat | the rest                   
-                        core_data = [data[0], data[1]]
-                        rest_data = data[2:]
-                        #check if pattern exist in results   
-                        result_founded_in_results = False
-                        if int(data[0]) < 1000:                     
-                            for i in range(len(self.results)):
-                                if self.results[i].idx == int(data[0]):
-                                    #only add measure
-                                    self.results[i].add_measure(*rest_data)
-                                    result_founded_in_results = True
-                                    break
-                            if not (result_founded_in_results):    
-                                #create new Result()
-                                result = Result(*core_data)
-                                result.add_measure(*rest_data)
-                                self.add_result(result=result)
-                        elif int(data[0]) >= 1000 and int(data[0]) < 2000:
-                            for i in range(len(self.maxs)):
-                                if self.maxs[i].idx == int(data[0]):
-                                    #only add measure
-                                    self.maxs[i].add_measure(*rest_data)
-                                    self.maxs[i].add_pattern_to_idx(core_data[1])
-                                    result_founded_in_results = True
-                                    break
-                            if not (result_founded_in_results):    
-                                #create new Result()
-                                result = Result(*core_data)
-                                result.add_measure(*rest_data)
-                                self.maxs.append(result)
-                        else:
-                            for i in range(len(self.mins)):
-                                if self.mins[i].idx == int(data[0]):
-                                    #only add measure
-                                    self.mins[i].add_measure(*rest_data)
-                                    self.mins[i].add_pattern_to_idx(core_data[1])
-                                    result_founded_in_results = True
-                                    break
-                            if not (result_founded_in_results):    
-                                #create new Result()
-                                result = Result(*core_data)
-                                result.add_measure(*rest_data)
-                                self.mins.append(result)
-                            
-            self.sort_by_RX()                    
-            print("results loaded")
-            self.dump_class_to_file(dumpfile)
-            print("results dumped to file")
+            load_csv_results(resultfilename)
+        self.sort_by_RX()                    
+        print("results loaded")
+        self.dump_class_to_file(dumpfile)
+        print("results dumped to file")
+
+    def load_picle_results(self, dumpfile):
+        print("picle try")
+        with open(dumpfile, 'rb') as file:
+            loaded_object = pickle.load(file)
+        self.results = loaded_object.results
+        self.maxs=loaded_object.maxs
+        self.mins=loaded_object.mins
+        print("Results loaded")
+    
+    def load_csv_results(self, resultfilename):
+        print("pickle failed")
+        directory_path = os.path.dirname(os.path.abspath(__file__))
+        for filename in os.listdir(directory_path):
+            # Sprawdzenie, czy nazwa pliku zaczyna się od "Big_codebook"
+            #print("checking file:",filename)
+            if filename.startswith(resultfilename) and filename.endswith(".csv"):
+                # Pełna ścieżka do pliku
+                file_path = os.path.join(directory_path, filename)
+                # Otwórz wyniki
+                print("Reading: ",file_path)
+                #angles_distances = self.calc_angle_distances(file_path)
+                #print(angles_distances)
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    # Wczytaj wszystkie linie z pliku
+                    lines = file.readlines()
+                # Przetwórz każdą linię, dzieląc dane na podstawie znaku ';'
+                data = [line.strip().split(';') for line in lines]
+                #print(data)
+                for line in lines:
+                    #make a list from file data
+                    data = line.strip().split(';')
+                    if data[0] == "N":
+                        continue     
+                    #split for idx and pat | the rest                   
+                    core_data = [data[0], data[1]]
+                    rest_data = data[2:]
+                    #check if pattern exist in results   
+                    result_founded_in_results = False
+                    if int(data[0]) < 1000:                     
+                        for i in range(len(self.results)):
+                            if self.results[i].idx == int(data[0]):
+                                #only add measure
+                                self.results[i].add_measure(*rest_data)
+                                result_founded_in_results = True
+                                break
+                        if not (result_founded_in_results):    
+                            #create new Result()
+                            result = Result(*core_data)
+                            result.add_measure(*rest_data)
+                            self.add_result(result=result)
+                    elif int(data[0]) >= 1000 and int(data[0]) < 2000:
+                        for i in range(len(self.maxs)):
+                            if self.maxs[i].idx == int(data[0]):
+                                #only add measure
+                                self.maxs[i].add_measure(*rest_data)
+                                self.maxs[i].add_pattern_to_idx(core_data[1])
+                                result_founded_in_results = True
+                                break
+                        if not (result_founded_in_results):    
+                            #create new Result()
+                            result = Result(*core_data)
+                            result.add_measure(*rest_data)
+                            self.maxs.append(result)
+                    else:
+                        for i in range(len(self.mins)):
+                            if self.mins[i].idx == int(data[0]):
+                                #only add measure
+                                self.mins[i].add_measure(*rest_data)
+                                self.mins[i].add_pattern_to_idx(core_data[1])
+                                result_founded_in_results = True
+                                break
+                        if not (result_founded_in_results):    
+                            #create new Result()
+                            result = Result(*core_data)
+                            result.add_measure(*rest_data)
+                            self.mins.append(result)
         return
 
 if __name__=="__main__":       
