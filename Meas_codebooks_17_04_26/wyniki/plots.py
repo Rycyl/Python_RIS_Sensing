@@ -10,6 +10,14 @@ import copy
 from pathlib import Path
 from results_for_codebook import select_results_for_codebook
 
+def dbm_to_mw(x):
+    mW=10**(x/10)
+    return mW
+
+def mw_to_dbm(x):
+    dbm=10*np.log10(x)
+    return dbm
+
 #TODO: @TJ
 #TODO: wykres z teamsow: X codebook size, Y moc <- (uśrednij) <- Z-ite podnośne - max val
 
@@ -29,26 +37,20 @@ sns.lineplot(errorbar=errorbar_function, estimator=estimator_function)
 patrz: pat_choose_functions.py
 """
 
-def plot_mean_max_trace(result, codebooks):
-    def max_carrier(cb_size, trace):
-        pass
-    
+def plot_mean_max_trace(results, codebooks):    
     cbs_results = []
-    x = []
-    
-    
-    
+    x = [] 
+    Rx_pos_number = len(cbs_results[-1].results[-1].Rx_Angle)
     for i in codebooks:
-        cbs_results.append(select_results_for_codebook(results=result,codebook=i))
+        cbs_results.append(select_results_for_codebook(results=results,codebook=i))
         #cbs_results[-1].convert_trace_to_float_array()
         x.append(len(i.patterns))    
 
-    
     #TODO write Y-axis method: for po podnośnych w trace: Y = mean(Pi = max(cb_size, P_ita_podnośna), Pi has size of codebook)
-    y = [[] for _ in range(len(cbs_results[-1].results[-1].Rx_Angle))]
+    y = [[] for _ in range(Rx_pos_number)]
     for i, cb_results, in enumerate(cbs_results):
         
-        z = [[] for _ in range(len(cbs_results[-1].results[-1].Rx_Angle))]
+        z = [[] for _ in range(Rx_pos_number)]
         #Z is a list of: 
         # [
         #         [ rx1, rx2,rx.....
@@ -61,20 +63,66 @@ def plot_mean_max_trace(result, codebooks):
         for j, angle in enumerate(z):
             actual_z = []
             for pat_trace in angle:
-                actual_z.append(np.max(pat_trace))
-            #TODO uśrednianie wartości liniowej, potem do dBm powrót
-            y[j].append(np.mean(actual_z))
+                #actual_z.append(np.max(pat_trace))
+                actual_z.append(max(pat_trace))
+            #uśrednianie do wartości liniowej, potem do dBm powrót
+            y[j].append(mw_to_dbm(np.mean(dbm_to_mw(np.array(actual_z)))))
     
-    for yy in y:
+    # wykresy
+    for j, yy in enumerate(y):
         plt.figure()
         plt.plot(x, yy)
+        plt.xlabel("Codebook size")
+        plt.ylabel("Mean max power [dBm]")
+        plt.title(f"Angle index {j}")
+        plt.grid()
         plt.show()
-        #y.append(max(z))
-        #Here plot make from z[] :)
-        # 
-        #     
-    pass
-    
+
+
+# def plot_mean_max_trace(results, codebooks): #GPT VERSIOM
+
+#     cbs_results = []
+#     x = []
+
+#     for cb in codebooks:
+#         cb_res = select_results_for_codebook(results=results, codebook=cb)
+#         cbs_results.append(cb_res)
+#         x.append(len(cb.patterns))
+#     #to get Rx pos number:
+#     num_angles = len(cbs_results[0].results[0].Rx_Angle)
+#     y = [[] for _ in range(num_angles)]
+
+#     for cb_results in cbs_results:
+
+#         z = [[] for _ in range(num_angles)]
+
+#         # collect trace per angle
+#         for result in cb_results.results:
+#             for alpha, trace in enumerate(result.trace):
+#                 z[alpha].append(trace)
+
+#         # count actual Y
+#         for j in range(num_angles):
+#             max_vals = []
+
+#             for pat_trace in z[j]:
+#                 max_vals.append(np.max(pat_trace))  # max po podnośnych
+
+#             # średnia w mW → dBm
+#             max_vals = np.array(max_vals)
+#             y[j].append(
+#                 mw_to_dbm(np.mean(dbm_to_mw(max_vals)))
+#             )
+
+#     # wykresy
+#     for j, yy in enumerate(y):
+#         plt.figure()
+#         plt.plot(x, yy)
+#         plt.xlabel("Codebook size")
+#         plt.ylabel("Mean max power [dBm]")
+#         plt.title(f"Angle index {j}")
+#         plt.grid()
+#         plt.show()
 
 def plot_power_in_position(
         results, 
@@ -365,7 +413,7 @@ if __name__=="__main__":
     results = Results(load_results=False)
     results.load_picle_results(dumpfile=dumpfile)
 
-    codebooks_names = ["euklides_codebook_8_from_64_0.csv", "euklides_codebook_16_from_64_0.csv", "euklides_codebook_32_from_64_0.csv"]
+    codebooks_names = ["euklides_codebook_8_from_64_0.csv", "euklides_codebook_16_from_64_0.csv", "euklides_codebook_32_from_64_0.csv", "euklides_codebook_64_0.csv"]
     cbs = []
     for name in codebooks_names:
         pwd = Path.cwd()                       # bieżący katalog
@@ -374,4 +422,4 @@ if __name__=="__main__":
         print(path, str(path)[0:-4])
         cbs.append(cb.load_csv_codebook(path, str(path)[0:-4]+".pkl", dump=False, ret=True))
 
-    plot_mean_max_trace(result=results, codebooks=cbs)
+    plot_mean_max_trace(results=results, codebooks=cbs)
