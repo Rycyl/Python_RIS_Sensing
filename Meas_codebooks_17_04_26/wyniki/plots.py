@@ -13,6 +13,8 @@ import copy
 
 #TODO: @CP
 #TODO: def do obcinania traceów do potrzebnych podnośnych
+def truncade_trace(trace: list):
+    return trace[224:1824:2]
 #TODO: ref mes to dBm
 #TODO: ref - paste with high ID (1000+) to 64 codebook
 
