@@ -7,8 +7,8 @@ from class_measures_result import Results
 from plots import *
 
 
-CSV_WITH_TRAILING_NUMBER_RE = re.compile(r"^(?P<prefix>.+?)(?P<number>\d+)\.csv$")
-
+#CSV_WITH_TRAILING_NUMBER_RE = re.compile(r"^(?P<prefix>.+?)(?P<number>\d+)\.csv$")
+CSV_WITH_TRAILING_NUMBER_RE = re.compile(r"^(?P<prefix>.+?)_(?P<number>\d+)(?:_(?:plus_ref|ref|other))?\.csv$")
 
 def find_unique_prefixes(directory: Path) -> list[str]:
     """Zwraca unikalne początki nazw plików CSV, tj. nazwę bez końcowego {liczba}.csv."""
@@ -39,19 +39,19 @@ def process_prefix(prefix: str) -> None:
     dumpfile = f"{prefix}.pkl"
     results_instance = Results(dumpfile=dumpfile, resultfilename=prefix)
     
-    results_instance.dump_class_to_file(dumpfile)
-    print(f"[OK] Zapisano dump: {dumpfile}")
-    
-    print("plotting pow in pos::")
-    plot_power_in_position(results_instance)
-    print("plotting pow in pos teams::")
-    plot_pow_in_pos_teams(results_instance)
-    print("plotting pow in pos merge::")
-    plot_pow_in_pos_merge(results_instance)
-    print("plotting pat char::")
-    plot_pattern_characteristics(results_instance)
-    print("plotting hamming::")
-    plot_hamming(results_instance)
+    # results_instance.dump_class_to_file(dumpfile)
+    # print(f"[OK] Zapisano dump: {dumpfile}")
+
+    # print("plotting pow in pos::")
+    # plot_power_in_position(results_instance)
+    # print("plotting pow in pos teams::")
+    # plot_pow_in_pos_teams(results_instance)
+    # print("plotting pow in pos merge::")
+    # plot_pow_in_pos_merge(results_instance)
+    # print("plotting pat char::")
+    # plot_pattern_characteristics(results_instance)
+    # print("plotting hamming::")
+    # plot_hamming(results_instance)
 
     print(f"[DONE] Zakończono przetwarzanie: {prefix}\n")
 

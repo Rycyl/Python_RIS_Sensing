@@ -30,17 +30,51 @@ patrz: pat_choose_functions.py
 """
 
 def plot_mean_max_trace(result, codebooks):
-    cb_results = []
+    def max_carrier(cb_size, trace):
+        pass
+    
+    cbs_results = []
     x = []
-    y = []
-
+    
+    
+    
     for i in codebooks:
-        cb_results.append(select_results_for_codebook(results=result,codebook=i))
+        cbs_results.append(select_results_for_codebook(results=result,codebook=i))
+        #cbs_results[-1].convert_trace_to_float_array()
         x.append(len(i.patterns))    
 
+    
     #TODO write Y-axis method: for po podnośnych w trace: Y = mean(Pi = max(cb_size, P_ita_podnośna), Pi has size of codebook)
-
+    y = [[] for _ in range(len(cbs_results[-1].results[-1].Rx_Angle))]
+    for i, cb_results, in enumerate(cbs_results):
+        
+        z = [[] for _ in range(len(cbs_results[-1].results[-1].Rx_Angle))]
+        #Z is a list of: 
+        # [
+        #         [ rx1, rx2,rx.....
+        #             [[trace -> pat1],[trace->pat2] ....]
+        #         ],
+        # ]
+        for result in cb_results.results:
+            for alpha, trace in enumerate(result.trace):
+                z[alpha].append(trace)
+        for j, angle in enumerate(z):
+            actual_z = []
+            for pat_trace in angle:
+                actual_z.append(np.max(pat_trace))
+            #TODO uśrednianie wartości liniowej, potem do dBm powrót
+            y[j].append(np.mean(actual_z))
+    
+    for yy in y:
+        plt.figure()
+        plt.plot(x, yy)
+        plt.show()
+        #y.append(max(z))
+        #Here plot make from z[] :)
+        # 
+        #     
     pass
+    
 
 def plot_power_in_position(
         results, 
@@ -327,7 +361,7 @@ def plot_hamming(results):
         plt.close()  # Zamknij figurę, aby nie pokazywać podglądu        
 
 if __name__=="__main__":
-    dumpfile = "euklides_codebook_64_0_17_Apr_2026_.pkl"
+    dumpfile = "euklides_codebook_64_0_17_Apr_2026.pkl"
     results = Results(load_results=False)
     results.load_picle_results(dumpfile=dumpfile)
 
