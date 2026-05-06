@@ -13,9 +13,10 @@ class Pattern:
         return f"Pattern(number={self.idx}, pat='{self.pattern}', angle={self.angles[0]}, total pattern angles: {len(self.angles)}"
 
 class Codebook:
-    def __init__(self, dumpfile="codebook.pkl", filename="Codebook.csv"):
+    def __init__(self, dumpfile="codebook.pkl", filename="Codebook.csv", load = True):
         self.patterns = []
-        self.load_codebook(dumpfile, filename)
+        if load:
+            self.load_codebook(dumpfile, filename)
 
     def add_pattern(self, pattern):
         if isinstance(pattern, Pattern):
@@ -29,27 +30,38 @@ class Codebook:
             pickle.dump(self, file)
         print("Codebook class dumpted to a file: ", dumpfile)
 
+    def load_csv_codebook(self, filename, dumpfile, dump = True, ret=False):
+        # Otwórz codebook
+        with open(filename, 'r', encoding='utf-8') as file:
+            # Wczytaj wszystkie linie z pliku
+            lines = file.readlines()
+        # Przetwórz każdą linię, dzieląc dane na podstawie znaku ';'
+        data = [line.strip().split(';') for line in lines]
+        for line in lines:
+            data = line.strip().split(';')
+            angles = ast.literal_eval(data[2]) #zamien str z katami na liste
+            pattern = Pattern(idx=data[0], pattern=data[1], angles=angles)
+            self.add_pattern(pattern)
+        print("codebook from CSV loaded")
+        if dump:
+            self.dump_class_to_file(dumpfile)
+        if ret:
+            return self
+
+    def load_pkl_codebook(self, dumpfile):
+        with open(dumpfile, 'rb') as file:
+            loaded_object = pickle.load(file)
+            self.patterns = loaded_object.patterns
+            print("codebook from PKL loaded")
+
     def load_codebook(self, dumpfile, filename):
         print("codebook loading....")
         try:
-            with open(dumpfile, 'rb') as file:
-                loaded_object = pickle.load(file)
-            self.patterns = loaded_object.patterns
-            print("codebook loaded")
+            print("PKL try")
+            load_pkl_codebook(dumpfile)
         except:
-            # Otwórz codebook
-            with open(filename, 'r', encoding='utf-8') as file:
-                # Wczytaj wszystkie linie z pliku
-                lines = file.readlines()
-            # Przetwórz każdą linię, dzieląc dane na podstawie znaku ';'
-            data = [line.strip().split(';') for line in lines]
-            for line in lines:
-                data = line.strip().split(';')
-                angles = ast.literal_eval(data[2]) #zamien str z katami na liste
-                pattern = Pattern(idx=data[0], pattern=data[1], angles=angles)
-                self.add_pattern(pattern)
-            print("codebook loaded")
-            self.dump_class_to_file(dumpfile)
+            print("PKL failed, trying CSV")
+            load_csv_codebook(filename, dumpfile)
         return
             
 # Create class instance and load the data
