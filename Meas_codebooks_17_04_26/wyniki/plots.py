@@ -37,16 +37,16 @@ sns.lineplot(errorbar=errorbar_function, estimator=estimator_function)
 patrz: pat_choose_functions.py
 """
 
-def plot_mean_max_trace(results, codebooks):    
+def plot_mean_max_trace(results, codebooks, show = False, save = True):    
     cbs_results = []
     x = [] 
-    Rx_pos_number = len(cbs_results[-1].results[-1].Rx_Angle)
-    for i in codebooks:
-        cbs_results.append(select_results_for_codebook(results=results,codebook=i))
-        #cbs_results[-1].convert_trace_to_float_array()
-        x.append(len(i.patterns))    
+    
+    for cb in codebooks:
+        cbs_results.append(select_results_for_codebook(results=results,codebook=cb))
+        x.append(len(cb.patterns))
 
-    #TODO write Y-axis method: for po podnośnych w trace: Y = mean(Pi = max(cb_size, P_ita_podnośna), Pi has size of codebook)
+    # print("X= ", x)
+    Rx_pos_number = len(cbs_results[-1].results[-1].Rx_Angle)
     y = [[] for _ in range(Rx_pos_number)]
     for i, cb_results, in enumerate(cbs_results):
         
@@ -69,14 +69,31 @@ def plot_mean_max_trace(results, codebooks):
             y[j].append(mw_to_dbm(np.mean(dbm_to_mw(np.array(actual_z)))))
     
     # wykresy
+    # Uzyskaj nazwę folderu, w którym znajduje się skrypt
+    folder_name = os.path.dirname(os.path.abspath(__file__))
+    plots_folder = os.path.join(folder_name, 'mean_max_trace')
+
+    # Utwórz folder "plots", jeśli nie istnieje
+    os.makedirs(plots_folder, exist_ok=True)
+    save_format='png'
     for j, yy in enumerate(y):
-        plt.figure()
+        plt.figure(figsize=(12, 9))
         plt.plot(x, yy)
         plt.xlabel("Codebook size")
-        plt.ylabel("Mean max power [dBm]")
-        plt.title(f"Angle index {j}")
-        plt.grid()
-        plt.show()
+        plt.ylabel("Mean max carriers power [dBm]")
+        rx_angle = int(np.astype(cbs_results[0].results[0].Rx_Angle[j], int))
+        plt.title(f"RX angle = {rx_angle}")
+        plt.grid(True)
+
+        if save:
+            filename = f"plot{i+1}_mean_max_trace_Rx_{rx_angle}.{save_format}"
+            plt.savefig(os.path.join(plots_folder, filename), bbox_inches="tight")
+
+        if show:
+            plt.show()
+
+        plt.close()
+
 
 
 # def plot_mean_max_trace(results, codebooks): #GPT VERSIOM
