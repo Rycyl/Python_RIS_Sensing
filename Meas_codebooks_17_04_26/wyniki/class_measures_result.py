@@ -54,13 +54,6 @@ class Results:
         if load_results:
             self.load_results(dumpfile, resultfilename)
 
-    def convert_trace_to_float_array(self):
-        for x in self.results:
-            self.results.trace = np.array(self.results.trace).astype(np.float)
-        self.maxs.trace = self.maxs.trace.astype(np.float)
-        self.mins.trace = self.mins.trace.astype(np.float)
-
-
     def sort_by_RX(self):
         # Ensure that all relevant attributes are NumPy arrays
         for result in self.results:
