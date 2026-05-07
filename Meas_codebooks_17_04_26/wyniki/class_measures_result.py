@@ -23,7 +23,7 @@ class Result:
     def __repr__(self):
         return(f"angle_RX {self.Rx_Angle}")
 
-    def add_measure(self, power, tx_angle, rx_angle, a,b,c,d,e,f,trace,garbage=None):
+    def add_measure(self, power, tx_angle, rx_angle, a,b,c,d,e,f,trace,garbage=None,garbage2=None):
         #garbage is usually an empty element on list - artifact of loading .csv with "";"" at the line end
         self.powers.append(float(power))  # Add power measurement
         self.Rx_Angle.append(90-float(rx_angle))  # Add transmission angle
@@ -34,7 +34,8 @@ class Result:
         self.d_values.append(float(d))  # Add value of d
         self.e_values.append(float(e))  # Add value of e
         self.f_values.append(float(f))  # Add value of f
-        self.trace.append(trace)
+        arr = np.fromstring(trace.strip('[]'), sep=',').astype(np.float32)
+        self.trace.append(arr)
 
     def add_pattern_to_idx(self):
         pass
@@ -167,9 +168,9 @@ class Results:
     def load_results(self, dumpfile, resultfilename):
         print("results loading....")
         try:
-            load_picle_results(dumpfile)
+            self.load_picle_results(dumpfile)
         except:
-            load_csv_results(resultfilename)
+            self.load_csv_results(resultfilename)
         self.sort_by_RX()                    
         print("results loaded")
         self.dump_class_to_file(dumpfile)
@@ -230,7 +231,7 @@ class Results:
                             if self.maxs[i].idx == int(data[0]):
                                 #only add measure
                                 self.maxs[i].add_measure(*rest_data)
-                                self.maxs[i].add_pattern_to_idx(core_data[1])
+                                #self.maxs[i].add_pattern_to_idx(core_data[1])
                                 result_founded_in_results = True
                                 break
                         if not (result_founded_in_results):    
@@ -243,7 +244,7 @@ class Results:
                             if self.mins[i].idx == int(data[0]):
                                 #only add measure
                                 self.mins[i].add_measure(*rest_data)
-                                self.mins[i].add_pattern_to_idx(core_data[1])
+                                #self.mins[i].add_pattern_to_idx(core_data[1])
                                 result_founded_in_results = True
                                 break
                         if not (result_founded_in_results):    
