@@ -156,6 +156,8 @@ class Antenna_Geometry_MDEK1001():
         print("d", self.d)
         print("e", self.e)
         print("f", self.f)
+        print("alfa: ", self.alfa)
+        print("beta: ", self.beta)
         return
 
     def calc_distances(self):
@@ -176,7 +178,7 @@ class Antenna_Geometry_MDEK1001():
         calculate angles of tx and rx to tag from locations
         '''
         self.alfa = angle_from_points(self.loc_ris, self.loc_a1, self.loc_tx)
-        self.beta = angle_from_points(self.loc_ris, self.loc_a2, self.loc_tag)
+        self.beta = 90 - angle_from_points(self.loc_ris, self.loc_a2, self.loc_tag)
         return
 
     def get_angles(self, Print_vals=False):
@@ -192,7 +194,7 @@ class Antenna_Geometry_MDEK1001():
             if Print_vals:
                 self.print_values()
 
-        self.calc_distances()
+            self.calc_distances()
         self.calc_angles()
         if Print_vals:
             self.print_values()
