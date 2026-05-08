@@ -15,6 +15,7 @@ with open(file_name, 'r') as f:
         meta_data = line_list[1]
         bit_pattern = BitArray('0b'+pattern)
         exit_line = f"{i};{bit_pattern.hex};{meta_data}"
+        i += 1 #increment pat id
         lines_to_write.append(exit_line)
     f.close()
 
