@@ -26,7 +26,7 @@ class Result:
     def add_measure(self, power, tx_angle, rx_angle, a,b,c,d,e,f,trace,garbage=None,garbage2=None):
         #garbage is usually an empty element on list - artifact of loading .csv with "";"" at the line end
         self.powers.append(float(power))  # Add power measurement
-        self.Rx_Angle.append(90-float(rx_angle))  # Add transmission angle
+        self.Rx_Angle.append(float(rx_angle))  # Add transmission angle
         self.Tx_Angle.append(float(tx_angle))  # Add reception angle
         self.a_values.append(float(a))  # Add value of a
         self.b_values.append(float(b))  # Add value of b
