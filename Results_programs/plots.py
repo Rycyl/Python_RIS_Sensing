@@ -23,7 +23,7 @@ def mw_to_dbm(x):
 
 #TODO: @CP
 #TODO: def do obcinania traceów do potrzebnych podnośnych
-def truncade_trace(trace: list):
+def truncade_trace(trace):
     return trace[224:1824:2]
 #TODO: ref mes to dBm
 #TODO: ref - paste with high ID (1000+) to 64 codebook
@@ -58,7 +58,7 @@ def plot_mean_max_trace(results, codebooks, show = False, save = True):
         #         ],
         # ]
         for result in cb_results.results:
-            for alpha, trace in enumerate(result.trace):
+            for alpha, trace in enumerate(result.traces):
                 z[alpha].append(trace)
         for j, angle in enumerate(z):
             actual_z = []
@@ -94,52 +94,62 @@ def plot_mean_max_trace(results, codebooks, show = False, save = True):
 
         plt.close()
 
+def plot_mean_max_per_carrier_in_trace(results, codebooks, show = False, save = True):    
+    cbs_results = []
+    x = [] 
+    
+    for cb in codebooks:
+        cbs_results.append(select_results_for_codebook(results=results,codebook=cb))
+        x.append(len(cb.patterns))
 
+    # print("X= ", x)
+    Rx_pos_number = len(cbs_results[-1].results[-1].Rx_Angle)
+    yyy = [[] for _ in range(Rx_pos_number)]
+    yy  = [[] for _ in range(Rx_pos_number)]
+    for i, cb_results, in enumerate(cbs_results):
+        
+        z = [[] for _ in range(Rx_pos_number)]
+        #Z is a list of: 
+        # [
+        #         [ rx1, rx2,rx.....
+        #             [[trace -> pat1],[trace->pat2] ....]
+        #         ],
+        # ]
+        for result in cb_results.results:
+            for alpha, trace in enumerate(result.traces):
+                z[alpha].append(truncade_trace(trace))
+        for j, rx_pos_traces in enumerate(z):
+            y_vals = np.max(rx_pos_traces, axis=0)
+            yyy.append(y_vals)
+            #uśrednianie do wartości liniowej, potem do dBm powrót
+            yy[j].append(mw_to_dbm(np.mean(dbm_to_mw(np.array(y_vals)))))
+    pass
+    # wykresy
+    # Uzyskaj nazwę folderu, w którym znajduje się skrypt
+    folder_name = os.path.dirname(os.path.abspath(__file__))
+    plots_folder = os.path.join(folder_name, 'max_pow_per_codebook-carrier')
 
-# def plot_mean_max_trace(results, codebooks): #GPT VERSIOM
+    # Utwórz folder "plots", jeśli nie istnieje
+    os.makedirs(plots_folder, exist_ok=True)
+    save_format='png'
+    for j, y in enumerate(yy):
+        plt.figure(figsize=(12, 9))
+        plt.plot(x, yy)
+        plt.xlabel("Codebook size")
+        plt.ylabel("Mean max carriers power [dBm]")
+        rx_angle = int(np.astype(cbs_results[0].results[0].Rx_Angle[j], int))
+        plt.title(f"RX angle = {rx_angle}")
+        plt.grid(True)
 
-#     cbs_results = []
-#     x = []
+        if save:
+            filename = f"plot{i+1}_mean_max_trace_Rx_{rx_angle}.{save_format}"
+            plt.savefig(os.path.join(plots_folder, filename), bbox_inches="tight")
 
-#     for cb in codebooks:
-#         cb_res = select_results_for_codebook(results=results, codebook=cb)
-#         cbs_results.append(cb_res)
-#         x.append(len(cb.patterns))
-#     #to get Rx pos number:
-#     num_angles = len(cbs_results[0].results[0].Rx_Angle)
-#     y = [[] for _ in range(num_angles)]
+        if show:
+            plt.show()
 
-#     for cb_results in cbs_results:
+        plt.close()
 
-#         z = [[] for _ in range(num_angles)]
-
-#         # collect trace per angle
-#         for result in cb_results.results:
-#             for alpha, trace in enumerate(result.trace):
-#                 z[alpha].append(trace)
-
-#         # count actual Y
-#         for j in range(num_angles):
-#             max_vals = []
-
-#             for pat_trace in z[j]:
-#                 max_vals.append(np.max(pat_trace))  # max po podnośnych
-
-#             # średnia w mW → dBm
-#             max_vals = np.array(max_vals)
-#             y[j].append(
-#                 mw_to_dbm(np.mean(dbm_to_mw(max_vals)))
-#             )
-
-#     # wykresy
-#     for j, yy in enumerate(y):
-#         plt.figure()
-#         plt.plot(x, yy)
-#         plt.xlabel("Codebook size")
-#         plt.ylabel("Mean max power [dBm]")
-#         plt.title(f"Angle index {j}")
-#         plt.grid()
-#         plt.show()
 
 def plot_power_in_position(
         results, 
@@ -439,4 +449,4 @@ if __name__=="__main__":
         print(path, str(path)[0:-4])
         cbs.append(cb.load_csv_codebook(path, str(path)[0:-4]+".pkl", dump=False, ret=True))
 
-    plot_mean_max_trace(results=results, codebooks=cbs)
+    plot_mean_max_per_carrier_in_trace(results=results, codebooks=cbs)

@@ -18,15 +18,24 @@ class Result:
         self.d_values = []  # List to store values of d
         self.e_values = []  # List to store values of e
         self.f_values = []  # List to store values of f
-        self.trace = []     # List to store whole trace from measurement
+        self.traces = []     # List to store whole traces from measurement
 
     def __repr__(self):
         return(f"angle_RX {self.Rx_Angle}")
 
-    def add_measure(self, power, tx_angle, rx_angle, a,b,c,d,e,f,trace,garbage=None,garbage2=None):
+    def calc_mean_from_n_carriers(self, carriers_idxs):
+        return np.mean(np.array(self.traces)[carriers_idxs])
+
+    def truncade_traces(self, traces): #return traces without noise carriers at the sides
+        truncaded_traces = np.array()
+        for trace in self.traces:
+            np.append(truncaded_traces, trace[224:1824:2])
+        return truncaded_traces
+
+    def add_measure(self, power, tx_angle, rx_angle, a,b,c,d,e,f,traces,garbage=None,garbage2=None):
         #garbage is usually an empty element on list - artifact of loading .csv with "";"" at the line end
         self.powers.append(float(power))  # Add power measurement
-        self.Rx_Angle.append(float(rx_angle))  # Add transmission angle
+        self.Rx_Angle.append(90-float(rx_angle))  # Add transmission angle
         self.Tx_Angle.append(float(tx_angle))  # Add reception angle
         self.a_values.append(float(a))  # Add value of a
         self.b_values.append(float(b))  # Add value of b
@@ -34,8 +43,8 @@ class Result:
         self.d_values.append(float(d))  # Add value of d
         self.e_values.append(float(e))  # Add value of e
         self.f_values.append(float(f))  # Add value of f
-        arr = np.fromstring(trace.strip('[]'), sep=',').astype(np.float32)
-        self.trace.append(arr)
+        arr = np.fromstring(traces.strip('[]'), sep=',').astype(np.float32)
+        self.traces.append(arr)
 
     def add_pattern_to_idx(self):
         pass
@@ -66,7 +75,7 @@ class Results:
             result.d_values = np.array(result.d_values)
             result.e_values = np.array(result.e_values)
             result.f_values = np.array(result.f_values)
-            result.trace = np.array(result.trace)
+            result.traces = np.array(result.traces)
 
         for min_result in self.mins:
             min_result.Rx_Angle = np.array(min_result.Rx_Angle)
@@ -78,7 +87,7 @@ class Results:
             min_result.d_values = np.array(min_result.d_values)
             min_result.e_values = np.array(min_result.e_values)
             min_result.f_values = np.array(min_result.f_values)
-            min_result.trace = np.array(min_result.trace)
+            min_result.traces = np.array(min_result.traces)
 
         for max_result in self.maxs:
             max_result.Rx_Angle = np.array(max_result.Rx_Angle)
@@ -90,7 +99,7 @@ class Results:
             max_result.d_values = np.array(max_result.d_values)
             max_result.e_values = np.array(max_result.e_values)
             max_result.f_values = np.array(max_result.f_values)
-            max_result.trace = np.array(max_result.trace)
+            max_result.traces = np.array(max_result.traces)
             
         # Now perform the sorting
         sorted_indices = np.argsort(self.results[0].Rx_Angle)
@@ -105,7 +114,7 @@ class Results:
             self.results[i].d_values = self.results[i].d_values[sorted_indices]
             self.results[i].e_values = self.results[i].e_values[sorted_indices]
             self.results[i].f_values = self.results[i].f_values[sorted_indices]
-            self.results[i].trace = self.results[i].trace[sorted_indices]
+            self.results[i].traces = self.results[i].traces[sorted_indices]
 
         for i in range(len(self.mins)):
             self.mins[i].Rx_Angle = self.mins[i].Rx_Angle[sorted_indices]
@@ -117,7 +126,7 @@ class Results:
             self.mins[i].d_values = self.mins[i].d_values[sorted_indices]
             self.mins[i].e_values = self.mins[i].e_values[sorted_indices]
             self.mins[i].f_values = self.mins[i].f_values[sorted_indices]
-            self.mins[i].trace = self.mins[i].trace[sorted_indices]
+            self.mins[i].traces = self.mins[i].traces[sorted_indices]
 
         for i in range(len(self.maxs)):
             self.maxs[i].Rx_Angle = self.maxs[i].Rx_Angle[sorted_indices]
@@ -129,7 +138,7 @@ class Results:
             self.maxs[i].d_values = self.maxs[i].d_values[sorted_indices]
             self.maxs[i].e_values = self.maxs[i].e_values[sorted_indices]
             self.maxs[i].f_values = self.maxs[i].f_values[sorted_indices]
-            self.maxs[i].trace = self.maxs[i].trace[sorted_indices]
+            self.maxs[i].traces = self.maxs[i].traces[sorted_indices]
 
     def add_result(self, result):
         if isinstance(result, Result):
