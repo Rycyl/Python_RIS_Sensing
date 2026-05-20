@@ -24,11 +24,18 @@ class Result:
     def __repr__(self):
         return(f"angle_RX {self.Rx_Angle}")
      
-    def truncade_traces(self, traces): #return traces without noise carriers at the sides
+    def truncade_traces(self): #return traces without noise carriers at the sides
         truncaded_traces = np.array()
         for trace in self.traces:
             np.append(truncaded_traces, trace[224:1824:2])
         return truncaded_traces
+
+    def trace_mean_idx(self, idxs=None):
+        if idxs == None:
+            input("WARNING, none idxs given to do trace mean, press anything to continue")
+        truncaded_traces = self.truncade_traces()
+        means = [np.mean(trace[10:20]) for trace in truncaded_traces]
+        return np.array(means)
 
     def add_measure(self, power, tx_angle, rx_angle, a,b,c,d,e,f,traces,garbage=None,garbage2=None):
         #garbage is usually an empty element on list - artifact of loading .csv with "";"" at the line end

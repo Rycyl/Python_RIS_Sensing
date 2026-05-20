@@ -19,15 +19,13 @@ def mw_to_dbm(x):
     dbm=10*np.log10(x)
     return dbm
 
-#TODO: @TJ
-#TODO: wykres z teamsow: X codebook size, Y moc <- (uśrednij) <- Z-ite podnośne - max val
 
-#TODO: @CP
-#TODO: def do obcinania traceów do potrzebnych podnośnych
 def truncade_trace(trace):
     return trace[224:1824:2]
+# @CP
 #TODO: ref mes to dBm
 #TODO: ref - paste with high ID (1000+) to 64 codebook
+
 
 #TODO: overall
 #TODO: wykresy (power in position /and merged): shape rysować: min, median, max
@@ -37,13 +35,19 @@ sns.lineplot(           err_style="band", errorbar=errorbar_function)
 sns.lineplot(errorbar=errorbar_function, estimator=estimator_function)
 patrz: pat_choose_functions.py
 """
+#TODO: 3 in one teams plot
+#TODO: porownać czy najlepszy pattern dla pozycji jest dla tego kąta zaprojektowany
+
 
 def sort_y_by_x(y, x):
     sorted_indices = np.argsort(x)
     y = np.array(y)
     return y[sorted_indices]
 
-def plot_mean_max_trace(results, codebooks, show = False, save = True):    
+def plot_mean_max_trace(results, codebooks, show = False, save = True):
+    """
+    This plot is a bit useless
+    """    
     cbs_results = []
     x = [] 
     
@@ -162,7 +166,6 @@ def plot_mean_max_per_carrier_in_trace(results, codebooks, show = False, save = 
         plt.close()
     return x, yyy
 
-
 def plot_power_in_position(
         results, 
         title=None,
@@ -206,6 +209,83 @@ def plot_power_in_position(
         # Zapisz wykres do pliku w folderze "plots"
         plt.savefig(os.path.join(plots_folder, f'wykres_wiersz_{i+1}.png'))
         plt.close()  # Zamknij figurę, aby nie pokazywać podglądu
+
+def plot_pow_in_pos_teams_all_in_one(results, codebooks, show=True, save=False):
+    #results = Results(dumpfile=dumpfile)
+    cbs_results = []
+
+    for cb in codebooks:
+        cbs_results.append(select_results_for_codebook(results=results,codebook=cb))
+        x.append(len(cb.patterns))
+
+    powers_cbs = []
+    data_cbs = np.array([])
+    """
+    power_cbs = [[cb1_powers], [cb2_powers], .....]
+    data_cbs has transposed inside arrays
+    """
+
+    
+    for cb_results in cbs_results:
+        powers_cbs.append([])
+        np.append(data_cbs, [])
+        for result in cb_results.results:
+            powers[-1].append(result.trace_mean_idx(list(range(10, 20))))
+        #change axis
+        powers_np_array = np.array(powers[-1])
+        data = powers_np_array.T #transpose
+        np.append(data_cbs[-1], data)
+
+    
+    
+    """
+    #wez wartości z metody opt kolumnami i wylicz max
+    ma1 = (results.maxs[-3].powers)
+    ma2 = (results.maxs[-2].powers)
+
+    maxs = []
+    for i in range(len(ma1)):
+        if ma1[i]>ma2[i]:
+            maxs.append(ma1[i])
+        else:
+            maxs.append(ma2[i])
+    """
+
+    x_vals = []
+    y_vals = []
+
+
+    # Uzyskaj nazwę folderu, w którym znajduje się skrypt
+    folder_name = os.path.dirname(os.path.abspath(__file__))
+    plots_folder = os.path.join(folder_name, 'power_in_position_comparison_of_CBs')
+
+    # Utwórz folder "plots", jeśli nie istnieje
+    os.makedirs(plots_folder, exist_ok=True)
+    FONTSIZE=16
+ 
+    plt.figure()  # Utwórz nową figurę dla każdego wykresu
+    plt.rcParams['font.size'] = FONTSIZE
+    plt.rcParams['lines.linewidth']= 3
+    plt.plot(dat, color='royalblue', label=f'Full codebook entries')
+    #plt.axhline(y=maxs[i], color='orangered', linestyle='--', label='SC max')
+    plt.axhline(y=avg, color='cyan', linestyle='--', label='Linear average')
+    #plt.axhline(y=mins[i], color='violet', linestyle='--', label='SC min')
+    #plt.title(f'Rx at {int(results.results[0].Rx_Angle[i])}°')
+    plt.xlabel('N\'th sorted pattern in recieved power')
+    plt.ylabel('Recieved power [dBm]')
+    #plt.ylim((np.min(data)//5)*5, ((np.max(data.all())//5))*5)  # Ustawienie stałego zakresu osi Y
+    plt.ylim(-90, -70)
+    plt.grid(True)  # Włączenie linii pomocniczych
+    plt.margins()
+    plt.legend(loc='lower right',  markerscale=4)
+    plt.subplots_adjust(left=0.16, right=0.9, top=0.95, bottom=0.16, wspace=0.2, hspace=0.2)
+    if show:
+        plt.show()
+    if save:
+        # Zapisz wykres do pliku w folderze "plots"
+        save_format='svg'
+        plt.savefig(os.path.join(plots_folder, f'wykres_{i+1}_pow_sort_rx_{int(results.results[0].Rx_Angle[i])}.{save_format}'), format=save_format)
+    plt.close()  # Zamknij figurę, aby nie pokazywać podglądu
 
 def plot_pow_in_pos_teams(results):
     #results = Results(dumpfile=dumpfile)
