@@ -5,7 +5,27 @@ from bitstring import BitArray
 import os
 import numpy as np
 
+class Trace:
+    def __init__(self, trace):
+        self.trace = np.array(trace)
   
+    def get_truncaded_trace(self): #return trace without noise carriers at the sides
+        return self.trace[224:1824:2]
+
+    def get_carriers_by_idx(self, idx):
+        #idx is a list of indexes
+        t = self.get_truncaded_trace()
+        return t[idx]
+
+    def get_mean(self):
+        return(np.mean(self.get_truncaded_trace()))
+
+    def get_mean_by_idx(self, idx):
+        #idx is a list of indexes
+        temp = self.get_truncaded_trace()
+        temp = temp[idx]
+        return(np.mean(temp))
+
 class Result:
     def __init__(self, idx, pattern):
         self.idx = int(idx)  # Index of the result
@@ -19,23 +39,23 @@ class Result:
         self.d_values = []  # List to store values of d
         self.e_values = []  # List to store values of e
         self.f_values = []  # List to store values of f
-        self.traces = []     # List to store whole traces from measurement
+        self.traces = []    # List to store whole traces from measurement
 
     def __repr__(self):
         return(f"angle_RX {self.Rx_Angle}")
      
-    def truncade_traces(self): #return traces without noise carriers at the sides
+    def get_truncaded_traces(self): #return traces without noise carriers at the sides
         truncaded_traces = np.array()
         for trace in self.traces:
             np.append(truncaded_traces, trace[224:1824:2])
         return truncaded_traces
 
-    def trace_mean_idx(self, idxs=None):
-        if idxs == None:
-            input("WARNING, none idxs given to do trace mean, press anything to continue")
-        truncaded_traces = self.truncade_traces()
-        means = [np.mean(trace[10:20]) for trace in truncaded_traces]
-        return np.array(means)
+    # def trace_mean_idx(self, idxs=None):
+    #     if idxs == None:
+    #         input("WARNING, none idxs given to do trace mean, press anything to continue")
+    #     truncaded_traces = self.truncade_traces()
+    #     means = [np.mean(trace[10:20]) for trace in truncaded_traces]
+    #     return np.array(means)
 
     def add_measure(self, power, tx_angle, rx_angle, a,b,c,d,e,f,traces,garbage=None,garbage2=None):
         #garbage is usually an empty element on list - artifact of loading .csv with "";"" at the line end
@@ -49,7 +69,7 @@ class Result:
         self.e_values.append(float(e))  # Add value of e
         self.f_values.append(float(f))  # Add value of f
         arr = np.fromstring(traces.strip('[]'), sep=',').astype(np.float32)
-        self.traces.append(arr)
+        self.traces.append(Trace(arr))
 
     def add_pattern_to_idx(self):
         pass

@@ -10,6 +10,7 @@ import copy
 from pathlib import Path
 from typing import List, Iterable, Union
 from results_for_codebook import select_results_for_codebook
+import json
 
 def dbm_to_mw(x):
     mW=10**(x/10)
@@ -126,7 +127,7 @@ def plot_mean_max_per_carrier_in_trace(results, codebooks, show = False, save = 
         # ]
         for result in cb_results.results:
             for alpha, trace in enumerate(result.traces):
-                z[alpha].append(truncade_trace(trace))
+                z[alpha].append(trace.get_truncaded_trace)
         for j, rx_pos_traces in enumerate(z):
             y_vals = np.max(rx_pos_traces, axis=0)
             yyy[j].append(y_vals)
@@ -213,47 +214,63 @@ def plot_power_in_position(
 def plot_pow_in_pos_teams_all_in_one(results, codebooks, show=True, save=False):
     #results = Results(dumpfile=dumpfile)
     cbs_results = []
-
+    cbs_labels = []
+    cbs_len = []
+    y_vals = []
+    plot_labels = [] 
+    #TODO: take it from Rx's from any result
+    
+    #cbs_info = json.load("")
+    #TODO function to get from json the cbs_labels and ranges - maybe object to pass from main?
+    #ALTERNATE: add a function in codebook class to get upper and lower ID and to name codebook properly?
+    
     for cb in codebooks:
         cbs_results.append(select_results_for_codebook(results=results,codebook=cb))
-        x.append(len(cb.patterns))
+        cbs_len.append(len(cb.patterns))
 
-    powers_cbs = []
-    data_cbs = np.array([])
-    """
-    power_cbs = [[cb1_powers], [cb2_powers], .....]
-    data_cbs has transposed inside arrays
-    """
-
+    powers_cbs = [] # list to store a list of powers from cb
     
     for cb_results in cbs_results:
         powers_cbs.append([])
-        np.append(data_cbs, [])
         for result in cb_results.results:
-            powers[-1].append(result.trace_mean_idx(list(range(10, 20))))
-        #change axis
-        powers_np_array = np.array(powers[-1])
-        data = powers_np_array.T #transpose
-        np.append(data_cbs[-1], data)
+            pat_powers = [] #list to store mean power vals of selected carriers
+            for trace in result.traces:
+                pat_powers.append(trace.get_mean_by_idx(list(range(10,21))))
+            powers_cbs[-1].append(np.array(pat_powers).T)
+        #powers_cbs structure: [CB][RX][PAT_power_vals]
+        #needed                [RX][CB][PAT_power_vals]
+    ##change below by GPT!
+    # original: powers_cbs[cb_idx][rx_idx] -> PAT_power_vals (numpy array)
+    num_cbs = len(powers_cbs)
+    num_rx = len(powers_cbs[0])  # assume non-empty and consistent
+
+    powers_by_rx = []
+    for rx in range(num_rx):
+        rx_list = []
+        for cb in range(num_cbs):
+            rx_list.append(powers_cbs[cb][rx])
+        powers_by_rx.append(rx_list)
+
+    # result: powers_by_rx[RX][CB] = PAT_power_vals
 
     
-    
-    """
     #wez wartości z metody opt kolumnami i wylicz max
     ma1 = (results.maxs[-3].powers)
     ma2 = (results.maxs[-2].powers)
-
     maxs = []
     for i in range(len(ma1)):
         if ma1[i]>ma2[i]:
             maxs.append(ma1[i])
         else:
             maxs.append(ma2[i])
-    """
-
+    
+    #PLOTTING ITERATION IS LEFT
     x_vals = []
     y_vals = []
-
+    for CB in powers_cbs:
+        for RX in CB:
+            pass
+        pass
 
     # Uzyskaj nazwę folderu, w którym znajduje się skrypt
     folder_name = os.path.dirname(os.path.abspath(__file__))
