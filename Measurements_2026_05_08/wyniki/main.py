@@ -61,33 +61,38 @@ def process_prefix(prefix: str, codebooks = None):
 
 def main() -> None:
 
-    codebooks_names = list_files_from_folder(Path.cwd() / "e_cb", "pkl")
-    cbs = []
-    for name in codebooks_names:
-        pwd = Path.cwd()                       # bieżący katalog
-        path = pwd / "e_cb" / name     # dołącz folder i plik
-        cb = Codebook(load=False)
-        print(path, str(path)[0:-4])
-        cbs.append(cb.load_pkl_codebook(path, ret=True))
+    # codebooks_names = list_files_from_folder(Path.cwd() / "e_cb", "pkl")
+    # cbs = []
+    # for name in codebooks_names:
+    #     pwd = Path.cwd()                       # bieżący katalog
+    #     path = pwd / "e_cb" / name     # dołącz folder i plik
+    #     cb = Codebook(load=False)
+    #     print(path, str(path)[0:-4])
+    #     cbs.append(cb.load_pkl_codebook(path, ret=True))
 
-    base_dir = Path(__file__).resolve().parent
-    prefixes = find_unique_prefixes(base_dir)
+    # base_dir = Path(__file__).resolve().parent
+    # prefixes = find_unique_prefixes(base_dir)
 
-    if not prefixes:
-        print("Nie znaleziono żadnych plików CSV w formacie <prefix><liczba>.csv")
-        return
+    # if not prefixes:
+    #     print("Nie znaleziono żadnych plików CSV w formacie <prefix><liczba>.csv")
+    #     return
 
-    print("Znalezione początki nazw plików:")
-    for prefix in prefixes:
-        print(f" - {prefix}")
-    print()
+    # print("Znalezione początki nazw plików:")
+    # for prefix in prefixes:
+    #     print(f" - {prefix}")
+    # print()
 
-    for prefix in prefixes:
+    #for prefix in prefixes:
         #try:
-            process_prefix(prefix,codebooks=cbs)
+    #        process_prefix(prefix,codebooks=cbs)
         #except Exception as exc:
         #    print(f"[ERROR] Prefix '{prefix}' nie został przetworzony: {exc}\n")
 
+
+    results = Results(dumpfile="all_mes.pkl", resultfilename="0_All_measurements_merged.csv", directory_path="All_files_merged")
+
+    pass
+    pass
 
 if __name__ == "__main__":
     main()
