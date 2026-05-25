@@ -81,12 +81,19 @@ class Result:
                 f"c_values={self.c_values}, d_values={self.d_values}, e_values={self.e_values}, f_values={self.f_values})")
 
 class Results:
-    def __init__(self, dumpfile="results.pkl", resultfilename="", load_results=True):
+    def __init__(self, dumpfile="results.pkl", resultfilename="", load_results=True, directory_path=None):
         self.results = []
         self.maxs = []
         self.mins = []
         if load_results:
-            self.load_results(dumpfile, resultfilename)
+            self.load_results(dumpfile, resultfilename, directory_path)
+
+    def get_maxs_for_RX(self, Rx_Angle):
+        ret_results = []
+        for res in maxs:
+            if res.Rx_Angle[0] == Rx_Angle:
+                ret_results.append(res)
+        return ret_results
 
     def sort_by_RX(self):
         # Ensure that all relevant attributes are NumPy arrays
@@ -199,12 +206,12 @@ class Results:
         ret_vals = np.average(ret, axis=0)
         return ret_vals
 
-    def load_results(self, dumpfile, resultfilename):
+    def load_results(self, dumpfile, resultfilename, directory_path=None):
         print("results loading....")
         try:
             self.load_picle_results(dumpfile)
         except:
-            self.load_csv_results(resultfilename)
+            self.load_csv_results(resultfilename,directory_path)
         self.sort_by_RX()                    
         print("results loaded")
         self.dump_class_to_file(dumpfile)
@@ -219,9 +226,10 @@ class Results:
         self.mins=loaded_object.mins
         print("Results loaded")
     
-    def load_csv_results(self, resultfilename):
+    def load_csv_results(self, resultfilename,directory_path):
         print("pickle failed")
-        directory_path = os.path.dirname(os.path.abspath(__file__))
+        if directory_path == None:
+            directory_path = os.path.dirname(os.path.abspath(__file__))            
         for filename in os.listdir(directory_path):
             # Sprawdzenie, czy nazwa pliku zaczyna się od "Big_codebook"
             #print("checking file:",filename)
@@ -248,7 +256,7 @@ class Results:
                     rest_data = data[2:]
                     #check if pattern exist in results   
                     result_founded_in_results = False
-                    if int(data[0]) < 1000:                     
+                    if int(data[0]) < 10000:                     
                         for i in range(len(self.results)):
                             if self.results[i].idx == int(data[0]):
                                 #only add measure
@@ -260,7 +268,7 @@ class Results:
                             result = Result(*core_data)
                             result.add_measure(*rest_data)
                             self.add_result(result=result)
-                    elif int(data[0]) >= 1000 and int(data[0]) < 2000:
+                    else: 
                         for i in range(len(self.maxs)):
                             if self.maxs[i].idx == int(data[0]):
                                 #only add measure
@@ -273,19 +281,6 @@ class Results:
                             result = Result(*core_data)
                             result.add_measure(*rest_data)
                             self.maxs.append(result)
-                    else:
-                        for i in range(len(self.mins)):
-                            if self.mins[i].idx == int(data[0]):
-                                #only add measure
-                                self.mins[i].add_measure(*rest_data)
-                                #self.mins[i].add_pattern_to_idx(core_data[1])
-                                result_founded_in_results = True
-                                break
-                        if not (result_founded_in_results):    
-                            #create new Result()
-                            result = Result(*core_data)
-                            result.add_measure(*rest_data)
-                            self.mins.append(result)
         return
 
 if __name__=="__main__":       
