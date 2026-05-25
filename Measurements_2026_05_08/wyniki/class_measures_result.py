@@ -20,6 +20,12 @@ class Trace:
     def get_mean(self):
         return(np.mean(self.get_truncaded_trace()))
 
+    def get_max(self):
+        return(np.max(self.get_truncaded_trace())) 
+
+    def get_min(self):
+        return(np.min(self.get_truncaded_trace())) 
+
     def get_mean_by_idx(self, idx):
         #idx is a list of indexes
         temp = self.get_truncaded_trace()
@@ -88,12 +94,19 @@ class Results:
         if load_results:
             self.load_results(dumpfile, resultfilename, directory_path)
 
-    def get_maxs_for_RX(self, Rx_Angle):
+    def get_maxs_list_for_RX(self, Rx_Angle):
         ret_results = []
-        for res in maxs:
+        for res in self.maxs:
             if res.Rx_Angle[0] == Rx_Angle:
                 ret_results.append(res)
         return ret_results
+
+    def get_max_for_RX(self, Rx_Angle):
+        max_list = self.get_maxs_list_for_RX(Rx_Angle=Rx_Angle)
+        maxsy = []
+        for m in max_list:
+            maxsy.append(m.traces[0].get_mean_by_idx(list(range(10,21))))
+        return np.max(maxsy)
 
     def sort_by_RX(self):
         # Ensure that all relevant attributes are NumPy arrays
@@ -148,29 +161,29 @@ class Results:
             self.results[i].f_values = self.results[i].f_values[sorted_indices]
             self.results[i].traces = self.results[i].traces[sorted_indices]
 
-        for i in range(len(self.mins)):
-            self.mins[i].Rx_Angle = self.mins[i].Rx_Angle[sorted_indices]
-            self.mins[i].Tx_Angle = self.mins[i].Tx_Angle[sorted_indices]
-            self.mins[i].a_values = self.mins[i].a_values[sorted_indices]
-            self.mins[i].b_values = self.mins[i].b_values[sorted_indices]
-            self.mins[i].c_values = self.mins[i].c_values[sorted_indices]
-            self.mins[i].powers = self.mins[i].powers[sorted_indices]
-            self.mins[i].d_values = self.mins[i].d_values[sorted_indices]
-            self.mins[i].e_values = self.mins[i].e_values[sorted_indices]
-            self.mins[i].f_values = self.mins[i].f_values[sorted_indices]
-            self.mins[i].traces = self.mins[i].traces[sorted_indices]
+        # for i in range(len(self.mins)):
+        #     self.mins[i].Rx_Angle = self.mins[i].Rx_Angle[sorted_indices]
+        #     self.mins[i].Tx_Angle = self.mins[i].Tx_Angle[sorted_indices]
+        #     self.mins[i].a_values = self.mins[i].a_values[sorted_indices]
+        #     self.mins[i].b_values = self.mins[i].b_values[sorted_indices]
+        #     self.mins[i].c_values = self.mins[i].c_values[sorted_indices]
+        #     self.mins[i].powers = self.mins[i].powers[sorted_indices]
+        #     self.mins[i].d_values = self.mins[i].d_values[sorted_indices]
+        #     self.mins[i].e_values = self.mins[i].e_values[sorted_indices]
+        #     self.mins[i].f_values = self.mins[i].f_values[sorted_indices]
+        #     self.mins[i].traces = self.mins[i].traces[sorted_indices]
 
-        for i in range(len(self.maxs)):
-            self.maxs[i].Rx_Angle = self.maxs[i].Rx_Angle[sorted_indices]
-            self.maxs[i].Tx_Angle = self.maxs[i].Tx_Angle[sorted_indices]
-            self.maxs[i].a_values = self.maxs[i].a_values[sorted_indices]
-            self.maxs[i].b_values = self.maxs[i].b_values[sorted_indices]
-            self.maxs[i].c_values = self.maxs[i].c_values[sorted_indices]
-            self.maxs[i].powers = self.maxs[i].powers[sorted_indices]
-            self.maxs[i].d_values = self.maxs[i].d_values[sorted_indices]
-            self.maxs[i].e_values = self.maxs[i].e_values[sorted_indices]
-            self.maxs[i].f_values = self.maxs[i].f_values[sorted_indices]
-            self.maxs[i].traces = self.maxs[i].traces[sorted_indices]
+        # for i in range(len(self.maxs)):
+        #     self.maxs[i].Rx_Angle = self.maxs[i].Rx_Angle[sorted_indices]
+        #     self.maxs[i].Tx_Angle = self.maxs[i].Tx_Angle[sorted_indices]
+        #     self.maxs[i].a_values = self.maxs[i].a_values[sorted_indices]
+        #     self.maxs[i].b_values = self.maxs[i].b_values[sorted_indices]
+        #     self.maxs[i].c_values = self.maxs[i].c_values[sorted_indices]
+        #     self.maxs[i].powers = self.maxs[i].powers[sorted_indices]
+        #     self.maxs[i].d_values = self.maxs[i].d_values[sorted_indices]
+        #     self.maxs[i].e_values = self.maxs[i].e_values[sorted_indices]
+        #     self.maxs[i].f_values = self.maxs[i].f_values[sorted_indices]
+        #     self.maxs[i].traces = self.maxs[i].traces[sorted_indices]
 
     def add_result(self, result):
         if isinstance(result, Result):

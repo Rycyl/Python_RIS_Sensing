@@ -60,10 +60,10 @@ class Codebook:
         print("codebook loading....")
         try:
             print("PKL try")
-            load_pkl_codebook(dumpfile)
+            self.load_pkl_codebook(dumpfile)
         except:
             print("PKL failed, trying CSV")
-            load_csv_codebook(filename, dumpfile)
+            self.load_csv_codebook(filename, dumpfile)
         return
             
 # Create class instance and load the data
