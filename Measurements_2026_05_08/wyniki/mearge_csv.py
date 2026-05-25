@@ -111,7 +111,10 @@ def merge_csv_builtin(file_prefix, output_filename, directory="."):
 # --- Run the script ---
 if __name__ == "__main__":
     # Example: Merges all files starting with "report_" into "master_report.csv"
-    # merge_csv_builtin(file_prefix="euklides_codebook_128", output_filename="euklides_codebook_128_0_08_May_2026_merged.csv")
-    # increment_n_in_files(file_prefix="3_ref_strp_by_strp_08_May_2026_merged_new_N", add_value=10000, new_N=True)
-    files_to_merge = ["euklides_codebook_128_0_08_May_2026_merged.csv", "PK_codebook_final_08_May_2026_merged.csv", "ref_strp_by_strp_08_May_2026_merged.csv"]
+    #merge_csv_builtin(file_prefix="euklides_codebook_128", output_filename="euklides_codebook_128_0_08_May_2026_merged.csv")
+    #merge_csv_builtin(file_prefix="PK_codebook_final_08_May_2026", output_filename="2_PK_codebook_final_08_May_2026_merged.csv")
+    merge_csv_builtin(file_prefix="ref_strp_by_strp_08_May_2026", output_filename="3_ref_strp_by_strp_08_May_2026_merged_new_N.csv")
+    #increment_n_in_files(file_prefix="2_PK_codebook_final_08_May_2026_merged", add_value=5000, new_N=False)
+    increment_n_in_files(file_prefix="3_ref_strp_by_strp_08_May_2026_merged_new_N", add_value=10000, new_N=True)
+    files_to_merge = ["euklides_codebook_128_0_08_May_2026_merged.csv", "2_PK_codebook_final_08_May_2026_merged.csv", "3_ref_strp_by_strp_08_May_2026_merged_new_N.csv"]
     merge_specific_files_builtin(files_to_merge, "All_measurements_merged.csv")
