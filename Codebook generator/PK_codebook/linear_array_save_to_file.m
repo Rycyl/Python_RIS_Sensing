@@ -5,8 +5,8 @@ c=3*10^8;
 d= 0.02;%c/f_c/2;% odleglosc miedzy elementmi antenowymi c=lambda*f
 L=16;%liczba elementow antenowych
 
-set_TX = [13];
-set_RX = 0:70;
+set_TX = -15:0;
+set_RX = 0:80;
 B = [];
 params = []; % Array to store [Tx, Rx, Rotation] for each row
 
