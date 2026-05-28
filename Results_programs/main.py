@@ -34,7 +34,7 @@ def run_step(step_name, func, *args, **kwargs):
         raise
 
 
-def process_prefix(prefix: str) -> None:
+def process_prefix(prefix: str, codebooks = None):
     print(f"[START] Prefix: {prefix}")
     dumpfile = f"{prefix}.pkl"
     results_instance = Results(dumpfile=dumpfile, resultfilename=prefix)
@@ -52,30 +52,47 @@ def process_prefix(prefix: str) -> None:
     # plot_pattern_characteristics(results_instance)
     # print("plotting hamming::")
     # plot_hamming(results_instance)
-
+    if prefix == "euklides_codebook_128_0_08_May_2026":
+        print("plot_mean_max_per_carrier_in_trace")
+        plot_mean_max_per_carrier_in_trace(results=results_instance, codebooks=codebooks)
     print(f"[DONE] Zakończono przetwarzanie: {prefix}\n")
 
 
 
 def main() -> None:
-    base_dir = Path(__file__).resolve().parent
-    prefixes = find_unique_prefixes(base_dir)
 
-    if not prefixes:
-        print("Nie znaleziono żadnych plików CSV w formacie <prefix><liczba>.csv")
-        return
+    # codebooks_names = list_files_from_folder(Path.cwd() / "e_cb", "pkl")
+    # cbs = []
+    # for name in codebooks_names:
+    #     pwd = Path.cwd()                       # bieżący katalog
+    #     path = pwd / "e_cb" / name     # dołącz folder i plik
+    #     cb = Codebook(load=False)
+    #     print(path, str(path)[0:-4])
+    #     cbs.append(cb.load_pkl_codebook(path, ret=True))
 
-    print("Znalezione początki nazw plików:")
-    for prefix in prefixes:
-        print(f" - {prefix}")
-    print()
+    # base_dir = Path(__file__).resolve().parent
+    # prefixes = find_unique_prefixes(base_dir)
 
-    for prefix in prefixes:
+    # if not prefixes:
+    #     print("Nie znaleziono żadnych plików CSV w formacie <prefix><liczba>.csv")
+    #     return
+
+    # print("Znalezione początki nazw plików:")
+    # for prefix in prefixes:
+    #     print(f" - {prefix}")
+    # print()
+
+    #for prefix in prefixes:
         #try:
-            process_prefix(prefix)
+    #        process_prefix(prefix,codebooks=cbs)
         #except Exception as exc:
         #    print(f"[ERROR] Prefix '{prefix}' nie został przetworzony: {exc}\n")
 
+
+    results = Results(dumpfile="all_mes.pkl", resultfilename="0_All_measurements_merged.csv", directory_path="All_files_merged")
+
+    pass
+    pass
 
 if __name__ == "__main__":
     main()

@@ -1,14 +1,13 @@
 from RIS import RIS
 from analyzer_sensing import Analyzer
-from generator import Generator
+#from generator import Generator
 from config_obj import Config
 import csv
 from bitstring import BitArray
 import threading
 import time
 from copy import copy
-from get_angle import Antenna_Geometry
-from numpy import mean
+from numpy import mean, log10
 
 # def negate(bits):
 #     ones = BitArray(hex='F' * 64)
@@ -16,17 +15,16 @@ from numpy import mean
 #     return bits
 
 class sing_pat_per_run():
-    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, geometry_obj: Antenna_Geometry, exit_file: str, codebook: str, Get_Men_Pow: bool = True):
+    def __init__(self, ris: RIS, anal: Analyzer, exit_file: str, codebook: str, Get_Men_Pow: bool = True, Geometry: tuple = ()):
         self.Ris = ris
         self.Anal = anal
-        self.Gen = gen
         self.file = exit_file
         self.Codebook = self.load_code_book(codebook)
         self.No_of_pats = len(self.Codebook)
         self.Mes_pow = None
         self.All_measured = {}
-        self.Geometry = geometry_obj
         self.Get_Men_Pow = Get_Men_Pow
+        self.Geometry = Geometry
 
 
     def load_code_book(self, codebook):
@@ -49,16 +47,16 @@ class sing_pat_per_run():
         self.Mes_pow = self.Anal.trace_get()
         return self.Mes_pow
     
-    def do_get_angles(self):
-        while True:
-            try:
-                angles = self.Geometry.get_angles()
-                print(angles)
-                return angles
-            except Exception as e:
-                print(e)
-                pass
-        return
+    # def do_get_angles(self):
+    #     while True:
+    #         try:
+    #             angles = self.Geometry.get_angles()
+    #             print(angles)
+    #             return angles
+    #         except Exception as e:
+    #             print(e)
+    #             pass
+    #     return
     
     def start_measure(self):       
         self.All_measured = []
@@ -67,14 +65,14 @@ class sing_pat_per_run():
         else:
             measure_fun = self.do_measure_whole
         print("Get geometry")
-        Tx_angle, Rx_angle, a, c, x, y, b = self.do_get_angles()
+        Tx_angle, Rx_angle, a, c, x, y, b, f = self.Geometry
         print("Doing Measures")
         for datum in self.Codebook:
             Do_Measure = threading.Thread(target = measure_fun)
             Do_Measure.start()
             self.Ris.set_pattern('0x' + datum[1].hex)
             Do_Measure.join()
-            self.All_measured.append([datum[0],datum[1],self.Mes_pow, Tx_angle, Rx_angle, a, c, x, y, b])
+            self.All_measured.append([datum[0],datum[1],mean(self.Mes_pow), Tx_angle, Rx_angle, a, c, x, y, b, f, self.Mes_pow])
         return self.All_measured#self.save_to_file()
     
     def save_to_file(self):
@@ -90,10 +88,9 @@ class sing_pat_per_run():
     
 
 class sing_pat_per_run_w_wait():
-    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, exit_file: str, codebook: str, Get_Men_Pow: bool = True):
+    def __init__(self, ris: RIS, anal: Analyzer, exit_file: str, codebook: str, Get_Men_Pow: bool = True):
         self.Ris = ris
         self.Anal = anal
-        self.Gen = gen
         self.file = exit_file
         self.Codebook = self.load_code_book(codebook)
         self.No_of_pats = len(self.Codebook)
@@ -153,10 +150,9 @@ class sing_pat_per_run_w_wait():
 
 
 class element_by_element():
-    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, exit_file: str, mask = '0b1', find_min = False, no_start_from_zero = False, Get_Men_Pow: bool = True, subcar_to_maxi: tuple = (10, 20)):
+    def __init__(self, ris: RIS, anal: Analyzer, exit_file: str, mask = '0b1', find_min = False, no_start_from_zero = False, Get_Men_Pow: bool = True, subcar_to_maxi: tuple = (10, 20)):
         self.Ris = ris
         self.Anal = anal
-        self.Gen = gen
         self.file = exit_file
         self.Mask = mask
         self.Find_Min = find_min
@@ -246,10 +242,9 @@ class element_by_element():
         return self.Best_pattern, self.Best_pow
     
 class stripe_by_stripe():
-    def __init__(self, ris: RIS, anal: Analyzer, gen: Generator, geometry_obj: Antenna_Geometry, exit_file: str, find_min = False, no_start_from_zero = False, Get_Men_Pow: bool = True, subcar_to_maxi: tuple = (10, 20)):
+    def __init__(self, ris: RIS, anal: Analyzer, exit_file: str, find_min = False, no_start_from_zero = False, Get_Men_Pow: bool = True, subcar_to_maxi: tuple = (10, 20), Geometry: tuple = ()):
         self.Ris = ris
         self.Anal = anal
-        self.Gen = gen
         self.file = exit_file
         self.Mask = '0x8000800080008000800080008000800080008000800080008000800080008000'
         self.Find_Min = find_min
@@ -258,10 +253,10 @@ class stripe_by_stripe():
         self.Best_pow = 100000 if find_min else -100000
         self.All_measured = []
         self.Best_pattern = BitArray(length=256)
-        self.Geometry = geometry_obj
         self.Get_Men_Pow = Get_Men_Pow
         self.Subcar_to_Maxi = subcar_to_maxi
         self.Whole_Trace = None
+        self.Geometry = Geometry
 
     def do_measure_mean(self):
         self.Mes_pow = self.Anal.trace_get_mean()
@@ -271,12 +266,16 @@ class stripe_by_stripe():
         trace = self.Anal.trace_get()
         self.Whole_Trace = trace[:]
         trace = trace[224:1824:2]
-        data = trace[self.Subcar_to_Maxi[0], self.Subcar_to_Maxi[1]]
+        data = trace[self.Subcar_to_Maxi[0]:self.Subcar_to_Maxi[1]]
         lin_data = [10**(x/10) for x in data]
         self.Mes_pow = mean(lin_data)
+        #print("do_measure_whole")
+        #print(self.Mes_pow)
         return self.Mes_pow
     
     def check_if_better(self):
+        #print("check if better")
+        #print(self.Mes_pow)
         if self.Find_Min:
             if self.Mes_pow < self.Best_pow:
                 self.Best_pattern = copy(self.Current_pattern)
@@ -286,20 +285,20 @@ class stripe_by_stripe():
             self.Best_pow = self.Mes_pow
         return
     
-    def do_get_angles(self):
-        while True:
-            try:
-                angles = self.Geometry.get_angles()
-                print(angles)
-                return angles
-            except Exception as e:
-                print(e)
-                pass
-        return
+    # def do_get_angles(self):
+    #     while True:
+    #         try:
+    #             angles = self.Geometry.get_angles()
+    #             print(angles)
+    #             return angles
+    #         except Exception as e:
+    #             print(e)
+    #             pass
+    #     return
 
     def start_measure(self):
         self.All_measured = []
-        Tx_angle, Rx_angle, a, cc, x, y, b = self.do_get_angles()
+        Tx_angle, Rx_angle, a, cc, x, y, b, f = self.Geometry
         if self.Get_Men_Pow:
             mesure_fun = self.do_measure_mean
         else:
@@ -320,16 +319,16 @@ class stripe_by_stripe():
             mask_pattern = mask_pattern[:256]
             Do_measure.join()
             self.check_if_better()
-            c_datum_2 = self.Mes_pow if(self.Get_Men_Pow) else self.Whole_Trace
-            c_datum = [n, c_datum_0, c_datum_2, Tx_angle, Rx_angle, a, cc, x, y, b]
+            # c_datum_2 = self.Mes_pow if(self.Get_Men_Pow) else self.Whole_Trace
+            c_datum = [n, c_datum_0, 10*log10(self.Mes_pow), Tx_angle, Rx_angle, a, cc, x, y, b, f, self.Whole_Trace]
             self.All_measured.append(c_datum)
             self.Current_pattern = self.Best_pattern ^ mask_pattern
             n += 1
         # negated = copy(self.Best_pattern)
-        # negated.invert()
+        # negated.invert()Antenna_Geometry_MDEK1001
         # self.Ris.set_pattern('0x'+negated.hex)
         # self.do_measure()
-        # negated_measure = [n, negated, self.Mes_pow, Tx_angle, Rx_angle, a, cc, x, y, b]
+        # negated_measure = [n, negated, self.Mes_pow, Tx_angle, Rx_angle, a, cc, x, y, b, f]
         # self.All_measured.append(negated_measure)
         return self.All_measured
     

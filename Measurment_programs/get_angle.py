@@ -193,8 +193,9 @@ class Antenna_Geometry_MDEK1001():
             
             if Print_vals:
                 self.print_values()
-
-            self.calc_distances()
+                print("CALC ANGLES:: ", bool(self.loc_a1.all() and self.loc_a2.all() and self.loc_tx.all() and self.loc_ris.all() and self.loc_tag.all()))
+            if ((self.loc_a1 > -1).any() and self.loc_a2.any() and self.loc_tx.any() and self.loc_ris.any() and self.loc_tag.any()):
+                self.calc_distances()
         self.calc_angles()
         if Print_vals:
             self.print_values()

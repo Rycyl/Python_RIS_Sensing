@@ -5,6 +5,33 @@ from bitstring import BitArray
 import os
 import numpy as np
 
+class Trace:
+    def __init__(self, trace):
+        self.trace = np.array(trace)
+  
+    def get_truncaded_trace(self): #return trace without noise carriers at the sides
+        return self.trace[224:1824:2]
+
+    def get_carriers_by_idx(self, idx):
+        #idx is a list of indexes
+        t = self.get_truncaded_trace()
+        return t[idx]
+
+    def get_mean(self):
+        return(np.mean(self.get_truncaded_trace()))
+
+    def get_max(self):
+        return(np.max(self.get_truncaded_trace())) 
+
+    def get_min(self):
+        return(np.min(self.get_truncaded_trace())) 
+
+    def get_mean_by_idx(self, idx):
+        #idx is a list of indexes
+        temp = self.get_truncaded_trace()
+        temp = temp[idx]
+        return(np.mean(temp))
+
 class Result:
     def __init__(self, idx, pattern):
         self.idx = int(idx)  # Index of the result
@@ -18,24 +45,46 @@ class Result:
         self.d_values = []  # List to store values of d
         self.e_values = []  # List to store values of e
         self.f_values = []  # List to store values of f
-        self.traces = []     # List to store whole traces from measurement
+        self.traces = []    # List to store whole traces from measurement
 
     def __repr__(self):
         return(f"angle_RX {self.Rx_Angle}")
-
-    def calc_mean_from_n_carriers(self, carriers_idxs):
-        return np.mean(np.array(self.traces)[carriers_idxs])
-
-    def truncade_traces(self, traces): #return traces without noise carriers at the sides
+     
+    def get_truncaded_traces(self): #return traces without noise carriers at the sides
         truncaded_traces = np.array()
         for trace in self.traces:
             np.append(truncaded_traces, trace[224:1824:2])
         return truncaded_traces
 
+    def get_rx_pos_in_xy(self):
+        num = (
+            self.b_values**2
+            + self.f_values**2
+            - self.d_values**2
+        )
+
+        den = 2 * self.b_values * self.f_values
+
+        cos_gamma = np.clip(num / den, -1.0, 1.0)
+
+        gammas = np.acos(cos_gamma)
+
+        x = np.cos(gammas) * self.f_values
+        y = np.sin(gammas) * self.f_values
+
+        return x, y
+
+    # def trace_mean_idx(self, idxs=None):
+    #     if idxs == None:
+    #         input("WARNING, none idxs given to do trace mean, press anything to continue")
+    #     truncaded_traces = self.truncade_traces()
+    #     means = [np.mean(trace[10:20]) for trace in truncaded_traces]
+    #     return np.array(means)
+
     def add_measure(self, power, tx_angle, rx_angle, a,b,c,d,e,f,traces,garbage=None,garbage2=None):
         #garbage is usually an empty element on list - artifact of loading .csv with "";"" at the line end
         self.powers.append(float(power))  # Add power measurement
-        self.Rx_Angle.append(90-float(rx_angle))  # Add transmission angle
+        self.Rx_Angle.append(float(rx_angle))  # Add transmission angle
         self.Tx_Angle.append(float(tx_angle))  # Add reception angle
         self.a_values.append(float(a))  # Add value of a
         self.b_values.append(float(b))  # Add value of b
@@ -44,7 +93,7 @@ class Result:
         self.e_values.append(float(e))  # Add value of e
         self.f_values.append(float(f))  # Add value of f
         arr = np.fromstring(traces.strip('[]'), sep=',').astype(np.float32)
-        self.traces.append(arr)
+        self.traces.append(Trace(arr))
 
     def add_pattern_to_idx(self):
         pass
@@ -56,12 +105,26 @@ class Result:
                 f"c_values={self.c_values}, d_values={self.d_values}, e_values={self.e_values}, f_values={self.f_values})")
 
 class Results:
-    def __init__(self, dumpfile="results.pkl", resultfilename="", load_results=True):
+    def __init__(self, dumpfile="results.pkl", resultfilename="", load_results=True, directory_path=None):
         self.results = []
         self.maxs = []
         self.mins = []
         if load_results:
-            self.load_results(dumpfile, resultfilename)
+            self.load_results(dumpfile, resultfilename, directory_path)
+
+    def get_maxs_list_for_RX(self, Rx_Angle):
+        ret_results = []
+        for res in self.maxs:
+            if res.Rx_Angle[0] == Rx_Angle:
+                ret_results.append(res)
+        return ret_results
+
+    def get_max_for_RX(self, Rx_Angle):
+        max_list = self.get_maxs_list_for_RX(Rx_Angle=Rx_Angle)
+        maxsy = []
+        for m in max_list:
+            maxsy.append(m.traces[0].get_mean_by_idx(list(range(10,21))))
+        return np.max(maxsy)
 
     def sort_by_RX(self):
         # Ensure that all relevant attributes are NumPy arrays
@@ -116,29 +179,29 @@ class Results:
             self.results[i].f_values = self.results[i].f_values[sorted_indices]
             self.results[i].traces = self.results[i].traces[sorted_indices]
 
-        for i in range(len(self.mins)):
-            self.mins[i].Rx_Angle = self.mins[i].Rx_Angle[sorted_indices]
-            self.mins[i].Tx_Angle = self.mins[i].Tx_Angle[sorted_indices]
-            self.mins[i].a_values = self.mins[i].a_values[sorted_indices]
-            self.mins[i].b_values = self.mins[i].b_values[sorted_indices]
-            self.mins[i].c_values = self.mins[i].c_values[sorted_indices]
-            self.mins[i].powers = self.mins[i].powers[sorted_indices]
-            self.mins[i].d_values = self.mins[i].d_values[sorted_indices]
-            self.mins[i].e_values = self.mins[i].e_values[sorted_indices]
-            self.mins[i].f_values = self.mins[i].f_values[sorted_indices]
-            self.mins[i].traces = self.mins[i].traces[sorted_indices]
+        # for i in range(len(self.mins)):
+        #     self.mins[i].Rx_Angle = self.mins[i].Rx_Angle[sorted_indices]
+        #     self.mins[i].Tx_Angle = self.mins[i].Tx_Angle[sorted_indices]
+        #     self.mins[i].a_values = self.mins[i].a_values[sorted_indices]
+        #     self.mins[i].b_values = self.mins[i].b_values[sorted_indices]
+        #     self.mins[i].c_values = self.mins[i].c_values[sorted_indices]
+        #     self.mins[i].powers = self.mins[i].powers[sorted_indices]
+        #     self.mins[i].d_values = self.mins[i].d_values[sorted_indices]
+        #     self.mins[i].e_values = self.mins[i].e_values[sorted_indices]
+        #     self.mins[i].f_values = self.mins[i].f_values[sorted_indices]
+        #     self.mins[i].traces = self.mins[i].traces[sorted_indices]
 
-        for i in range(len(self.maxs)):
-            self.maxs[i].Rx_Angle = self.maxs[i].Rx_Angle[sorted_indices]
-            self.maxs[i].Tx_Angle = self.maxs[i].Tx_Angle[sorted_indices]
-            self.maxs[i].a_values = self.maxs[i].a_values[sorted_indices]
-            self.maxs[i].b_values = self.maxs[i].b_values[sorted_indices]
-            self.maxs[i].c_values = self.maxs[i].c_values[sorted_indices]
-            self.maxs[i].powers = self.maxs[i].powers[sorted_indices]
-            self.maxs[i].d_values = self.maxs[i].d_values[sorted_indices]
-            self.maxs[i].e_values = self.maxs[i].e_values[sorted_indices]
-            self.maxs[i].f_values = self.maxs[i].f_values[sorted_indices]
-            self.maxs[i].traces = self.maxs[i].traces[sorted_indices]
+        # for i in range(len(self.maxs)):
+        #     self.maxs[i].Rx_Angle = self.maxs[i].Rx_Angle[sorted_indices]
+        #     self.maxs[i].Tx_Angle = self.maxs[i].Tx_Angle[sorted_indices]
+        #     self.maxs[i].a_values = self.maxs[i].a_values[sorted_indices]
+        #     self.maxs[i].b_values = self.maxs[i].b_values[sorted_indices]
+        #     self.maxs[i].c_values = self.maxs[i].c_values[sorted_indices]
+        #     self.maxs[i].powers = self.maxs[i].powers[sorted_indices]
+        #     self.maxs[i].d_values = self.maxs[i].d_values[sorted_indices]
+        #     self.maxs[i].e_values = self.maxs[i].e_values[sorted_indices]
+        #     self.maxs[i].f_values = self.maxs[i].f_values[sorted_indices]
+        #     self.maxs[i].traces = self.maxs[i].traces[sorted_indices]
 
     def add_result(self, result):
         if isinstance(result, Result):
@@ -174,12 +237,12 @@ class Results:
         ret_vals = np.average(ret, axis=0)
         return ret_vals
 
-    def load_results(self, dumpfile, resultfilename):
+    def load_results(self, dumpfile, resultfilename, directory_path=None):
         print("results loading....")
         try:
             self.load_picle_results(dumpfile)
         except:
-            self.load_csv_results(resultfilename)
+            self.load_csv_results(resultfilename,directory_path)
         self.sort_by_RX()                    
         print("results loaded")
         self.dump_class_to_file(dumpfile)
@@ -194,9 +257,10 @@ class Results:
         self.mins=loaded_object.mins
         print("Results loaded")
     
-    def load_csv_results(self, resultfilename):
+    def load_csv_results(self, resultfilename,directory_path):
         print("pickle failed")
-        directory_path = os.path.dirname(os.path.abspath(__file__))
+        if directory_path == None:
+            directory_path = os.path.dirname(os.path.abspath(__file__))            
         for filename in os.listdir(directory_path):
             # Sprawdzenie, czy nazwa pliku zaczyna się od "Big_codebook"
             #print("checking file:",filename)
@@ -223,7 +287,7 @@ class Results:
                     rest_data = data[2:]
                     #check if pattern exist in results   
                     result_founded_in_results = False
-                    if int(data[0]) < 1000:                     
+                    if int(data[0]) < 10000:                     
                         for i in range(len(self.results)):
                             if self.results[i].idx == int(data[0]):
                                 #only add measure
@@ -235,7 +299,7 @@ class Results:
                             result = Result(*core_data)
                             result.add_measure(*rest_data)
                             self.add_result(result=result)
-                    elif int(data[0]) >= 1000 and int(data[0]) < 2000:
+                    else: 
                         for i in range(len(self.maxs)):
                             if self.maxs[i].idx == int(data[0]):
                                 #only add measure
@@ -248,19 +312,6 @@ class Results:
                             result = Result(*core_data)
                             result.add_measure(*rest_data)
                             self.maxs.append(result)
-                    else:
-                        for i in range(len(self.mins)):
-                            if self.mins[i].idx == int(data[0]):
-                                #only add measure
-                                self.mins[i].add_measure(*rest_data)
-                                #self.mins[i].add_pattern_to_idx(core_data[1])
-                                result_founded_in_results = True
-                                break
-                        if not (result_founded_in_results):    
-                            #create new Result()
-                            result = Result(*core_data)
-                            result.add_measure(*rest_data)
-                            self.mins.append(result)
         return
 
 if __name__=="__main__":       
