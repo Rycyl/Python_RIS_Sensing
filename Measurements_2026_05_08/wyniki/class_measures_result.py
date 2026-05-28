@@ -56,6 +56,24 @@ class Result:
             np.append(truncaded_traces, trace[224:1824:2])
         return truncaded_traces
 
+    def get_rx_pos_in_xy(self):
+        num = (
+            self.b_values**2
+            + self.f_values**2
+            - self.d_values**2
+        )
+
+        den = 2 * self.b_values * self.f_values
+
+        cos_gamma = np.clip(num / den, -1.0, 1.0)
+
+        gammas = np.acos(cos_gamma)
+
+        x = np.cos(gammas) * self.f_values
+        y = np.sin(gammas) * self.f_values
+
+        return x, y
+
     # def trace_mean_idx(self, idxs=None):
     #     if idxs == None:
     #         input("WARNING, none idxs given to do trace mean, press anything to continue")
