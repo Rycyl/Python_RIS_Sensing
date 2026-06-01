@@ -1,0 +1,71 @@
+import ast
+import time
+import pickle
+from bitstring import BitArray
+
+class Pattern:
+    def __init__(self, idx, pattern, angles):
+        self.idx = int(idx)
+        self.pattern = BitArray(hex=pattern)
+        self.angles = angles
+
+    def __repr__(self):
+        return f"Pattern(number={self.idx}, pat='{self.pattern}', angle={self.angles[0]}, total pattern angles: {len(self.angles)}"
+
+class Codebook:
+    def __init__(self, dumpfile="codebook.pkl", filename="Codebook.csv", load = True):
+        self.patterns = []
+        if load:
+            self.load_codebook(dumpfile, filename)
+
+    def add_pattern(self, pattern):
+        if isinstance(pattern, Pattern):
+            self.patterns.append(pattern)
+        else:
+            raise ValueError("Only objects of type Pattern can be added.")
+
+    def dump_class_to_file(self, dumpfile):
+        # Serializacja obiektu do pliku
+        with open(dumpfile, 'wb') as file:
+            pickle.dump(self, file)
+        print("Codebook class dumpted to a file: ", dumpfile)
+
+    def load_csv_codebook(self, filename, dumpfile, dump = True, ret=False):
+        # Otwórz codebook
+        with open(filename, 'r', encoding='utf-8') as file:
+            # Wczytaj wszystkie linie z pliku
+            lines = file.readlines()
+        # Przetwórz każdą linię, dzieląc dane na podstawie znaku ';'
+        data = [line.strip().split(';') for line in lines]
+        for line in lines:
+            data = line.strip().split(';')
+            angles = ast.literal_eval(data[2]) #zamien str z katami na liste
+            pattern = Pattern(idx=data[0], pattern=data[1], angles=angles)
+            self.add_pattern(pattern)
+        print("codebook from CSV loaded")
+        if dump:
+            self.dump_class_to_file(dumpfile)
+        if ret:
+            return self
+
+    def load_pkl_codebook(self, dumpfile):
+        with open(dumpfile, 'rb') as file:
+            loaded_object = pickle.load(file)
+            self.patterns = loaded_object.patterns
+            print("codebook from PKL loaded")
+
+    def load_codebook(self, dumpfile, filename):
+        print("codebook loading....")
+        try:
+            print("PKL try")
+            load_pkl_codebook(dumpfile)
+        except:
+            print("PKL failed, trying CSV")
+            load_csv_codebook(filename, dumpfile)
+        return
+            
+# Create class instance and load the data
+if __name__=="__main__":
+    codebook_instance  = Codebook()
+    # print(codebook_instance.patterns[1])
+    print("Codebook has ", len(codebook_instance.patterns), "patterns")
