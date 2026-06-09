@@ -81,12 +81,14 @@ class UWB_module_DWM1001():
             self.uwb_dev.reset_output_buffer()
             attempts = 0
             init_attempts = 10  # adjust as needed
+            # self.uwb_dev.write(b'les\r')
             while attempts < init_attempts:
                 raw = self.uwb_dev.readline()  # returns bytes or b''
-                if raw:
+                # print(raw)
+                if len(raw):
                     print("BREAKING", raw)
                     break
-                self.uwb_dev.write(b'les\r')
+                self.uwb_dev.write(b'les')
                 attempts += 1
                 time.sleep(0.5)
 
@@ -110,6 +112,9 @@ class UWB_module_DWM1001():
             self.close_conn()
 
     def read_line(self, save_to_file = False, dump_file = 'UWB_dump.txt'):
+        """
+        Read lines from tag
+        """
         max_no_of_lines = 1
         self.line = []
         try:
@@ -128,10 +133,10 @@ class UWB_module_DWM1001():
     def parse_line(self, *device_ids):
         """
         Parses the line containing the message
-         and returns the coordinates of the specified devices.
+         and returns the distances of the specified devices.
         
         Returns:
-        tag_loc, *devices_locs (order of device ids)
+        tag_loc, *devices_locs (in order of device ids)
         """
         #print("Parsing line....")
         self.read_line()
@@ -144,20 +149,20 @@ class UWB_module_DWM1001():
             dev_id = match.group(1)
             values = [float(x) for x in match.group(2).split(',')]
 
-            coords[dev_id] = values[:3]
+            coords[dev_id] = values[3]
 
         # pozycja taga
         tag_match = re.search(r'est\[(.*?)\]', self.line)
         tag_pos = None
         if tag_match:
-            tag_pos = [float(x) for x in tag_match.group(1).split(',')[:3]]
+            tag_pos = [float(x) for x in tag_match.group(1).split(',')[3]]
 
         result = []
         for dev in device_ids:
             result.append(np.array(coords.get(dev)))
 
         result.append(np.array(tag_pos))
-        
+        #print(result)
         return result
 
 if __name__ == "__main__":

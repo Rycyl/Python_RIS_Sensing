@@ -115,7 +115,7 @@ def angle_from_points(a, b, c, degrees=True):
 #         return Rx, Tx, a, c, y, x, self.ris_dist
 
 class Antenna_Geometry_MDEK1001():
-    def __init__(self, tag, tx_id, ris_id, a1_id, a2_id, lines_treshold=100, n_sigma=3, stat_mode="mean"):
+    def __init__(self, tag, tx_id, ris_id, a1_id, a2_id, a3_id, lines_treshold=100, n_sigma=3, stat_mode="mean"):
         """
         Init, takes:
         tag, tx_id, ris_id, a1_id, a2_id
@@ -131,6 +131,7 @@ class Antenna_Geometry_MDEK1001():
         self.ris_id = ris_id
         self.a1_id = a1_id
         self.a2_id = a2_id
+        self.a3_id = a3_id
         #Parameters ()
         self.lines_treshold = lines_treshold
         self.n_sigma = n_sigma
@@ -142,6 +143,7 @@ class Antenna_Geometry_MDEK1001():
         #Init localisation [X,Y,Z] of devices
         self.loc_a1 =  []
         self.loc_a2 =  []
+        self.loc_a3 =  []
         self.loc_tx =  []
         self.loc_ris = []
         self.loc_tag = []
@@ -152,6 +154,8 @@ class Antenna_Geometry_MDEK1001():
         self.d = []
         self.e = []
         self.f = []
+        self.g = []
+        self.h = []
         #Init angles (see UWB_draft.png)
         self.Tx = None
         self.Rx = None
@@ -174,7 +178,7 @@ class Antenna_Geometry_MDEK1001():
 
     def calc_distances(self):
         '''
-        calculate distances of devices from locations
+        calculate distances of devices from last locations and append them to store
         '''
         #dist = np.linalg.norm(a-b)
         self.a.append(np.linalg.norm(self.loc_a1[-1]  - self.loc_ris[-1]))
@@ -183,6 +187,8 @@ class Antenna_Geometry_MDEK1001():
         self.d.append(np.linalg.norm(self.loc_ris[-1] - self.loc_tag[-1]))
         self.e.append(np.linalg.norm(self.loc_a1[-1]  - self.loc_tx[-1]))
         self.f.append(np.linalg.norm(self.loc_a2[-1]  - self.loc_tag[-1]))
+        self.g.append(np.linalg.norm(self.loc_a3[-1]  - self.loc_tag[-1]))
+        self.h.append(np.linalg.norm(self.loc_ris[-1] - self.loc_a3[-1]))
         return
 
     def mean_without_outliers(self, vals, ddof=0):
@@ -243,15 +249,16 @@ class Antenna_Geometry_MDEK1001():
         function does and invoke all logic to get angles and distaces of devices
         """
         while True:
-            parsed_line = (self.tag.parse_line(self.a1_id, self.a2_id, self.ris_id, self.tx_id))
+            parsed_line = (self.tag.parse_line(self.a1_id, self.a2_id, self.ris_id, self.tx_id, self.a3_id))
             try:
                 parsed_line = np.array(parsed_line)
+                print(parsed_line)
             except:
                 #print("line skipped")
                 continue
             #print(parsed_line, "\n LEN OF LINE = ",len(parsed_line))
-            if len(parsed_line)<5 :
-                #print("line skipped") 
+            if len(parsed_line)<6 :
+                print("line skipped") 
                 continue
             else:
                 self.loc_a1.append(parsed_line[0])
@@ -259,8 +266,13 @@ class Antenna_Geometry_MDEK1001():
                 self.loc_ris.append(parsed_line[2])
                 self.loc_tx.append(parsed_line[3])
                 self.loc_tag.append(parsed_line[4])
+                self.loc_a3.append(parsed_line[5])
                 self.calc_distances()        
             return
+
+    def calc_angles_one_triangle_set(l_ris, l_a1, l_tx, l_tag, l_a3):
+        self.beta = angle_from_points(l_ris, l_tag, l_a3)
+        self.alfa = angle_from_points(l_ris, l_a1, l_tx)
 
     def get_angles(self, Print_vals=False):
         self.prep_measures()
@@ -276,32 +288,36 @@ class Antenna_Geometry_MDEK1001():
         l_tx = self.mean_without_outliers(self.loc_tx)
         l_a2 = self.mean_without_outliers(self.loc_a2)
         l_tag = self.mean_without_outliers(self.loc_tag)    
-        self.calc_angles(l_ris, l_a1, l_tx, l_a2, l_tag)
-
+        l_a3 = self.mean_without_outliers(self.loc_a3)
+        #self.calc_angles(l_ris, l_a1, l_tx, l_a2, l_tag)
+        self.calc_angles_one_triangle_set(l_ris, l_a1, l_tx, l_tag, la3)
         a = self.mean_without_outliers(self.a)
         b = self.mean_without_outliers(self.b)
         c = self.mean_without_outliers(self.c)
         d = self.mean_without_outliers(self.d)
         e = self.mean_without_outliers(self.e)
         f = self.mean_without_outliers(self.f)
-
+        g = self.mean_without_outliers(self.g)
+        h = self.mean_without_outliers(self.h)
         if Print_vals:
             self.print_values()
         
-        return self.alfa, self.beta, a, b, c, d, e, f
+        return self.alfa, self.beta, a, b, c, d, e, f, g, h
         #return self.alfa, self.beta, self.a, self.b, self.c, self.d, self.e, self.f
 
 if __name__ == "__main__":
     uwb = UWB_module_DWM1001()
     #ID order: tx,ris,a1,a2
-    devices_ids = ["0F83", "D599", "870B", "4F96"]
+    devices_ids = ["0F83", "D599", "870B", "4F96", "2D15"]
     geo = Antenna_Geometry_MDEK1001(uwb, *devices_ids)
-    geo.lines_treshold = 30
+    geo.lines_treshold = 1
+    geo.n_sigma = 1
+    geo.stat_mode = 'mean'
     i = 0
     while True:
         try:
-            angle = geo.get_angles(Print_vals=False)
-            print(f"POMIAR {i}, \n {angle}")
+            tx,rx,a,b,c,d,e,f,g,h = geo.get_angles(Print_vals=False)
+            print(f"POMIAR {i}, \n {rx, g, h}")
         except Exception as e:
             print(e)
         sleep(1)
