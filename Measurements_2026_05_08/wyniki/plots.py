@@ -442,29 +442,7 @@ def plot_heatmap_3d(results, codebooks, show=True, save=False, Cbs_names=None, s
     FONTSIZE=16
     plt.rcParams['font.size'] = FONTSIZE
     plt.rcParams['lines.linewidth']= 3
-    # x_vals = []
-    # y_vals = []
-    # for i,RX in enumerate(powers_by_rx):
-    #     plt.figure(figsize=(10,8))  # Utwórz nową figurę dla każdego wykresu
-    #     for j,CB in enumerate(RX):
-    #         color = plt.cm.tab10(j % 10)
-    #         plt.plot(np.sort(CB), color=color, label=f'{Cbs_names[j]}: mean(trace[10:20])')
-    #         plt.axhline(y=mw_to_dbm(np.mean(dbm_to_mw(np.array(powers_maxs_by_rx[i][j])))), 
-    #                     linestyle='--', 
-    #                     color=color,
-    #                     label=f'{Cbs_names[j]}: mean(max(traces))')
-    #         plt.axhline(y=mw_to_dbm(np.mean(dbm_to_mw(np.array(powers_mean_by_rx[i][j])))), 
-    #                     linestyle='dotted', 
-    #                     color=color,
-    #                     label=f'{Cbs_names[j]}: mean(traces)')
-    #         plt.axhline(y=mw_to_dbm(np.mean(dbm_to_mw(np.array(powers_mins_by_rx[i][j])))), 
-    #                     linestyle='dashdot', 
-    #                     color=color,
-    #                     label=f'{Cbs_names[j]}: mean(min(traces))')
-    #     plt.axhline(y=results.get_max_for_RX(Rx_list[i]), color='violet', linestyle='--', label='SC max')
-    #     avg = mw_to_dbm(np.mean(dbm_to_mw(np.array(CB))))
-    #     plt.axhline(y=avg, color='cyan', linestyle='--', label='Linear average')
-    #     #plt.axhline(y=mins[i], color='red', linestyle='--', label='SC min')
+
     x_vals = np.array(xy_list[0])
     y_vals = np.array(xy_list[1])
     mean_maxs = []
@@ -474,12 +452,13 @@ def plot_heatmap_3d(results, codebooks, show=True, save=False, Cbs_names=None, s
         mean_linear_all.append([])
         for j in range(len(cb_vals)):
             mean_linear_all[-1].append(mw_to_dbm(np.mean(dbm_to_mw(np.array(powers_whole_trace_means[i][j])))))
-            mean_maxs[-1].append(mw_to_dbm(np.max(dbm_to_mw(np.array(powers_max_from_trace[i][j])))))
+            mean_maxs[-1].append(mw_to_dbm(np.mean(dbm_to_mw(np.array(powers_max_from_trace[i][j])))))
     z_vals = np.array(mean_maxs) - np.array(mean_linear_all)
     print("X:\n", x_vals.shape)
     print(x_vals)
     print("Y:\n", y_vals.shape)
-    print(z_vals[0])
+    seria = 0
+    print(z_vals[1])
     print("Z:\n", z_vals.shape)
     print(z_vals)
     
@@ -492,8 +471,10 @@ def plot_heatmap_3d(results, codebooks, show=True, save=False, Cbs_names=None, s
 
   
     # siatka interpolacji
-    xi = np.linspace(x.min(), x.max(), 50)
-    yi = np.linspace(y.min(), y.max(), 50)
+    xi = np.linspace(0, 4.8, 120)
+    yi = np.linspace(0.4, 5, 80)
+    #xi = np.linspace(x.min(), x.max(), 100)
+    #yi = np.linspace(y.min(), y.max(), 100)
 
     Xi, Yi = np.meshgrid(xi, yi)
 
@@ -502,7 +483,7 @@ def plot_heatmap_3d(results, codebooks, show=True, save=False, Cbs_names=None, s
         (x, y),
         z,
         (Xi, Yi),
-        method='cubic'
+        method='linear'
     )
 
     # rysowanie heatmapy
@@ -533,7 +514,7 @@ def plot_heatmap_3d(results, codebooks, show=True, save=False, Cbs_names=None, s
 
     plt.xlabel("X")
     plt.ylabel("Y")
-    plt.title("Heatmap")
+    plt.title(f"Heatmap {Cbs_names[seria]}")
 
     plt.legend()
     plt.grid(True)
