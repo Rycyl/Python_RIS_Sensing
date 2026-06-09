@@ -1,5 +1,5 @@
 from math import acos, sqrt, cos, pi, degrees
-from get_distances import New_UWB_module
+from get_distances import UWB_module_DWM1001
 import os
 import re
 import numpy as np
@@ -115,10 +115,14 @@ def angle_from_points(a, b, c, degrees=True):
 #         return Rx, Tx, a, c, y, x, self.ris_dist
 
 class Antenna_Geometry_MDEK1001():
-    def __init__(self, tag, tx_id, ris_id, a1_id, a2_id):
+    def __init__(self, tag, tx_id, ris_id, a1_id, a2_id, lines_treshold=100, n_sigma=3, stat_mode="mean"):
         """
         Init, takes:
         tag, tx_id, ris_id, a1_id, a2_id
+
+        lines_treshold: how many lines to collect to make stat function
+        stat modes: 'mean', 'median'
+        n_sigma: how much outliers is to delete
         """
         #Init TAG device
         self.tag = tag
@@ -127,22 +131,30 @@ class Antenna_Geometry_MDEK1001():
         self.ris_id = ris_id
         self.a1_id = a1_id
         self.a2_id = a2_id
-        #Init localisation [X,Y] of devices
-        self.loc_a1 = None
-        self.loc_a2 = None
-        self.loc_tx = None
-        self.loc_ris = None
-        self.loc_tag = None
+        #Parameters ()
+        self.lines_treshold = lines_treshold
+        self.n_sigma = n_sigma
+        self.stat_mode = stat_mode
+        #prepare list to measures
+        self.prep_measures()
+
+    def prep_measures(self):
+        #Init localisation [X,Y,Z] of devices
+        self.loc_a1 =  []
+        self.loc_a2 =  []
+        self.loc_tx =  []
+        self.loc_ris = []
+        self.loc_tag = []
         #Init distances (see UWB_draft.png)
-        self.a = None
-        self.b = None
-        self.c = None
-        self.d = None
-        self.e = None
-        self.f = None
+        self.a = []
+        self.b = []
+        self.c = []
+        self.d = []
+        self.e = []
+        self.f = []
         #Init angles (see UWB_draft.png)
-        self.alfa = None
-        self.beta = None
+        self.Tx = None
+        self.Rx = None
 
     def print_values(self):
         print("A1:    ", self.loc_a1)
@@ -150,14 +162,14 @@ class Antenna_Geometry_MDEK1001():
         print("TX:    ", self.loc_tx)
         print("RIS:   ", self.loc_ris)
         print("RX_tag:", self.loc_tag)
-        print("a", self.a)
-        print("b", self.b)
-        print("c", self.c)
-        print("d", self.d)
-        print("e", self.e)
-        print("f", self.f)
-        print("alfa: ", self.alfa)
-        print("beta: ", self.beta)
+        print("a_mean", np.mean(self.a))
+        print("b_mean", np.mean(self.b))
+        print("c_mean", np.mean(self.c))
+        print("d_mean", np.mean(self.d))
+        print("e_mean", np.mean(self.e))
+        print("f_mean", np.mean(self.f))
+        print("Tx_angle: ", self.Tx)
+        print("Rx_angle: ", self.Rx)
         return
 
     def calc_distances(self):
@@ -165,51 +177,131 @@ class Antenna_Geometry_MDEK1001():
         calculate distances of devices from locations
         '''
         #dist = np.linalg.norm(a-b)
-        self.a = np.linalg.norm(self.loc_a1 - self.loc_ris)
-        self.b = np.linalg.norm(self.loc_ris - self.loc_a2)
-        self.c = np.linalg.norm(self.loc_ris - self.loc_tx)
-        self.d = np.linalg.norm(self.loc_ris - self.loc_tag)
-        self.e = np.linalg.norm(self.loc_a1 - self.loc_tx)
-        self.f = np.linalg.norm(self.loc_a2 - self.loc_tag)
+        self.a.append(np.linalg.norm(self.loc_a1[-1]  - self.loc_ris[-1]))
+        self.b.append(np.linalg.norm(self.loc_ris[-1] - self.loc_a2[-1]))
+        self.c.append(np.linalg.norm(self.loc_ris[-1] - self.loc_tx[-1]))
+        self.d.append(np.linalg.norm(self.loc_ris[-1] - self.loc_tag[-1]))
+        self.e.append(np.linalg.norm(self.loc_a1[-1]  - self.loc_tx[-1]))
+        self.f.append(np.linalg.norm(self.loc_a2[-1]  - self.loc_tag[-1]))
         return
 
-    def calc_angles(self, degrees=True):
+    def mean_without_outliers(self, vals, ddof=0):
+        """
+        Metoda klasy. Używa self.n_sigma (float) i self.stat_mode ('mean' lub 'median').
+        vals: lista lub array 1D (N,) albo 2D (N,D).
+        ddof: dla std (0 populacyjne, 1 estymator próbki).
+        Zwraca: (stat_kept) - stat_kept: skalar dla 1D, array(D,) dla ND;
+        """
+        arr = np.asarray(vals, dtype=float)
+        if arr.size == 0:
+            if arr.ndim <= 1:
+                return np.nan, np.array([], dtype=bool)
+            return np.full((arr.shape[1],), np.nan), np.array([], dtype=bool)
+
+        # normy: dla 1D używamy wartości, dla ND norma wektorów
+        norms = arr if arr.ndim == 1 else np.linalg.norm(arr, axis=1)
+
+        mu = norms.mean()
+        sigma = norms.std(ddof=ddof)
+
+        if sigma == 0:
+            mask = np.ones(len(norms), dtype=bool)
+        else:
+            mask = np.abs(norms - mu) <= (self.n_sigma * sigma)
+
+        if not mask.any():
+            # brak zachowanych punktów -> NaN odpowiedniego kształtu
+            if arr.ndim == 1:
+                return np.nan, mask
+            return np.full((arr.shape[1],), np.nan), mask
+
+        kept = arr[mask]
+        if self.stat_mode == 'median':
+            if arr.ndim == 1:
+                stat_kept = np.median(kept)
+            else:
+                stat_kept = np.median(kept, axis=0)
+        else:  # domyślnie 'mean'
+            if arr.ndim == 1:
+                stat_kept = kept.mean()
+            else:
+                stat_kept = kept.mean(axis=0)
+
+        return stat_kept
+
+
+    def calc_angles(self, l_ris, l_a1, l_tx, l_a2, l_tag, degrees=True):
         '''
         calculate angles of tx and rx to tag from locations
         '''
-        self.alfa = angle_from_points(self.loc_ris, self.loc_a1, self.loc_tx)
-        self.beta = 90 - angle_from_points(self.loc_ris, self.loc_a2, self.loc_tag)
+        self.alfa = -1 * (90 - angle_from_points(l_ris, l_a1, l_tx))
+        self.beta = 90 - angle_from_points(l_ris, l_a2, l_tag)
         return
 
-    def get_angles(self, Print_vals=False):
+    def mes_angles(self):
         """
         function does and invoke all logic to get angles and distaces of devices
         """
-        while not(self.a and self.b and self.c and self.d and self.e and self.f):
-            #!!return only one localisation in one program run!!
-            line = self.tag.read_line(save_to_file=False)
-            self.loc_a1, self.loc_a2, self.loc_ris, self.loc_tx, self.loc_tag = \
-                self.tag.parse_line(line, self.a1_id, self.a2_id, self.ris_id, self.tx_id)
-            
-            if Print_vals:
-                self.print_values()
-                print("CALC ANGLES:: ", bool(self.loc_a1.all() and self.loc_a2.all() and self.loc_tx.all() and self.loc_ris.all() and self.loc_tag.all()))
-            if ((self.loc_a1 > -1).any() and self.loc_a2.any() and self.loc_tx.any() and self.loc_ris.any() and self.loc_tag.any()):
-                self.calc_distances()
-        self.calc_angles()
+        while True:
+            parsed_line = (self.tag.parse_line(self.a1_id, self.a2_id, self.ris_id, self.tx_id))
+            try:
+                parsed_line = np.array(parsed_line)
+            except:
+                #print("line skipped")
+                continue
+            #print(parsed_line, "\n LEN OF LINE = ",len(parsed_line))
+            if len(parsed_line)<5 :
+                #print("line skipped") 
+                continue
+            else:
+                self.loc_a1.append(parsed_line[0])
+                self.loc_a2.append(parsed_line[1])
+                self.loc_ris.append(parsed_line[2])
+                self.loc_tx.append(parsed_line[3])
+                self.loc_tag.append(parsed_line[4])
+                self.calc_distances()        
+            return
+
+    def get_angles(self, Print_vals=False):
+        self.prep_measures()
+        i = 0
+        while i< self.lines_treshold:
+
+            self.mes_angles()
+            print(i)
+            i+=1  
+        #get mean locs
+        l_ris = self.mean_without_outliers(self.loc_ris)
+        l_a1 = self.mean_without_outliers(self.loc_a1)
+        l_tx = self.mean_without_outliers(self.loc_tx)
+        l_a2 = self.mean_without_outliers(self.loc_a2)
+        l_tag = self.mean_without_outliers(self.loc_tag)    
+        self.calc_angles(l_ris, l_a1, l_tx, l_a2, l_tag)
+
+        a = self.mean_without_outliers(self.a)
+        b = self.mean_without_outliers(self.b)
+        c = self.mean_without_outliers(self.c)
+        d = self.mean_without_outliers(self.d)
+        e = self.mean_without_outliers(self.e)
+        f = self.mean_without_outliers(self.f)
+
         if Print_vals:
             self.print_values()
-        return self.alfa, self.beta, self.a, self.b, self.c, self.d, self.e, self.f
+        
+        return self.alfa, self.beta, a, b, c, d, e, f
+        #return self.alfa, self.beta, self.a, self.b, self.c, self.d, self.e, self.f
 
 if __name__ == "__main__":
-    uwb = New_UWB_module()
+    uwb = UWB_module_DWM1001()
     #ID order: tx,ris,a1,a2
     devices_ids = ["0F83", "D599", "870B", "4F96"]
     geo = Antenna_Geometry_MDEK1001(uwb, *devices_ids)
+    geo.lines_treshold = 30
+    i = 0
     while True:
         try:
-            angle = geo.get_angles(Print_vals=True)
-            print(angle)
+            angle = geo.get_angles(Print_vals=False)
+            print(f"POMIAR {i}, \n {angle}")
         except Exception as e:
             print(e)
         sleep(1)
