@@ -88,7 +88,7 @@ class UWB_module_DWM1001():
                 if len(raw):
                     print("BREAKING", raw)
                     break
-                self.uwb_dev.write(b'les')
+                self.uwb_dev.write(b'les\r')
                 attempts += 1
                 time.sleep(0.5)
 
@@ -132,42 +132,31 @@ class UWB_module_DWM1001():
     
     def parse_line(self, *device_ids):
         """
-        Parses the line containing the message
-         and returns the distances of the specified devices.
-        
-        Returns:
-        tag_loc, *devices_locs (in order of device ids)
-        """
-        #print("Parsing line....")
-        self.read_line()
-        #print("line readed")
-        coords = {}
+        Parses the line containing the message and returns
+        the distances of the specified devices.
 
-        pattern = re.compile(r'([0-9A-F]{4})\[(.*?)\]')
+        Returns:
+            *device_distances, tag_loc
+        """
+
+        self.read_line()
+
+        distances = {}
+
+        pattern = re.compile(r'([0-9A-F]{4})\[(.*?)\]=([-\d.]+)')
 
         for match in pattern.finditer(self.line):
             dev_id = match.group(1)
-            values = [float(x) for x in match.group(2).split(',')]
+            dist = float(match.group(3))
+            distances[dev_id] = dist
 
-            coords[dev_id] = values[3]
-
-        # pozycja taga
-        tag_match = re.search(r'est\[(.*?)\]', self.line)
-        tag_pos = None
-        if tag_match:
-            tag_pos = [float(x) for x in tag_match.group(1).split(',')[3]]
-
-        result = []
-        for dev in device_ids:
-            result.append(np.array(coords.get(dev)))
-
-        result.append(np.array(tag_pos))
-        #print(result)
-        return result
+        return [distances.get(dev) for dev in device_ids]
 
 if __name__ == "__main__":
-    devs = ["0F83", "D599", "870B", "4F96"]
+    devs = ["9D15", "D599", "0F83", "4F96"]
     uwb = UWB_module_DWM1001()
-    while True: print(uwb.uwb_dev.readline())
+    while True:
+        line = uwb.parse_line(*devs)
+        print(line)
     #while(True):
         #print(uwb.parse_line(*devs))
