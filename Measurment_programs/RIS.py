@@ -215,6 +215,15 @@ class Physical_RIS:
 
 class RIS:
     def __init__(self, port, id=0, timeout=10, baudrate=115200, phy_device = True, set_wait_time = None, use_socket=False):
+        '''
+        port - serial port with which RIS is connected if a non zero not None value will try to initiate connection
+        id - value to identify device if multiple RIS are connected
+        timeout - num of seconds 
+        baudrate - as name sugests, always 115200, added for testing
+        phy_device - if false, will create a "virtual" RIS that will add similar delay and responses as real one - added for testing
+        set_wait_time - if not None will set a waiting time after which program will assume that RIS recieved and finished the proper instructions, else program will wait for RIS response
+        use_socket - allows for connecting with RIS that is on a remote serial port, default IP is "192.168.8.10"
+        '''
         if phy_device:
             try:
                 print("Attempting to connect to Physical RIS...")
