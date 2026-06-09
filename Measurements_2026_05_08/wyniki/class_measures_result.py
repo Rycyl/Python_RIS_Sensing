@@ -57,21 +57,13 @@ class Result:
         return truncaded_traces
 
     def get_rx_pos_in_xy(self):
-        num = (
-            self.b_values**2
-            + self.f_values**2
-            - self.d_values**2
-        )
-
-        den = 2 * self.b_values * self.f_values
-
-        cos_gamma = np.clip(num / den, -1.0, 1.0)
-
-        gammas = np.acos(cos_gamma)
-
-        x = np.cos(gammas) * self.f_values
-        y = np.sin(gammas) * self.f_values
-
+        y = np.sin(np.deg2rad(90 - self.Rx_Angle)) * self.d_values
+        x = np.cos(np.deg2rad(90 - self.Rx_Angle)) * self.d_values
+        for i in range (len(x)):
+            with np.printoptions(precision=1, suppress=True):
+                print("POS ", i)
+                print(x[i],y[i],[self.Rx_Angle[i]])
+        input()
         return x, y
 
     # def trace_mean_idx(self, idxs=None):
