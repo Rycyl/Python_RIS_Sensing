@@ -212,7 +212,14 @@ def plot_power_in_position(
         plt.savefig(os.path.join(plots_folder, f'wykres_wiersz_{i+1}.png'))
         plt.close()  # Zamknij figurę, aby nie pokazywać podglądu
 
-def plot_pow_in_pos_teams_all_in_one(results, codebooks, show=True, save=False, Cbs_names=None, save_format='png'):
+def plot_pow_in_pos_teams_all_in_one(results, 
+                                     codebooks,
+                                     show=True, 
+                                     save=False, 
+                                     Cbs_names=None, 
+                                     save_format='png',
+                                     save_filename = "pow_sort_rx_",
+                                     veryfy_mins = False):
     #results = Results(dumpfile=dumpfile)
     cbs_results = []
     cbs_labels = []
@@ -337,6 +344,9 @@ def plot_pow_in_pos_teams_all_in_one(results, codebooks, show=True, save=False, 
                         linestyle='dashdot', 
                         color=color,
                         label=f'{Cbs_names[j]}: mean(min(traces))')
+            if veryfy_mins:                        
+                for some_val in powers_mins_by_rx[i][j]:
+                    plt.axhline(y=some_val, linestyle = '-', color = 'black', label = "",  linewidth=0.1)
         plt.axhline(y=results.get_max_for_RX(Rx_list[i]), color='violet', linestyle='--', label='SC max')
         avg = mw_to_dbm(np.mean(dbm_to_mw(np.array(CB))))
         plt.axhline(y=avg, color='cyan', linestyle='--', label='Linear average')
@@ -353,7 +363,7 @@ def plot_pow_in_pos_teams_all_in_one(results, codebooks, show=True, save=False, 
             plt.show()
         if save:
             # Zapisz wykres do pliku w folderze "plots"
-            plt.savefig(os.path.join(plots_folder, f'pow_sort_rx_{int(Rx_list[i])}.{save_format}'), format=save_format)    
+            plt.savefig(os.path.join(plots_folder, f'{save_filename}{int(Rx_list[i])}.{save_format}'), format=save_format)    
         plt.close()  # Zamknij figurę, aby nie pokazywać podglądu
         pass
 
@@ -837,21 +847,33 @@ if __name__=="__main__":
     
     pass
 
-    save = False
+    # for i, t in enumerate(results.results[-1].traces[-1].trace):
+    #     if i<(len(results.results[-1].traces[-1].trace)/2 -100):
+    #         continue
+    #     else:
+    #         print(i, t)
+    #     if i > (len(results.results[-1].traces[-1].trace)/2 + 100):
+    #         break
+    # print(len(results.results[-1].traces[-1].trace))
+    # exit()
+    save = True
     show = not save
+    veryfy_mins = True
     save_file_format = 'png'
-    # plot_pow_in_pos_teams_all_in_one(results=results,
-    #                                  codebooks=cbs,
-    #                                  show=show, 
-    #                                  save=save, 
-    #                                  Cbs_names=["EU_CB", "EA_CB"], 
-    #                                  save_format=save_file_format
-    #                                 )
+    plot_pow_in_pos_teams_all_in_one(results=results,
+                                     codebooks=cbs,
+                                     show=show, 
+                                     save=save, 
+                                     Cbs_names=["EU_CB", "EA_CB"], 
+                                     save_format=save_file_format,
+                                     veryfy_mins = veryfy_mins,
+                                     save_filename="Min_weryfikacja_rx"
+                                    )
 
-    plot_heatmap_3d(results=results,
-                    codebooks=cbs,
-                    show=show, 
-                    save=save, 
-                    Cbs_names=["EU_CB", "EA_CB"], 
-                    save_format=save_file_format
-                    )
+    # plot_heatmap_3d(results=results,
+    #                 codebooks=cbs,
+    #                 show=show, 
+    #                 save=save, 
+    #                 Cbs_names=["EU_CB", "EA_CB"], 
+    #                 save_format=save_file_format
+    #                 )

@@ -9,26 +9,46 @@ class Trace:
     def __init__(self, trace):
         self.trace = np.array(trace)
   
-    def get_truncaded_trace(self): #return trace without noise carriers at the sides
-        return self.trace[224:1824:2]
+    # def get_truncaded_trace(self, start=224, stop=1824, step=2): #return trace without noise carriers at the sides
+    #     return self.trace[start:stop:step]
+
+    def get_truncaded_trace(self, start=224, stop=1824, step=2, middle=1024):
+        indices = np.arange(start, stop, step)
+        mask = (indices != middle-1) & (indices != middle)
+        return self.trace[indices[mask]]
 
     def get_carriers_by_idx(self, idx):
         #idx is a list of indexes
         t = self.get_truncaded_trace()
         return t[idx]
 
-    def get_mean(self):
-        return(np.mean(self.get_truncaded_trace()))
+    def get_mean(self, start=None, stop=None, step=None):
+        if start and stop and step:
+            temp = self.get_truncaded_trace(start, stop, step)
+        else:
+            temp = self.get_truncaded_trace()
+        return(np.mean(temp))
 
-    def get_max(self):
-        return(np.max(self.get_truncaded_trace())) 
+    def get_max(self, start=None, stop=None, step=None):
+        if start and stop and step:
+            temp = self.get_truncaded_trace(start, stop, step)
+        else:
+            temp = self.get_truncaded_trace()
+        return(np.max(temp)) 
 
-    def get_min(self):
-        return(np.min(self.get_truncaded_trace())) 
+    def get_min(self, start=None, stop=None, step=None):
+        if start and stop and step:
+            temp = self.get_truncaded_trace(start, stop, step)
+        else:
+            temp = self.get_truncaded_trace()
+        return(np.min(temp)) 
 
-    def get_mean_by_idx(self, idx):
+    def get_mean_by_idx(self, idx, start=None, stop=None, step=None):
         #idx is a list of indexes
-        temp = self.get_truncaded_trace()
+        if start and stop and step:
+            temp = self.get_truncaded_trace(start, stop, step)
+        else:
+            temp = self.get_truncaded_trace()
         temp = temp[idx]
         return(np.mean(temp))
 
