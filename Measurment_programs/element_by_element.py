@@ -26,13 +26,6 @@ class sing_pat_per_run():
         self.Get_Men_Pow = Get_Men_Pow
         self.Geometry = Geometry
 
-    def change_geometry(self, angle):
-        self.Geometry = angle
-        return
-    
-    def change_exit_file(self, file_name):
-        self.file = file_name
-        return
 
     def load_code_book(self, codebook):
         codes = []
@@ -176,14 +169,6 @@ class element_by_element():
         self.Subcar_to_Maxi = subcar_to_maxi
         self.Whole_Trace = None
 
-    def change_geometry(self, angle):
-        self.Geometry = angle
-        return
-    
-    def change_exit_file(self, file_name):
-        self.file = file_name
-        return
-
     def do_measure_mean(self):
         self.Mes_pow = self.Anal.trace_get_mean()
         return self.Mes_pow
@@ -272,14 +257,6 @@ class stripe_by_stripe():
         self.Subcar_to_Maxi = subcar_to_maxi
         self.Whole_Trace = None
         self.Geometry = Geometry
-
-    def change_geometry(self, angle):
-        self.Geometry = angle
-        return
-    
-    def change_exit_file(self, file_name):
-        self.file = file_name
-        return
 
     def do_measure_mean(self):
         self.Mes_pow = self.Anal.trace_get_mean()
