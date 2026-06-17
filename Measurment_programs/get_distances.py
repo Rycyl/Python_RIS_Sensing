@@ -68,19 +68,35 @@ class UWB_module():
         return calc_dist_tag, calc_dist_anchor
         
     
-class New_UWB_module():
+class UWB_module_DWM1001():
     def __init__(self, port = '/dev/ttyACM0', b_rate = 115200, timeout = 1):
         '''
         Object to handle connection with UWB MDEK1001 set
         port can be set as needed, default is for linux
         '''
         try:
+            t0 = time.time()
             self.uwb_dev = serial.Serial(port, b_rate, timeout=timeout)
             self.uwb_dev.reset_input_buffer()
             self.uwb_dev.reset_output_buffer()
-            self.uwb_dev.write(b'\r\r')
-            time.sleep(1)
-            self.uwb_dev.write(b'les\r')
+            attempts = 0
+            init_attempts = 10  # adjust as needed
+            # self.uwb_dev.write(b'les\r')
+            while attempts < init_attempts:
+                raw = self.uwb_dev.readline()  # returns bytes or b''
+                # print(raw)
+                if len(raw):
+                    print("BREAKING", raw)
+                    break
+                self.uwb_dev.write(b'les\r')
+                attempts += 1
+                time.sleep(0.5)
+
+            if attempts >= init_attempts:
+                raise RuntimeError(f"No response from device after {init_attempts} attempts")
+
+            print("INIT DONE t=", time.time()-t0)
+            self.line = None
         except Exception as e:
             print("!!!!!!Not working properly, see error:")
             print(f"Error:: {e}")
@@ -96,53 +112,51 @@ class New_UWB_module():
             self.close_conn()
 
     def read_line(self, save_to_file = False, dump_file = 'UWB_dump.txt'):
+        """
+        Read lines from tag
+        """
         max_no_of_lines = 1
+        self.line = []
         try:
             line = [] 
-            print("Reading UWB data... (Ctrl+C to stop)")
+            #print("Reading UWB data... (Ctrl+C to stop)")
             while len(line)<50:
                 line = self.uwb_dev.readline().decode('utf-8').strip()
-                print(line)
+                #print(line)
             if save_to_file:
-                print("Line collected, saving to file")
+                #print("Line collected, saving to file")
                 save_to_file(line, dump_file)
-            return line
+            self.line = line
         except serial.SerialException as e:
             print(f"SERIAL ERROR:: {e}")
-            return None
     
-    def parse_line(self, line, *device_ids):
+    def parse_line(self, *device_ids):
         """
-        Parses the line containing the message
-         and returns the coordinates of the specified devices.
-        
+        Parses the line containing the message and returns
+        the distances of the specified devices.
+
         Returns:
-        tag_loc, *devices_locs (order of device ids)
+            *device_distances, tag_loc
         """
-        print("Parsing line....")
-        coords = {}
 
-        pattern = re.compile(r'([0-9A-F]{4})\[(.*?)\]')
+        self.read_line()
 
-        for match in pattern.finditer(line):
+        distances = {}
+
+        pattern = re.compile(r'([0-9A-F]{4})\[(.*?)\]=([-\d.]+)')
+
+        for match in pattern.finditer(self.line):
             dev_id = match.group(1)
-            values = [float(x) for x in match.group(2).split(',')]
+            dist = float(match.group(3))
+            distances[dev_id] = dist
 
-            coords[dev_id] = values[:3]
-
-        # pozycja taga
-        tag_match = re.search(r'est\[(.*?)\]', line)
-        tag_pos = None
-        if tag_match:
-            tag_pos = [float(x) for x in tag_match.group(1).split(',')[:3]]
-
-        result = []
-        for dev in device_ids:
-            result.append(np.array(coords.get(dev)))
-
-        result.append(np.array(tag_pos))
-
-        return result
+        return [distances.get(dev) for dev in device_ids]
 
 if __name__ == "__main__":
-    uwb = New_UWB_module()
+    devs = ["9D15", "D599", "0F83", "4F96"]
+    uwb = UWB_module_DWM1001()
+    while True:
+        line = uwb.parse_line(*devs)
+        print(line)
+    #while(True):
+        #print(uwb.parse_line(*devs))
