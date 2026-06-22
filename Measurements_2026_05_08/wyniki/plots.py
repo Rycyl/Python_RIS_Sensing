@@ -20,31 +20,20 @@ def mw_to_dbm(x):
     dbm=10*np.log10(x)
     return dbm
 
+def linear_mean(x):
+    ret_val = dbm_to_mw(x)
+    ret_val = np.mean(ret_val)
+    ret_val = mw_to_dbm(ret_val)
+    return ret_val
 
 def truncade_trace(trace):
     return trace[224:1824:2]
-# @CP
-#TODO: ref mes to dBm
-#TODO: ref - paste with high ID (1000+) to 64 codebook
-
-
-#TODO: overall
-#TODO: wykresy (power in position /and merged): shape rysować: min, median, max
-"""
-sns.lineplot(           err_style="band", errorbar=errorbar_function)
-
-sns.lineplot(errorbar=errorbar_function, estimator=estimator_function)
-patrz: pat_choose_functions.py
-"""
-#TODO: 3 in one teams plot
-#TODO: porownać czy najlepszy pattern dla pozycji jest dla tego kąta zaprojektowany
-
-
 
 def sort_y_by_x(y, x):
     sorted_indices = np.argsort(x)
     y = np.array(y)
     return y[sorted_indices]
+
 
 def plot_mean_max_trace(results, codebooks, show = False, save = True):
     """
@@ -298,30 +287,6 @@ def plot_pow_in_pos_teams_all_in_one(results,
     # Utwórz folder "plots", jeśli nie istnieje
     os.makedirs(plots_folder, exist_ok=True)
 
-    linestyle_str = [
-     ('solid', 'solid'),      # Same as (0, ()) or '-'
-     ('dotted', 'dotted'),    # Same as ':'
-     ('dashed', 'dashed'),    # Same as '--'
-     ('dashdot', 'dashdot')]  # Same as '-.'
-
-    linestyle_tuple = [
-        ('loosely dotted',        (0, (1, 10))),
-        ('dotted',                (0, (1, 5))),
-        ('densely dotted',        (0, (1, 1))),
-
-        ('long dash with offset', (5, (10, 3))),
-        ('loosely dashed',        (0, (5, 10))),
-        ('dashed',                (0, (5, 5))),
-        ('densely dashed',        (0, (5, 1))),
-
-        ('loosely dashdotted',    (0, (3, 10, 1, 10))),
-        ('dashdotted',            (0, (3, 5, 1, 5))),
-        ('densely dashdotted',    (0, (3, 1, 1, 1))),
-
-        ('dashdotdotted',         (0, (3, 5, 1, 5, 1, 5))),
-        ('loosely dashdotdotted', (0, (3, 10, 1, 10, 1, 10))),
-        ('densely dashdotdotted', (0, (3, 1, 1, 1, 1, 1)))]
-
     FONTSIZE=16
     plt.rcParams['font.size'] = FONTSIZE
     plt.rcParams['lines.linewidth']= 3
@@ -366,6 +331,50 @@ def plot_pow_in_pos_teams_all_in_one(results,
             plt.savefig(os.path.join(plots_folder, f'{save_filename}{int(Rx_list[i])}.{save_format}'), format=save_format)    
         plt.close()  # Zamknij figurę, aby nie pokazywać podglądu
         pass
+
+
+def pow_in_pos_channels(results, 
+                        codebooks,
+                        show=True, 
+                        save=False, 
+                        Cbs_names=None, 
+                        save_format='png',
+                        save_filename = "pow_sort_rx_",
+                        veryfy_mins = False):
+    """
+    does plot plot_pow_in_pos_teams with additional lines:
+    min, max, mean
+    which represents best/worst/mean channel while using all codebook patterns
+    """
+    Rx_list = results.results[0].Rx_Angle #taken from Rx's from any result
+
+    cbs_results = []
+    cbs_labels = []
+    cbs_len = []
+
+    for cb in codebooks:
+        cbs_results.append(select_results_for_codebook(results=results,codebook=cb))
+        cbs_len.append(len(cb.patterns))
+
+    rxs = None
+    min_list = []
+    max_list = [] 
+    mean_list= []
+    for cb_results in cbs_results:
+        mins, rxs = cb_results.get_minimums_by_rx()
+        # print(rxs)
+        for rx_pos_mins in mins:
+            min_list.append(linear_mean(rx_pos_mins))
+        maxs, rxs = cb_results.get_maximums_by_rx()
+        # print(rxs)
+        for rx_pos_maxs in maxs:
+            max_list.append(linear_mean(rx_pos_maxs))
+        means, rxs = cb_results.get_means_by_rx()
+        # print(rxs)
+        for rx_pos_means in means:
+            mean_list.append(linear_mean(rx_pos_means))
+
+    return
 
 def plot_heatmap_3d(results, codebooks, show=True, save=False, Cbs_names=None, save_format='png'):
     #results = Results(dumpfile=dumpfile)
@@ -817,6 +826,7 @@ def list_files_from_folder(folder: str, rozszerzenia: Union[None, str, Iterable[
     return result
 
 
+
 if __name__=="__main__":
     # dumpfile = "euklides_codebook_128_0_08_May_2026.pkl"
     # results = Results(load_results=False)
@@ -860,7 +870,7 @@ if __name__=="__main__":
     show = not save
     veryfy_mins = True
     save_file_format = 'png'
-    plot_pow_in_pos_teams_all_in_one(results=results,
+    pow_in_pos_channels(results=results,
                                      codebooks=cbs,
                                      show=show, 
                                      save=save, 

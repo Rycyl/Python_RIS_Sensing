@@ -325,8 +325,8 @@ if __name__ == "__main__":
     #devices_ids = ["0F83", "D599", "870B", "4F96", "2D15", "9D15"]
     geo = Antenna_Geometry_MDEK1001(uwb, a3_id="9D15", ris_id="D599")
     geo.lines_treshold = 100
-    geo.n_sigma = 1
-    geo.stat_mode = 'median'
+    geo.n_sigma = 2
+    geo.stat_mode = 'mean'
     i = 0
     while True:
         try:

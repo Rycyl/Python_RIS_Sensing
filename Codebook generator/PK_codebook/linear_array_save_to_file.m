@@ -1,11 +1,11 @@
 clear
 close all
-f_c=3.5*10^9;% gdy odleglosc lambda/2- niezalezne od czestotliwosci
+f_c=5.53*10^9;% gdy odleglosc lambda/2- niezalezne od czestotliwosci
 c=3*10^8;
 d= 0.02;%c/f_c/2;% odleglosc miedzy elementmi antenowymi c=lambda*f
 L=16;%liczba elementow antenowych
 
-set_TX = -15:0;
+set_TX = -72:-68;
 set_RX = 0:80;
 B = [];
 params = []; % Array to store [Tx, Rx, Rotation] for each row

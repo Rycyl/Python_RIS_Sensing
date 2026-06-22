@@ -5,6 +5,21 @@ from bitstring import BitArray
 import os
 import numpy as np
 
+def dbm_to_mw(x):
+    mW=10**(x/10)
+    return mW
+
+def mw_to_dbm(x):
+    dbm=10*np.log10(x)
+    return dbm
+
+def linear_mean(x):
+    ret_val = dbm_to_mw(x)
+    ret_val = np.mean(ret_val)
+    ret_val = mw_to_dbm(ret_val)
+    return ret_val
+
+
 class Trace:
     def __init__(self, trace):
         self.trace = np.array(trace)
@@ -326,9 +341,70 @@ class Results:
                             self.maxs.append(result)
         return
 
+
+    def get_traces_by_rx(self):
+        """
+        Takes self.results and returns np.array:
+        [RX_angle_index, trace_index, subcarrier_index]
+        """
+
+        rx_map = {}
+
+        # Group traces by RX angle
+        for result in self.results:
+            for i in range(len(result.Rx_Angle)):
+                rx = result.Rx_Angle[i]
+                trace_obj = result.traces[i]  # already numpy array
+                trace = trace_obj.get_truncaded_trace()
+
+                if rx not in rx_map:
+                    rx_map[rx] = []
+                rx_map[rx].append(trace)
+
+        # Sort RX angles
+        sorted_rx = sorted(rx_map.keys())
+
+        # Convert to numpy structure
+        grouped_traces = [np.array(rx_map[rx]) for rx in sorted_rx]
+
+        return np.array(grouped_traces), np.array(sorted_rx)
+
+    def get_minimums_by_rx(self):
+        """
+        calculates trace of minimum power for each localisation
+        return: mins, RX_angles
+        """
+        rx_traces = self.get_traces_by_rx()
+        mins = np.min(rx_traces[0], axis=1)
+        return mins, rx_traces[1]
+    
+    def get_maximums_by_rx(self):
+        """
+        calculates trace of maximum power for each localisation
+        return: maxs, RX_angles
+        """
+        rx_traces = self.get_traces_by_rx()
+        mins = np.max(rx_traces[0], axis=1)
+        return mins, rx_traces[1]
+
+    def get_means_by_rx(self):
+        """
+        calculates mean traces for each localisation
+        return: maxs, RX_angles
+        """
+        rx_traces = self.get_traces_by_rx()
+        rx_traces = dbm_to_mw(rx_traces[0])
+        means = np.mean(rx_traces, axis=1)
+        means = mw_to_dbm(means)
+        return means, rx_traces[1]
+
 if __name__=="__main__":       
     # Create class instance
     results_instance = Results()
     results_instance.dump_class_to_file("results.pkl")
+    testb = results_instance.get_traces_by_rx()
+    testa = results_instance.get_minimums_by_rx()
+    pass
+    pass
     #print(results_instance)
     ############################################
