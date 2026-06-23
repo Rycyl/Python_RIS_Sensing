@@ -26,9 +26,6 @@ def linear_mean(x):
     ret_val = mw_to_dbm(ret_val)
     return ret_val
 
-def truncade_trace(trace):
-    return trace[224:1824:2]
-
 def sort_y_by_x(y, x):
     sorted_indices = np.argsort(x)
     y = np.array(y)
@@ -360,19 +357,79 @@ def pow_in_pos_channels(results,
     min_list = []
     max_list = [] 
     mean_list= []
+    pow_list = []
     for cb_results in cbs_results:
-        mins, rxs = cb_results.get_minimums_by_rx()
+        mins, rxs = cb_results.get_minimums_by_rx() #minima
         # print(rxs)
         for rx_pos_mins in mins:
             min_list.append(linear_mean(rx_pos_mins))
-        maxs, rxs = cb_results.get_maximums_by_rx()
+        maxs, rxs = cb_results.get_maximums_by_rx() #maxy
         # print(rxs)
         for rx_pos_maxs in maxs:
             max_list.append(linear_mean(rx_pos_maxs))
-        means, rxs = cb_results.get_means_by_rx()
+        means, rxs = cb_results.get_means_by_rx() #srednie dla rxow
         # print(rxs)
         for rx_pos_means in means:
             mean_list.append(linear_mean(rx_pos_means))
+        pow_list = means # do sprawdzenia poprawność czy means to wartości średnie trace dla każdego patternu
+
+    import numpy as np
+import matplotlib.pyplot as plt
+
+num_cb = len(pow_list)
+num_rx = len(pow_list[0])
+
+colors = plt.cm.tab10(np.linspace(0, 1, num_cb))
+
+fig, axes = plt.subplots(num_rx, 1, figsize=(8, 3*num_rx), sharex=True)
+
+for cb in range(num_cb):
+    color = colors[cb]
+
+    for rx in range(num_rx):
+        ax = axes[rx] if num_rx > 1 else axes
+
+        # pow_list: [pat][val] → średnia po val
+        pow_vals = np.mean(pow_list[cb][rx], axis=1)
+
+        # lineplot
+        ax.plot(
+            pow_vals,
+            color=color,
+            linestyle='-',
+            label=f'CB{cb} pow' if rx == 0 else None
+        )
+
+        # poziome linie (jedna wartość)
+        ax.axhline(
+            min_list[cb][rx],
+            color=color,
+            linestyle='--',
+            label=f'CB{cb} min' if rx == 0 else None
+        )
+
+        ax.axhline(
+            max_list[cb][rx],
+            color=color,
+            linestyle=':',
+            label=f'CB{cb} max' if rx == 0 else None
+        )
+
+        ax.axhline(
+            mean_list[cb][rx],
+            color=color,
+            linestyle='-.',
+            label=f'CB{cb} mean' if rx == 0 else None
+        )
+
+        ax.set_title(f"RX {rx}")
+        ax.grid(True)
+
+    axes[0].legend(ncol=4, fontsize=8)
+    plt.xlabel("pat")
+    plt.tight_layout()
+    plt.show()
+    
 
     return
 
@@ -725,13 +782,6 @@ def hamming_distance(a, b):
     c = a ^ b
     return c.count(1)
 
-def dbm_to_mw(x):
-    mW=10**(x/10)
-    return mW
-def mw_to_dbm(x):
-    dbm=10*math.log10(x)
-    return dbm
-
 
 def plot_hamming(results):
     #results = Results(dumpfile=dumpfile)
@@ -839,7 +889,7 @@ if __name__=="__main__":
 
     # cbs = []
     # for name in codebooks_names:
-    #     pwd = Path.cwd()                       # bieżący katalog
+    #     pwd = Path.cwd()               # bieżący katalog
     #     path = pwd / "e_cb" / name     # dołącz folder i plik
     #     cb = Codebook(load=False)
     #     print(path, str(path)[0:-4])

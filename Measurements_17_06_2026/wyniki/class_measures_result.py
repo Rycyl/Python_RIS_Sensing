@@ -411,12 +411,22 @@ class Results:
         means = mw_to_dbm(means)
         return means, rx_traces[1]
 
+    def get_means_for_patterns_by_rx(self):
+        """ 
+        calculates mean value of traces for each pattern for each localisation
+        return: maxs, RX_angles
+        """
+        rx_traces = self.get_traces_by_rx()
+        rx_traces = dbm_to_mw(rx_traces[0])
+        means = np.mean(rx_traces, axis=2)
+        means = mw_to_dbm(means)
+        return means, rx_traces[1]
+
 if __name__=="__main__":       
     # Create class instance
     results_instance = Results()
     results_instance.dump_class_to_file("results.pkl")
-    testb = results_instance.get_traces_by_rx()
-    testa = results_instance.get_minimums_by_rx()
+    testb = results_instance.get_means_for_patterns_by_rx()
     pass
     pass
     #print(results_instance)
