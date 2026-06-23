@@ -314,7 +314,7 @@ class Results:
                     rest_data = data[2:]
                     #check if pattern exist in results   
                     result_founded_in_results = False
-                    if int(data[0]) < 10000 and int(data[0]) < 20000:                     
+                    if int(data[0]) < 100000 and int(data[0]) < 200000:                     
                         for i in range(len(self.results)):
                             if self.results[i].idx == int(data[0]):
                                 #only add measure
@@ -326,7 +326,7 @@ class Results:
                             result = Result(*core_data)
                             result.add_measure(*rest_data)
                             self.add_result(result=result)
-                    elif int(data[0]) > 20000:
+                    elif int(data[0]) > 200000:
                         for i in range(len(self.mins)):
                             if self.mins[i].idx == int(data[0]):
                                 #only add measure
