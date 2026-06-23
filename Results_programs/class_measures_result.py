@@ -5,30 +5,65 @@ from bitstring import BitArray
 import os
 import numpy as np
 
+def dbm_to_mw(x):
+    mW=10**(x/10)
+    return mW
+
+def mw_to_dbm(x):
+    dbm=10*np.log10(x)
+    return dbm
+
+def linear_mean(x):
+    ret_val = dbm_to_mw(x)
+    ret_val = np.mean(ret_val)
+    ret_val = mw_to_dbm(ret_val)
+    return ret_val
+
+
 class Trace:
     def __init__(self, trace):
         self.trace = np.array(trace)
   
-    def get_truncaded_trace(self): #return trace without noise carriers at the sides
-        return self.trace[224:1824:2]
+    # def get_truncaded_trace(self, start=224, stop=1824, step=2): #return trace without noise carriers at the sides
+    #     return self.trace[start:stop:step]
+
+    def get_truncaded_trace(self, start=224, stop=1824, step=2, middle=1024):
+        indices = np.arange(start, stop, step)
+        mask = (indices != middle-1) & (indices != middle)
+        return self.trace[indices[mask]]
 
     def get_carriers_by_idx(self, idx):
         #idx is a list of indexes
         t = self.get_truncaded_trace()
         return t[idx]
 
-    def get_mean(self):
-        return(np.mean(self.get_truncaded_trace()))
+    def get_mean(self, start=None, stop=None, step=None):
+        if start and stop and step:
+            temp = self.get_truncaded_trace(start, stop, step)
+        else:
+            temp = self.get_truncaded_trace()
+        return(np.mean(temp))
 
-    def get_max(self):
-        return(np.max(self.get_truncaded_trace())) 
+    def get_max(self, start=None, stop=None, step=None):
+        if start and stop and step:
+            temp = self.get_truncaded_trace(start, stop, step)
+        else:
+            temp = self.get_truncaded_trace()
+        return(np.max(temp)) 
 
-    def get_min(self):
-        return(np.min(self.get_truncaded_trace())) 
+    def get_min(self, start=None, stop=None, step=None):
+        if start and stop and step:
+            temp = self.get_truncaded_trace(start, stop, step)
+        else:
+            temp = self.get_truncaded_trace()
+        return(np.min(temp)) 
 
-    def get_mean_by_idx(self, idx):
+    def get_mean_by_idx(self, idx, start=None, stop=None, step=None):
         #idx is a list of indexes
-        temp = self.get_truncaded_trace()
+        if start and stop and step:
+            temp = self.get_truncaded_trace(start, stop, step)
+        else:
+            temp = self.get_truncaded_trace()
         temp = temp[idx]
         return(np.mean(temp))
 
@@ -57,21 +92,13 @@ class Result:
         return truncaded_traces
 
     def get_rx_pos_in_xy(self):
-        num = (
-            self.b_values**2
-            + self.f_values**2
-            - self.d_values**2
-        )
-
-        den = 2 * self.b_values * self.f_values
-
-        cos_gamma = np.clip(num / den, -1.0, 1.0)
-
-        gammas = np.acos(cos_gamma)
-
-        x = np.cos(gammas) * self.f_values
-        y = np.sin(gammas) * self.f_values
-
+        y = np.sin(np.deg2rad(90 - self.Rx_Angle)) * self.d_values
+        x = np.cos(np.deg2rad(90 - self.Rx_Angle)) * self.d_values
+        for i in range (len(x)):
+            with np.printoptions(precision=1, suppress=True):
+                print("POS ", i)
+                print(x[i],y[i],[self.Rx_Angle[i]])
+        input()
         return x, y
 
     # def trace_mean_idx(self, idxs=None):
@@ -314,9 +341,70 @@ class Results:
                             self.maxs.append(result)
         return
 
+
+    def get_traces_by_rx(self):
+        """
+        Takes self.results and returns np.array:
+        [RX_angle_index, trace_index, subcarrier_index]
+        """
+
+        rx_map = {}
+
+        # Group traces by RX angle
+        for result in self.results:
+            for i in range(len(result.Rx_Angle)):
+                rx = result.Rx_Angle[i]
+                trace_obj = result.traces[i]  # already numpy array
+                trace = trace_obj.get_truncaded_trace()
+
+                if rx not in rx_map:
+                    rx_map[rx] = []
+                rx_map[rx].append(trace)
+
+        # Sort RX angles
+        sorted_rx = sorted(rx_map.keys())
+
+        # Convert to numpy structure
+        grouped_traces = [np.array(rx_map[rx]) for rx in sorted_rx]
+
+        return np.array(grouped_traces), np.array(sorted_rx)
+
+    def get_minimums_by_rx(self):
+        """
+        calculates trace of minimum power for each localisation
+        return: mins, RX_angles
+        """
+        rx_traces = self.get_traces_by_rx()
+        mins = np.min(rx_traces[0], axis=1)
+        return mins, rx_traces[1]
+    
+    def get_maximums_by_rx(self):
+        """
+        calculates trace of maximum power for each localisation
+        return: maxs, RX_angles
+        """
+        rx_traces = self.get_traces_by_rx()
+        mins = np.max(rx_traces[0], axis=1)
+        return mins, rx_traces[1]
+
+    def get_means_by_rx(self):
+        """
+        calculates mean traces for each localisation
+        return: maxs, RX_angles
+        """
+        rx_traces = self.get_traces_by_rx()
+        rx_traces = dbm_to_mw(rx_traces[0])
+        means = np.mean(rx_traces, axis=1)
+        means = mw_to_dbm(means)
+        return means, rx_traces[1]
+
 if __name__=="__main__":       
     # Create class instance
     results_instance = Results()
     results_instance.dump_class_to_file("results.pkl")
+    testb = results_instance.get_traces_by_rx()
+    testa = results_instance.get_minimums_by_rx()
+    pass
+    pass
     #print(results_instance)
     ############################################

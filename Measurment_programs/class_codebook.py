@@ -48,20 +48,22 @@ class Codebook:
         if ret:
             return self
 
-    def load_pkl_codebook(self, dumpfile):
+    def load_pkl_codebook(self, dumpfile, ret = False):
         with open(dumpfile, 'rb') as file:
             loaded_object = pickle.load(file)
             self.patterns = loaded_object.patterns
             print("codebook from PKL loaded")
+            if ret:
+                return self
 
     def load_codebook(self, dumpfile, filename):
         print("codebook loading....")
         try:
             print("PKL try")
-            load_pkl_codebook(dumpfile)
+            self.load_pkl_codebook(dumpfile)
         except:
             print("PKL failed, trying CSV")
-            load_csv_codebook(filename, dumpfile)
+            self.load_csv_codebook(filename, dumpfile)
         return
             
 # Create class instance and load the data
