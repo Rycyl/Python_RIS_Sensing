@@ -1,0 +1,423 @@
+import ast
+import time
+import pickle
+from bitstring import BitArray
+import os
+import numpy as np
+
+def dbm_to_mw(x):
+    mW=10**(x/10)
+    return mW
+
+def mw_to_dbm(x):
+    dbm=10*np.log10(x)
+    return dbm
+
+def linear_mean(x):
+    ret_val = dbm_to_mw(x)
+    ret_val = np.mean(ret_val)
+    ret_val = mw_to_dbm(ret_val)
+    return ret_val
+
+
+class Trace:
+    def __init__(self, trace):
+        self.trace = np.array(trace)
+  
+    # def get_truncaded_trace(self, start=224, stop=1824, step=2): #return trace without noise carriers at the sides
+    #     return self.trace[start:stop:step]
+
+    def get_truncaded_trace(self, start=224, stop=1824, step=2, middle=1024):
+        indices = np.arange(start, stop, step)
+        mask = (indices != middle-1) & (indices != middle)
+        return self.trace[indices[mask]]
+
+    def get_carriers_by_idx(self, idx):
+        #idx is a list of indexes
+        t = self.get_truncaded_trace()
+        return t[idx]
+
+    def get_mean(self, start=None, stop=None, step=None):
+        if start and stop and step:
+            temp = self.get_truncaded_trace(start, stop, step)
+        else:
+            temp = self.get_truncaded_trace()
+        return(np.mean(temp))
+
+    def get_max(self, start=None, stop=None, step=None):
+        if start and stop and step:
+            temp = self.get_truncaded_trace(start, stop, step)
+        else:
+            temp = self.get_truncaded_trace()
+        return(np.max(temp)) 
+
+    def get_min(self, start=None, stop=None, step=None):
+        if start and stop and step:
+            temp = self.get_truncaded_trace(start, stop, step)
+        else:
+            temp = self.get_truncaded_trace()
+        return(np.min(temp)) 
+
+    def get_mean_by_idx(self, idx, start=None, stop=None, step=None):
+        #idx is a list of indexes
+        if start and stop and step:
+            temp = self.get_truncaded_trace(start, stop, step)
+        else:
+            temp = self.get_truncaded_trace()
+        temp = temp[idx]
+        return(np.mean(temp))
+
+class Result:
+    def __init__(self, idx, pattern):
+        self.idx = int(idx)  # Index of the result
+        self.pattern = BitArray(hex=pattern)  # Bit pattern
+        self.powers = []  # List to store power measurements
+        self.Tx_Angle = []  # List to store transmission angles
+        self.Rx_Angle = []  # List to store reception angles
+        self.a_values = []  # List to store values of a
+        self.b_values = []  # List to store values of b
+        self.c_values = []  # List to store values of c
+        self.d_values = []  # List to store values of d
+        self.e_values = []  # List to store values of e
+        self.f_values = []  # List to store values of f
+        self.traces = []    # List to store whole traces from measurement
+
+    def __repr__(self):
+        return(f"angle_RX {self.Rx_Angle}")
+     
+    def get_truncaded_traces(self): #return traces without noise carriers at the sides
+        truncaded_traces = np.array()
+        for trace in self.traces:
+            np.append(truncaded_traces, trace[224:1824:2])
+        return truncaded_traces
+
+    def get_rx_pos_in_xy(self):
+        y = np.sin(np.deg2rad(90 - self.Rx_Angle)) * self.d_values
+        x = np.cos(np.deg2rad(90 - self.Rx_Angle)) * self.d_values
+        for i in range (len(x)):
+            with np.printoptions(precision=1, suppress=True):
+                print("POS ", i)
+                print(x[i],y[i],[self.Rx_Angle[i]])
+        input()
+        return x, y
+
+    # def trace_mean_idx(self, idxs=None):
+    #     if idxs == None:
+    #         input("WARNING, none idxs given to do trace mean, press anything to continue")
+    #     truncaded_traces = self.truncade_traces()
+    #     means = [np.mean(trace[10:20]) for trace in truncaded_traces]
+    #     return np.array(means)
+
+    def add_measure(self, power, tx_angle, rx_angle, a,b,c,d,e,f,traces,garbage=None,garbage2=None):
+        #garbage is usually an empty element on list - artifact of loading .csv with "";"" at the line end
+        self.powers.append(float(power))  # Add power measurement
+        self.Rx_Angle.append(float(rx_angle))  # Add transmission angle
+        self.Tx_Angle.append(float(tx_angle))  # Add reception angle
+        self.a_values.append(float(a))  # Add value of a
+        self.b_values.append(float(b))  # Add value of b
+        self.c_values.append(float(c))  # Add value of c
+        self.d_values.append(float(d))  # Add value of d
+        self.e_values.append(float(e))  # Add value of e
+        self.f_values.append(float(f))  # Add value of f
+        arr = np.fromstring(traces.strip('[]'), sep=',').astype(np.float32)
+        self.traces.append(Trace(arr))
+
+    def add_pattern_to_idx(self):
+        pass
+
+    def __repr__(self):
+        return (f"Result(idx={self.idx}, powers={self.powers}, "
+                f"Tx_Angle={self.Tx_Angle}, Rx_Angle={self.Rx_Angle}, "
+                f"a_values={self.a_values}, b_values={self.b_values}, "
+                f"c_values={self.c_values}, d_values={self.d_values}, e_values={self.e_values}, f_values={self.f_values})")
+
+class Results:
+    def __init__(self, dumpfile="results.pkl", resultfilename="", load_results=True, directory_path=None):
+        self.results = []
+        self.maxs = []
+        self.mins = []
+        if load_results:
+            self.load_results(dumpfile, resultfilename, directory_path)
+
+    def get_maxs_list_for_RX(self, Rx_Angle):
+        ret_results = []
+        for res in self.maxs:
+            if res.Rx_Angle[0] == Rx_Angle:
+                ret_results.append(res)
+        return ret_results
+
+    def get_max_for_RX(self, Rx_Angle):
+        max_list = self.get_maxs_list_for_RX(Rx_Angle=Rx_Angle)
+        maxsy = []
+        for m in max_list:
+            maxsy.append(m.traces[0].get_mean_by_idx(list(range(10,21))))
+        return np.max(maxsy)
+
+    def sort_by_RX(self):
+        # Ensure that all relevant attributes are NumPy arrays
+        for result in self.results:
+            result.Rx_Angle = np.array(result.Rx_Angle)
+            result.Tx_Angle = np.array(result.Tx_Angle)
+            result.a_values = np.array(result.a_values)
+            result.b_values = np.array(result.b_values)
+            result.c_values = np.array(result.c_values)
+            result.powers = np.array(result.powers)
+            result.d_values = np.array(result.d_values)
+            result.e_values = np.array(result.e_values)
+            result.f_values = np.array(result.f_values)
+            result.traces = np.array(result.traces)
+
+        for min_result in self.mins:
+            min_result.Rx_Angle = np.array(min_result.Rx_Angle)
+            min_result.Tx_Angle = np.array(min_result.Tx_Angle)
+            min_result.a_values = np.array(min_result.a_values)
+            min_result.b_values = np.array(min_result.b_values)
+            min_result.c_values = np.array(min_result.c_values)
+            min_result.powers = np.array(min_result.powers)
+            min_result.d_values = np.array(min_result.d_values)
+            min_result.e_values = np.array(min_result.e_values)
+            min_result.f_values = np.array(min_result.f_values)
+            min_result.traces = np.array(min_result.traces)
+
+        for max_result in self.maxs:
+            max_result.Rx_Angle = np.array(max_result.Rx_Angle)
+            max_result.Tx_Angle = np.array(max_result.Tx_Angle)
+            max_result.a_values = np.array(max_result.a_values)
+            max_result.b_values = np.array(max_result.b_values)
+            max_result.c_values = np.array(max_result.c_values)
+            max_result.powers = np.array(max_result.powers)
+            max_result.d_values = np.array(max_result.d_values)
+            max_result.e_values = np.array(max_result.e_values)
+            max_result.f_values = np.array(max_result.f_values)
+            max_result.traces = np.array(max_result.traces)
+            
+        # Now perform the sorting
+        sorted_indices = np.argsort(self.results[0].Rx_Angle)
+
+        for i in range(len(self.results)):
+            self.results[i].Rx_Angle = self.results[i].Rx_Angle[sorted_indices]
+            self.results[i].Tx_Angle = self.results[i].Tx_Angle[sorted_indices]
+            self.results[i].a_values = self.results[i].a_values[sorted_indices]
+            self.results[i].b_values = self.results[i].b_values[sorted_indices]
+            self.results[i].c_values = self.results[i].c_values[sorted_indices]
+            self.results[i].powers = self.results[i].powers[sorted_indices]
+            self.results[i].d_values = self.results[i].d_values[sorted_indices]
+            self.results[i].e_values = self.results[i].e_values[sorted_indices]
+            self.results[i].f_values = self.results[i].f_values[sorted_indices]
+            self.results[i].traces = self.results[i].traces[sorted_indices]
+
+        for i in range(len(self.mins)):
+            self.mins[i].Rx_Angle = self.mins[i].Rx_Angle[sorted_indices]
+            self.mins[i].Tx_Angle = self.mins[i].Tx_Angle[sorted_indices]
+            self.mins[i].a_values = self.mins[i].a_values[sorted_indices]
+            self.mins[i].b_values = self.mins[i].b_values[sorted_indices]
+            self.mins[i].c_values = self.mins[i].c_values[sorted_indices]
+            self.mins[i].powers = self.mins[i].powers[sorted_indices]
+            self.mins[i].d_values = self.mins[i].d_values[sorted_indices]
+            self.mins[i].e_values = self.mins[i].e_values[sorted_indices]
+            self.mins[i].f_values = self.mins[i].f_values[sorted_indices]
+            self.mins[i].traces = self.mins[i].traces[sorted_indices]
+
+        for i in range(len(self.maxs)):
+            self.maxs[i].Rx_Angle = self.maxs[i].Rx_Angle[sorted_indices]
+            self.maxs[i].Tx_Angle = self.maxs[i].Tx_Angle[sorted_indices]
+            self.maxs[i].a_values = self.maxs[i].a_values[sorted_indices]
+            self.maxs[i].b_values = self.maxs[i].b_values[sorted_indices]
+            self.maxs[i].c_values = self.maxs[i].c_values[sorted_indices]
+            self.maxs[i].powers = self.maxs[i].powers[sorted_indices]
+            self.maxs[i].d_values = self.maxs[i].d_values[sorted_indices]
+            self.maxs[i].e_values = self.maxs[i].e_values[sorted_indices]
+            self.maxs[i].f_values = self.maxs[i].f_values[sorted_indices]
+            self.maxs[i].traces = self.maxs[i].traces[sorted_indices]
+
+    def add_result(self, result):
+        if isinstance(result, Result):
+            self.results.append(result)
+        else:
+            raise ValueError("Only objects of type Result can be added.")
+
+    def dump_class_to_file(self, dumpfile):
+        # Serializacja obiektu do pliku
+        with open(dumpfile, 'wb') as file:
+            pickle.dump(self, file)
+        print("Results class dumpted to a file: ", dumpfile)
+
+    def calc_angle_distances(self, filename): #np.average(data, axis=1)
+        ret = []
+        with open(filename, 'r', encoding='utf-8') as file:
+            # Wczytaj wszystkie linie z pliku
+            lines = file.readlines()
+        # Przetwórz każdą linię, dzieląc dane na podstawie znaku ';'
+        data = [line.strip().split(';') for line in lines]
+        #print(data)
+        for line in lines:
+            #make a list from file data
+            data = line.strip().split(';')
+            if data[0] == "N":
+                continue     
+            #split for idx and pat | the rest                   
+            rest_data = data[3:-2]
+            for i in range(len(rest_data)):
+                rest_data[i] = float(rest_data[i])
+            if rest_data not in ret:
+                ret.append(rest_data)
+        ret_vals = np.average(ret, axis=0)
+        return ret_vals
+
+    def load_results(self, dumpfile, resultfilename, directory_path=None):
+        print("results loading....")
+        try:
+            self.load_picle_results(dumpfile)
+        except:
+            self.load_csv_results(resultfilename,directory_path)
+        self.sort_by_RX()                    
+        print("results loaded")
+        self.dump_class_to_file(dumpfile)
+        print("results dumped to file")
+
+    def load_picle_results(self, dumpfile):
+        print("picle try")
+        with open(dumpfile, 'rb') as file:
+            loaded_object = pickle.load(file)
+        self.results = loaded_object.results
+        self.maxs=loaded_object.maxs
+        self.mins=loaded_object.mins
+        print("Results loaded")
+    
+    def load_csv_results(self, resultfilename,directory_path):
+        print("pickle failed")
+        if directory_path == None:
+            directory_path = os.path.dirname(os.path.abspath(__file__))            
+        for filename in os.listdir(directory_path):
+            # Sprawdzenie, czy nazwa pliku zaczyna się od "Big_codebook"
+            #print("checking file:",filename)
+            if filename.startswith(resultfilename) and filename.endswith(".csv"):
+                # Pełna ścieżka do pliku
+                file_path = os.path.join(directory_path, filename)
+                # Otwórz wyniki
+                print("Reading: ",file_path)
+                #angles_distances = self.calc_angle_distances(file_path)
+                #print(angles_distances)
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    # Wczytaj wszystkie linie z pliku
+                    lines = file.readlines()
+                # Przetwórz każdą linię, dzieląc dane na podstawie znaku ';'
+                data = [line.strip().split(';') for line in lines]
+                #print(data)
+                for line in lines:
+                    #make a list from file data
+                    data = line.strip().split(';')
+                    if data[0] == "N":
+                        continue     
+                    #split for idx and pat | the rest                   
+                    core_data = [data[0], data[1]]
+                    rest_data = data[2:]
+                    #check if pattern exist in results   
+                    result_founded_in_results = False
+                    if int(data[0]) < 10000 and int(data[0]) < 20000:                     
+                        for i in range(len(self.results)):
+                            if self.results[i].idx == int(data[0]):
+                                #only add measure
+                                self.results[i].add_measure(*rest_data)
+                                result_founded_in_results = True
+                                break
+                        if not (result_founded_in_results):    
+                            #create new Result()
+                            result = Result(*core_data)
+                            result.add_measure(*rest_data)
+                            self.add_result(result=result)
+                    elif int(data[0]) > 20000:
+                        for i in range(len(self.mins)):
+                            if self.mins[i].idx == int(data[0]):
+                                #only add measure
+                                self.mins[i].add_measure(*rest_data)
+                                #self.mins[i].add_pattern_to_idx(core_data[1])
+                                result_founded_in_results = True
+                                break
+                        if not (result_founded_in_results):    
+                            #create new Result()
+                            result = Result(*core_data)
+                            result.add_measure(*rest_data)
+                            self.maxs.append(result)
+                    else: 
+                        for i in range(len(self.maxs)):
+                            if self.maxs[i].idx == int(data[0]):
+                                #only add measure
+                                self.maxs[i].add_measure(*rest_data)
+                                #self.maxs[i].add_pattern_to_idx(core_data[1])
+                                result_founded_in_results = True
+                                break
+                        if not (result_founded_in_results):    
+                            #create new Result()
+                            result = Result(*core_data)
+                            result.add_measure(*rest_data)
+                            self.maxs.append(result)
+        return
+
+
+    def get_traces_by_rx(self):
+        """
+        Takes self.results and returns np.array:
+        [RX_angle_index, trace_index, subcarrier_index]
+        """
+
+        rx_map = {}
+
+        # Group traces by RX angle
+        for result in self.results:
+            for i in range(len(result.Rx_Angle)):
+                rx = result.Rx_Angle[i]
+                trace_obj = result.traces[i]  # already numpy array
+                trace = trace_obj.get_truncaded_trace()
+
+                if rx not in rx_map:
+                    rx_map[rx] = []
+                rx_map[rx].append(trace)
+
+        # Sort RX angles
+        sorted_rx = sorted(rx_map.keys())
+
+        # Convert to numpy structure
+        grouped_traces = [np.array(rx_map[rx]) for rx in sorted_rx]
+
+        return np.array(grouped_traces), np.array(sorted_rx)
+
+    def get_minimums_by_rx(self):
+        """
+        calculates trace of minimum power for each localisation
+        return: mins, RX_angles
+        """
+        rx_traces = self.get_traces_by_rx()
+        mins = np.min(rx_traces[0], axis=1)
+        return mins, rx_traces[1]
+    
+    def get_maximums_by_rx(self):
+        """
+        calculates trace of maximum power for each localisation
+        return: maxs, RX_angles
+        """
+        rx_traces = self.get_traces_by_rx()
+        mins = np.max(rx_traces[0], axis=1)
+        return mins, rx_traces[1]
+
+    def get_means_by_rx(self):
+        """
+        calculates mean traces for each localisation
+        return: maxs, RX_angles
+        """
+        rx_traces = self.get_traces_by_rx()
+        rx_traces = dbm_to_mw(rx_traces[0])
+        means = np.mean(rx_traces, axis=1)
+        means = mw_to_dbm(means)
+        return means, rx_traces[1]
+
+if __name__=="__main__":       
+    # Create class instance
+    results_instance = Results()
+    results_instance.dump_class_to_file("results.pkl")
+    testb = results_instance.get_traces_by_rx()
+    testa = results_instance.get_minimums_by_rx()
+    pass
+    pass
+    #print(results_instance)
+    ############################################
