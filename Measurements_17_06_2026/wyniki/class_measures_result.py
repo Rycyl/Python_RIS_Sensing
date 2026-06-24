@@ -92,13 +92,13 @@ class Result:
         return truncaded_traces
 
     def get_rx_pos_in_xy(self):
-        y = np.sin(np.deg2rad(90 - self.Rx_Angle)) * self.d_values
-        x = np.cos(np.deg2rad(90 - self.Rx_Angle)) * self.d_values
+        y = np.cos(np.deg2rad(self.Rx_Angle)) * self.c_values
+        x = np.sin(np.deg2rad(self.Rx_Angle)) * self.c_values
         for i in range (len(x)):
             with np.printoptions(precision=1, suppress=True):
                 print("POS ", i)
                 print(x[i],y[i],[self.Rx_Angle[i]])
-        input()
+        # input()
         return x, y
 
     # def trace_mean_idx(self, idxs=None):
@@ -132,10 +132,11 @@ class Result:
                 f"c_values={self.c_values}, d_values={self.d_values}, e_values={self.e_values}, f_values={self.f_values})")
 
 class Results:
-    def __init__(self, dumpfile="results.pkl", resultfilename="", load_results=True, directory_path=None):
+    def __init__(self, dumpfile="results.pkl", resultfilename="", load_results=True, directory_path=None, dump=False):
         self.results = []
         self.maxs = []
         self.mins = []
+        self.dump=dump
         if load_results:
             self.load_results(dumpfile, resultfilename, directory_path)
 
@@ -272,11 +273,16 @@ class Results:
             print("STATUS of PICLE is NEGATIVE")
             print("Error:", repr(e))
             print("Loading CSVs")
-            self.load_csv_results(resultfilename,directory_path)
+            decision = input("load .CSVs? (y/n)")
+            if decision == 'y':
+                self.load_csv_results(resultfilename,directory_path)
+            else:
+                exit()
         self.sort_by_RX()                    
         print("results loaded")
-        self.dump_class_to_file(dumpfile)
-        print("results dumped to file")
+        if self.dump:
+            self.dump_class_to_file(dumpfile)
+            print("results dumped to file")
 
     def load_picle_results(self, dumpfile):
         print("picle try")
@@ -430,13 +436,13 @@ class Results:
     def get_maxs_from_maxs_by_rx(self):
         rx_traces = self.get_traces_by_rx(self.maxs)
         maxs = np.max(rx_traces[0], axis=1)
-        maxs = np.max(maxs, axis=1)
+        #maxs = np.max(maxs, axis=1)
         return maxs, rx_traces[1]
 
     def get_mins_from_mins_by_rx(self):
         rx_traces = self.get_traces_by_rx(self.mins)
         maxs = np.min(rx_traces[0], axis=1)
-        maxs = np.min(maxs, axis=1)
+        #maxs = np.min(maxs, axis=1)
         return maxs, rx_traces[1]
 
 
@@ -444,7 +450,7 @@ class Results:
 if __name__=="__main__":       
     # Create class instance
     results_instance = Results(resultfilename="All_measurements_merged.csv")
-    results_instance.dump_class_to_file("results.pkl")
+    # results_instance.dump_class_to_file("results.pkl")
     testb = results_instance.get_maxs_from_maxs_by_rx()
     pass
     pass

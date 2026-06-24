@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import List, Iterable, Union
 from results_for_codebook import select_results_for_codebook
 import json
+from scipy.interpolate import griddata
 
 def dbm_to_mw(x):
     mW=10**(x/10)
@@ -375,7 +376,6 @@ def pow_in_pos_channels(results,
         # print(rxs)
         for rx_pos_means in means:
             mean_list[-1].append(linear_mean(rx_pos_means))
-        # pow_list = means # do sprawdzenia poprawność czy means to wartości średnie trace dla każdego patternu
         mean_pat_rx, rxs = cb_results.get_means_for_patterns_by_rx()
         for aaaaaa in mean_pat_rx:
             aaaaaa = np.sort(aaaaaa)
@@ -383,11 +383,17 @@ def pow_in_pos_channels(results,
 
     max_ref, trash_rx = results.get_maxs_from_maxs_by_rx()
     min_ref, trash_rx = results.get_mins_from_mins_by_rx()
+    for i,mr in enumerate(max_ref):
+        max_ref[i] = linear_mean(mr)
+    for i,mr in enumerate(min_ref):
+        min_ref[i] = linear_mean(mr)
+    max_ref=np.mean(max_ref, axis=0)
+    min_ref=np.mean(min_ref, axis=0)
 
     num_cb = len(pow_list)
     num_rx = len(pow_list[0])
 
-    colors = plt.cm.tab10(range(0,9))
+    colors = plt.cm.tab10(range(0,10))
     
     # Uzyskaj nazwę folderu, w którym znajduje się skrypt
     folder_name = os.path.dirname(os.path.abspath(__file__))
@@ -396,22 +402,23 @@ def pow_in_pos_channels(results,
     os.makedirs(plots_folder, exist_ok=True)
 
     for rx in range(num_rx):
+        avg = []
+        
         plt.figure(figsize=(10,7))
     
         FONTSIZE=16
         plt.rcParams['font.size'] = FONTSIZE
         plt.rcParams['lines.linewidth']= 3
         for cb in range(num_cb):
-            color = colors[cb]
-            # pow_list: [pat][val] → średnia po val
+            color = colors[cb%10]
             pow_vals = pow_list[cb][rx]
-
+            avg.append(linear_mean(np.array(pow_vals)))
             # lineplot
             plt.plot(
                 pow_vals,
                 color=color,
                 linestyle='-',
-                label=f'{Cbs_names[cb]} pow'
+                label=f'{Cbs_names[cb]} sorted mean(trace)'
             )
 
             # poziome linie (jedna wartość)
@@ -419,23 +426,24 @@ def pow_in_pos_channels(results,
                 min_list[cb][rx],
                 color=color,
                 linestyle='--',
-                label=f'{Cbs_names[cb]} min'
+                label=f'{Cbs_names[cb]} mean(min(traces))'
             )
 
             plt.axhline(
                 max_list[cb][rx],
                 color=color,
                 linestyle=':',
-                label=f'{Cbs_names[cb]} max'
+                label=f'{Cbs_names[cb]} mean(max(traces))'
             )
 
             plt.axhline(
                 mean_list[cb][rx],
                 color=color,
                 linestyle='-.',
-                label=f'{Cbs_names[cb]} mean'
+                label=f'{Cbs_names[cb]} mean(traces)'
             )
-
+        
+        plt.axhline(y=linear_mean(np.array(avg)), color='grey', linestyle='--', label='Linear average')
 
         plt.axhline(
                 max_ref[rx],
@@ -469,186 +477,116 @@ def pow_in_pos_channels(results,
             plt.show()
     return
 
-def plot_heatmap_3d(results, codebooks, show=True, save=False, Cbs_names=None, save_format='png'):
-    #results = Results(dumpfile=dumpfile)
-    cbs_results = []
-    cbs_labels = []
-    cbs_len = []
-    y_vals = []
-    
-    Rx_list = results.results[0].Rx_Angle #taken from Rx's from any result 
-    xy_list = results.results[0].get_rx_pos_in_xy()  
-    #cbs_info = json.load("")
-    #TODO function to get from json the cbs_labels and ranges - maybe object to pass from main?
-    #ALTERNATE: add a function in codebook class to get upper and lower ID and to name codebook properly?
-    
-    for cb in codebooks:
-        cbs_results.append(select_results_for_codebook(results=results,codebook=cb))
-        cbs_len.append(len(cb.patterns))
 
-    powers_cbs = [] # list to store a list of powers from cb [10:20]
-    powers_whole_trace_means = [] # list to store mean of all carriers
-    powers_max_from_trace = [] # list to store max from traces
-    powers_min_from_trace = [] # list to store min from traces
+def plot_heatmap_3d(results, codebooks, show=True, save=False, Cbs_names=None, save_format='png'):
+    Rx_list = results.results[0].Rx_Angle
+    xy_list = results.results[0].get_rx_pos_in_xy()
+
+    cbs_results = []
+    for cb in codebooks:
+        cbs_results.append(select_results_for_codebook(results=results, codebook=cb))
+
+    max_list = []
+    pow_list = []
 
     for cb_results in cbs_results:
-        powers_cbs.append([])
-        powers_whole_trace_means.append([])
-        powers_max_from_trace.append([])
-        powers_min_from_trace.append([])
-        for result in cb_results.results:
-            pats_powers = [] #list to store mean power vals of selected carriers
-            pats_means = []
-            pats_mins = []
-            pats_maxs = []
-            for trace in result.traces:
-                pats_powers.append(trace.get_mean_by_idx(list(range(10,21))))
-                pats_means.append(trace.get_mean())
-                pats_maxs.append(trace.get_max())
-                pats_mins.append(trace.get_min())
-            powers_cbs[-1].append(np.array(pats_powers))
-            powers_whole_trace_means[-1].append(np.array(pats_means))
-            powers_max_from_trace[-1].append(np.array(pats_maxs))
-            powers_min_from_trace[-1].append(np.array(pats_mins))
-        powers_cbs[-1] = np.array(powers_cbs[-1]).T
-        powers_whole_trace_means[-1] = np.array(powers_whole_trace_means[-1]).T
-        powers_max_from_trace[-1] = np.array(powers_max_from_trace[-1]).T
-        powers_min_from_trace[-1] = np.array(powers_min_from_trace[-1]).T
-        #powers_cbs structure: [CB][RX][PAT] 
-        #needed                [RX][CB][PAT_power_vals]
-    ####
-    # change dims below by GPT!
-    # original: powers_cbs[cb_idx][rx_idx] -> PAT_power_vals (numpy array)
-    # result: powers_by_rx[RX][CB] = PAT_power_vals
-    num_cbs = len(powers_cbs)
-    num_rx = len(powers_cbs[0])  # assume non-empty and consistent
-    powers_by_rx = []
-    powers_mean_by_rx = []
-    powers_maxs_by_rx = []
-    powers_mins_by_rx = []
+        max_list.append([])
+        pow_list.append([])
+
+        maxs, _ = cb_results.get_maximums_by_rx()
+        for rx_pos_maxs in maxs:
+            max_list[-1].append(linear_mean(rx_pos_maxs))
+
+        mean_pat_rx, _ = cb_results.get_means_for_patterns_by_rx()
+        for arr in mean_pat_rx:
+            arr = np.sort(arr)
+            pow_list[-1].append(arr)
+
+    # --- avg per RX ---
+    num_cb = len(pow_list)
+    num_rx = len(pow_list[0])
+
+    avg_per_rx = []
     for rx in range(num_rx):
-        rx_list = []
-        rx_mean = []
-        rx_maxs = []
-        rx_mins = []
-        for cb in range(num_cbs):
-            rx_list.append(powers_cbs[cb][rx])
-            rx_mean.append(powers_whole_trace_means[cb][rx])
-            rx_maxs.append(powers_max_from_trace[cb][rx])
-            rx_mins.append(powers_min_from_trace[cb][rx])
-        powers_by_rx.append(rx_list)
-        powers_mean_by_rx.append(rx_mean)
-        powers_maxs_by_rx.append(rx_maxs)
-        powers_mins_by_rx.append(rx_mins)
-    ####
+        avg = []
+        for cb in range(num_cb):
+            avg.append(linear_mean(np.array(pow_list[cb][rx])))
+        avg_per_rx.append(linear_mean(np.array(avg)))
 
-    #PLOTTING ITERATION 
-    # Uzyskaj nazwę folderu, w którym znajduje się skrypt
-    folder_name = os.path.dirname(os.path.abspath(__file__))
-    plots_folder = os.path.join(folder_name, 'heatmap_3d')
-    # Utwórz folder "plots", jeśli nie istnieje
-    os.makedirs(plots_folder, exist_ok=True)
+    avg_per_rx = np.array(avg_per_rx)
 
-    
-
-    FONTSIZE=16
-    plt.rcParams['font.size'] = FONTSIZE
-    plt.rcParams['lines.linewidth']= 3
-
+    # --- XY ---
     x_vals = np.array(xy_list[0])
     y_vals = np.array(xy_list[1])
-    mean_maxs = []
-    mean_linear_all = []
-    for i, cb_vals in enumerate(powers_whole_trace_means):
-        mean_maxs.append([])
-        mean_linear_all.append([])
-        for j in range(len(cb_vals)):
-            mean_linear_all[-1].append(mw_to_dbm(np.mean(dbm_to_mw(np.array(powers_whole_trace_means[i][j])))))
-            mean_maxs[-1].append(mw_to_dbm(np.mean(dbm_to_mw(np.array(powers_max_from_trace[i][j])))))
-    z_vals = np.array(mean_maxs) - np.array(mean_linear_all)
-    print("X:\n", x_vals.shape)
-    print(x_vals)
-    print("Y:\n", y_vals.shape)
-    seria = 0
-    print(z_vals[1])
-    print("Z:\n", z_vals.shape)
-    print(z_vals)
+
+    # --- folder ---
+    folder_name = os.path.dirname(os.path.abspath(__file__))
+    plots_folder = os.path.join(folder_name, 'heatmaps')
+    os.makedirs(plots_folder, exist_ok=True)
+
+    # --- pętla po wszystkich seriach ---
     
-    from scipy.interpolate import griddata
+    # wspólna skala dla wszystkich CB
+    all_z = []
+    for s in range(num_cb):
+        all_z.extend(np.array(max_list[s]) - avg_per_rx)
 
-    # dane
-    x = np.array(x_vals)
-    y = np.array(y_vals)
-    z = np.array(z_vals[1])
+    global_vmin = np.nanmin(all_z)
+    global_vmax = np.nanmax(all_z)
 
-  
-    # siatka interpolacji
-    xi = np.linspace(0, 4.8, 120)
-    yi = np.linspace(0.4, 5, 80)
-    #xi = np.linspace(x.min(), x.max(), 100)
-    #yi = np.linspace(y.min(), y.max(), 100)
+    #petla na ploty
+    for seria in range(num_cb):
 
-    Xi, Yi = np.meshgrid(xi, yi)
+        # Z = max - avg
+        z_vals = np.array(max_list[seria]) - avg_per_rx
 
-    # interpolacja wartości Z
-    Zi = griddata(
-        (x, y),
-        z,
-        (Xi, Yi),
-        method='linear'
-    )
+        # interpolacja
+        xi = np.linspace(x_vals.min(), x_vals.max(), 180)
+        yi = np.linspace(y_vals.min(), y_vals.max(), 60)
+        Xi, Yi = np.meshgrid(xi, yi)
 
-    # rysowanie heatmapy
-    plt.figure(figsize=(8, 6))
+        Zi = griddata(
+            (x_vals, y_vals),
+            z_vals,
+            (Xi, Yi),
+            method='linear'
+        )
 
-    heatmap = plt.contourf(
-        Xi,
-        Yi,
-        Zi,
-        levels=20,
-        cmap='viridis',
-        vmin=z.min(),
-        vmax=z.max()
-    )
+        # plotting
+        plt.figure(figsize=(8, 6))
 
-    # opcjonalnie pokaż punkty pomiarowe
-    plt.scatter(
-        x,
-        y,
-        c='red',
-        s=15,
-        label='Mes points'
-    )
+        heatmap = plt.contourf(
+            Xi, Yi, Zi,
+            levels=20,
+            cmap='viridis',
+            vmin=global_vmin,
+            vmax=global_vmax
+        )
 
-    # skala kolorów z rzeczywistymi wartościami Z
-    cbar = plt.colorbar(heatmap)
-    cbar.set_label("Power [dBm]")
+        plt.scatter(x_vals, y_vals, c='red', s=15)
 
-    plt.xlabel("X")
-    plt.ylabel("Y")
-    plt.title(f"Heatmap {Cbs_names[seria]}")
+        cbar = plt.colorbar(heatmap)
+        cbar.set_label("max - avg [dBm]")
 
-    plt.legend()
-    plt.grid(True)
+        title = Cbs_names[seria] if Cbs_names else f"CB {seria}"
+        plt.title(f"Heatmap (max - avg) {title}")
 
+        plt.xlabel("X")
+        plt.ylabel("Y")
+        plt.grid(True)
 
+        if save:
+            plt.savefig(
+                os.path.join(plots_folder, f'heatmap_cb_{seria}.{save_format}'),
+                format=save_format,
+                bbox_inches='tight'
+            )
 
+        if show:
+            plt.show()
+        else:
+            plt.close()
 
-    # plt.title(f'Rx at {int(Rx_list[i])}°')
-    # # plt.xlabel('N\'th sorted pattern in recieved power')
-    # plt.ylabel('Recieved power [dBm]')
-    # #plt.ylim((np.min(data)//5)*5, ((np.max(data.all())//5))*5)  # Ustawienie stałego zakresu osi Y
-    # plt.grid(True)  # Włączenie linii pomocniczych
-    # plt.margins()
-    # plt.legend(loc='lower right',  markerscale=4)
-    # plt.subplots_adjust(left=0.16, right=0.9, top=0.95, bottom=0.16, wspace=0.2, hspace=0.2)
-    if show:
-        plt.show()
-    if save:
-        # Zapisz wykres do pliku w folderze "plots"
-        plt.savefig(os.path.join(plots_folder, f'pow_sort_rx_{int(Rx_list[i])}.{save_format}'), format=save_format)    
-    plt.close()  # Zamknij figurę, aby nie pokazywać podglądu
-    pass
     
 def plot_pow_in_pos_teams(results):
     #results = Results(dumpfile=dumpfile)
@@ -956,20 +894,20 @@ if __name__=="__main__":
     show = not save
     veryfy_mins = True
     save_file_format = 'png'
-    pow_in_pos_channels(results=results,
-                                     codebooks=cbs,
-                                     show=show, 
-                                     save=save, 
-                                     Cbs_names=["EU_CB", "EA_CB"], 
-                                     save_format=save_file_format,
-                                     veryfy_mins = veryfy_mins,
-                                     save_filename="Min_weryfikacja_rx"
-                                    )
+    # pow_in_pos_channels(results=results,
+    #                                  codebooks=cbs,
+    #                                  show=show, 
+    #                                  save=save, 
+    #                                  Cbs_names=["EU_CB", "EA_CB"], 
+    #                                  save_format=save_file_format,
+    #                                  veryfy_mins = veryfy_mins,
+    #                                  save_filename="Min_weryfikacja_rx"
+    #                                 )
 
-    # plot_heatmap_3d(results=results,
-    #                 codebooks=cbs,
-    #                 show=show, 
-    #                 save=save, 
-    #                 Cbs_names=["EU_CB", "EA_CB"], 
-    #                 save_format=save_file_format
-    #                 )
+    plot_heatmap_3d(results=results,
+                    codebooks=cbs,
+                    show=show, 
+                    save=save, 
+                    Cbs_names=["EU_CB", "EA_CB"], 
+                    save_format=save_file_format
+                    )
