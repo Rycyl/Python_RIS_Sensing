@@ -206,29 +206,29 @@ class Results:
             self.results[i].f_values = self.results[i].f_values[sorted_indices]
             self.results[i].traces = self.results[i].traces[sorted_indices]
 
-        for i in range(len(self.mins)):
-            self.mins[i].Rx_Angle = self.mins[i].Rx_Angle[sorted_indices]
-            self.mins[i].Tx_Angle = self.mins[i].Tx_Angle[sorted_indices]
-            self.mins[i].a_values = self.mins[i].a_values[sorted_indices]
-            self.mins[i].b_values = self.mins[i].b_values[sorted_indices]
-            self.mins[i].c_values = self.mins[i].c_values[sorted_indices]
-            self.mins[i].powers = self.mins[i].powers[sorted_indices]
-            self.mins[i].d_values = self.mins[i].d_values[sorted_indices]
-            self.mins[i].e_values = self.mins[i].e_values[sorted_indices]
-            self.mins[i].f_values = self.mins[i].f_values[sorted_indices]
-            self.mins[i].traces = self.mins[i].traces[sorted_indices]
+        # for i in range(len(self.mins)):
+        #     self.mins[i].Rx_Angle = self.mins[i].Rx_Angle[sorted_indices]
+        #     self.mins[i].Tx_Angle = self.mins[i].Tx_Angle[sorted_indices]
+        #     self.mins[i].a_values = self.mins[i].a_values[sorted_indices]
+        #     self.mins[i].b_values = self.mins[i].b_values[sorted_indices]
+        #     self.mins[i].c_values = self.mins[i].c_values[sorted_indices]
+        #     self.mins[i].powers = self.mins[i].powers[sorted_indices]
+        #     self.mins[i].d_values = self.mins[i].d_values[sorted_indices]
+        #     self.mins[i].e_values = self.mins[i].e_values[sorted_indices]
+        #     self.mins[i].f_values = self.mins[i].f_values[sorted_indices]
+        #     self.mins[i].traces = self.mins[i].traces[sorted_indices]
 
-        for i in range(len(self.maxs)):
-            self.maxs[i].Rx_Angle = self.maxs[i].Rx_Angle[sorted_indices]
-            self.maxs[i].Tx_Angle = self.maxs[i].Tx_Angle[sorted_indices]
-            self.maxs[i].a_values = self.maxs[i].a_values[sorted_indices]
-            self.maxs[i].b_values = self.maxs[i].b_values[sorted_indices]
-            self.maxs[i].c_values = self.maxs[i].c_values[sorted_indices]
-            self.maxs[i].powers = self.maxs[i].powers[sorted_indices]
-            self.maxs[i].d_values = self.maxs[i].d_values[sorted_indices]
-            self.maxs[i].e_values = self.maxs[i].e_values[sorted_indices]
-            self.maxs[i].f_values = self.maxs[i].f_values[sorted_indices]
-            self.maxs[i].traces = self.maxs[i].traces[sorted_indices]
+        # for i in range(len(self.maxs)):
+        #     self.maxs[i].Rx_Angle = self.maxs[i].Rx_Angle[sorted_indices]
+        #     self.maxs[i].Tx_Angle = self.maxs[i].Tx_Angle[sorted_indices]
+        #     self.maxs[i].a_values = self.maxs[i].a_values[sorted_indices]
+        #     self.maxs[i].b_values = self.maxs[i].b_values[sorted_indices]
+        #     self.maxs[i].c_values = self.maxs[i].c_values[sorted_indices]
+        #     self.maxs[i].powers = self.maxs[i].powers[sorted_indices]
+        #     self.maxs[i].d_values = self.maxs[i].d_values[sorted_indices]
+        #     self.maxs[i].e_values = self.maxs[i].e_values[sorted_indices]
+        #     self.maxs[i].f_values = self.maxs[i].f_values[sorted_indices]
+        #     self.maxs[i].traces = self.maxs[i].traces[sorted_indices]
 
     def add_result(self, result):
         if isinstance(result, Result):
@@ -268,7 +268,10 @@ class Results:
         print("results loading....")
         try:
             self.load_picle_results(dumpfile)
-        except:
+        except Exception as e:
+            print("STATUS of PICLE is NEGATIVE")
+            print("Error:", repr(e))
+            print("Loading CSVs")
             self.load_csv_results(resultfilename,directory_path)
         self.sort_by_RX()                    
         print("results loaded")
@@ -279,6 +282,7 @@ class Results:
         print("picle try")
         with open(dumpfile, 'rb') as file:
             loaded_object = pickle.load(file)
+            print("Picle loaded")
         self.results = loaded_object.results
         self.maxs=loaded_object.maxs
         self.mins=loaded_object.mins
@@ -314,7 +318,7 @@ class Results:
                     rest_data = data[2:]
                     #check if pattern exist in results   
                     result_founded_in_results = False
-                    if int(data[0]) < 10000 and int(data[0]) < 20000:                     
+                    if int(data[0]) < 100000:                     
                         for i in range(len(self.results)):
                             if self.results[i].idx == int(data[0]):
                                 #only add measure
@@ -326,11 +330,11 @@ class Results:
                             result = Result(*core_data)
                             result.add_measure(*rest_data)
                             self.add_result(result=result)
-                    elif int(data[0]) > 20000:
-                        for i in range(len(self.mins)):
-                            if self.mins[i].idx == int(data[0]):
+                    elif int(data[0]) < 200000 and int(data[0]) > 100000:
+                        for i in range(len(self.maxs)):
+                            if self.maxs[i].idx == int(data[0]):
                                 #only add measure
-                                self.mins[i].add_measure(*rest_data)
+                                self.maxs[i].add_measure(*rest_data)
                                 #self.mins[i].add_pattern_to_idx(core_data[1])
                                 result_founded_in_results = True
                                 break
@@ -340,10 +344,10 @@ class Results:
                             result.add_measure(*rest_data)
                             self.maxs.append(result)
                     else: 
-                        for i in range(len(self.maxs)):
-                            if self.maxs[i].idx == int(data[0]):
+                        for i in range(len(self.mins)):
+                            if self.mins[i].idx == int(data[0]):
                                 #only add measure
-                                self.maxs[i].add_measure(*rest_data)
+                                self.mins[i].add_measure(*rest_data)
                                 #self.maxs[i].add_pattern_to_idx(core_data[1])
                                 result_founded_in_results = True
                                 break
@@ -351,20 +355,21 @@ class Results:
                             #create new Result()
                             result = Result(*core_data)
                             result.add_measure(*rest_data)
-                            self.maxs.append(result)
+                            self.mins.append(result)
         return
 
 
-    def get_traces_by_rx(self):
+    def get_traces_by_rx(self, res = None):
         """
-        Takes self.results and returns np.array:
+        Takes list of Result() and returns np.array:
         [RX_angle_index, trace_index, subcarrier_index]
-        """
-
+        """ 
+        if res is None:
+            res = self.results
         rx_map = {}
 
         # Group traces by RX angle
-        for result in self.results:
+        for result in res:
             for i in range(len(result.Rx_Angle)):
                 rx = result.Rx_Angle[i]
                 trace_obj = result.traces[i]  # already numpy array
@@ -397,8 +402,8 @@ class Results:
         return: maxs, RX_angles
         """
         rx_traces = self.get_traces_by_rx()
-        mins = np.max(rx_traces[0], axis=1)
-        return mins, rx_traces[1]
+        maxs = np.max(rx_traces[0], axis=1)
+        return maxs, rx_traces[1]
 
     def get_means_by_rx(self):
         """
@@ -411,12 +416,36 @@ class Results:
         means = mw_to_dbm(means)
         return means, rx_traces[1]
 
+    def get_means_for_patterns_by_rx(self):
+        """ 
+        calculates mean value of traces for each pattern for each localisation
+        return: maxs, RX_angles
+        """
+        rx_traces = self.get_traces_by_rx()
+        rx_traces = dbm_to_mw(rx_traces[0])
+        means = np.mean(rx_traces, axis=2)
+        means = mw_to_dbm(means)
+        return means, rx_traces[1]
+
+    def get_maxs_from_maxs_by_rx(self):
+        rx_traces = self.get_traces_by_rx(self.maxs)
+        maxs = np.max(rx_traces[0], axis=1)
+        maxs = np.max(maxs, axis=1)
+        return maxs, rx_traces[1]
+
+    def get_mins_from_mins_by_rx(self):
+        rx_traces = self.get_traces_by_rx(self.mins)
+        maxs = np.min(rx_traces[0], axis=1)
+        maxs = np.min(maxs, axis=1)
+        return maxs, rx_traces[1]
+
+
+
 if __name__=="__main__":       
     # Create class instance
-    results_instance = Results()
+    results_instance = Results(resultfilename="All_measurements_merged.csv")
     results_instance.dump_class_to_file("results.pkl")
-    testb = results_instance.get_traces_by_rx()
-    testa = results_instance.get_minimums_by_rx()
+    testb = results_instance.get_maxs_from_maxs_by_rx()
     pass
     pass
     #print(results_instance)

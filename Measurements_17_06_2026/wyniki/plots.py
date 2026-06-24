@@ -1,5 +1,5 @@
 
-from class_measures_result import Results
+from class_measures_result import *
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
@@ -25,9 +25,6 @@ def linear_mean(x):
     ret_val = np.mean(ret_val)
     ret_val = mw_to_dbm(ret_val)
     return ret_val
-
-def truncade_trace(trace):
-    return trace[224:1824:2]
 
 def sort_y_by_x(y, x):
     sorted_indices = np.argsort(x)
@@ -360,20 +357,116 @@ def pow_in_pos_channels(results,
     min_list = []
     max_list = [] 
     mean_list= []
+    pow_list = []
     for cb_results in cbs_results:
-        mins, rxs = cb_results.get_minimums_by_rx()
+        min_list.append([])
+        max_list.append([])
+        mean_list.append([])
+        pow_list.append([])
+        mins, rxs = cb_results.get_minimums_by_rx() #minima
         # print(rxs)
         for rx_pos_mins in mins:
-            min_list.append(linear_mean(rx_pos_mins))
-        maxs, rxs = cb_results.get_maximums_by_rx()
+            min_list[-1].append(linear_mean(rx_pos_mins))
+        maxs, rxs = cb_results.get_maximums_by_rx() #maxy
         # print(rxs)
         for rx_pos_maxs in maxs:
-            max_list.append(linear_mean(rx_pos_maxs))
-        means, rxs = cb_results.get_means_by_rx()
+            max_list[-1].append(linear_mean(rx_pos_maxs))
+        means, rxs = cb_results.get_means_by_rx() #srednie dla rxow
         # print(rxs)
         for rx_pos_means in means:
-            mean_list.append(linear_mean(rx_pos_means))
+            mean_list[-1].append(linear_mean(rx_pos_means))
+        # pow_list = means # do sprawdzenia poprawność czy means to wartości średnie trace dla każdego patternu
+        mean_pat_rx, rxs = cb_results.get_means_for_patterns_by_rx()
+        for aaaaaa in mean_pat_rx:
+            aaaaaa = np.sort(aaaaaa)
+            pow_list[-1].append(aaaaaa)
 
+    max_ref, trash_rx = results.get_maxs_from_maxs_by_rx()
+    min_ref, trash_rx = results.get_mins_from_mins_by_rx()
+
+    num_cb = len(pow_list)
+    num_rx = len(pow_list[0])
+
+    colors = plt.cm.tab10(range(0,9))
+    
+    # Uzyskaj nazwę folderu, w którym znajduje się skrypt
+    folder_name = os.path.dirname(os.path.abspath(__file__))
+    plots_folder = os.path.join(folder_name, 'power_in_position_comparison_of_CBs_channels')
+    # Utwórz folder "plots", jeśli nie istnieje
+    os.makedirs(plots_folder, exist_ok=True)
+
+    for rx in range(num_rx):
+        plt.figure(figsize=(10,7))
+    
+        FONTSIZE=16
+        plt.rcParams['font.size'] = FONTSIZE
+        plt.rcParams['lines.linewidth']= 3
+        for cb in range(num_cb):
+            color = colors[cb]
+            # pow_list: [pat][val] → średnia po val
+            pow_vals = pow_list[cb][rx]
+
+            # lineplot
+            plt.plot(
+                pow_vals,
+                color=color,
+                linestyle='-',
+                label=f'{Cbs_names[cb]} pow'
+            )
+
+            # poziome linie (jedna wartość)
+            plt.axhline(
+                min_list[cb][rx],
+                color=color,
+                linestyle='--',
+                label=f'{Cbs_names[cb]} min'
+            )
+
+            plt.axhline(
+                max_list[cb][rx],
+                color=color,
+                linestyle=':',
+                label=f'{Cbs_names[cb]} max'
+            )
+
+            plt.axhline(
+                mean_list[cb][rx],
+                color=color,
+                linestyle='-.',
+                label=f'{Cbs_names[cb]} mean'
+            )
+
+
+        plt.axhline(
+                max_ref[rx],
+                color="magenta",
+                linestyle='--',
+                label=f'Col opt max'
+            )
+
+        plt.axhline(
+                min_ref[rx],
+                color="cyan",
+                linestyle='--',
+                label=f'Col opt min'
+            )
+        
+        plt.title(f"Rx at {int(Rx_list[rx])}°")
+        plt.grid(True)
+        
+        plt.legend(
+            loc='lower right',
+            ncol=1
+        )
+
+        plt.xlabel("N'th pattern")
+        plt.ylabel("Power [dBm]")
+        plt.tight_layout()
+        
+        if save:
+            plt.savefig(os.path.join(plots_folder, f'{save_filename}_rx{rx}.{save_format}'), format=save_format,  bbox_inches='tight')  
+        if show:
+            plt.show()
     return
 
 def plot_heatmap_3d(results, codebooks, show=True, save=False, Cbs_names=None, save_format='png'):
@@ -725,13 +818,6 @@ def hamming_distance(a, b):
     c = a ^ b
     return c.count(1)
 
-def dbm_to_mw(x):
-    mW=10**(x/10)
-    return mW
-def mw_to_dbm(x):
-    dbm=10*math.log10(x)
-    return dbm
-
 
 def plot_hamming(results):
     #results = Results(dumpfile=dumpfile)
@@ -839,7 +925,7 @@ if __name__=="__main__":
 
     # cbs = []
     # for name in codebooks_names:
-    #     pwd = Path.cwd()                       # bieżący katalog
+    #     pwd = Path.cwd()               # bieżący katalog
     #     path = pwd / "e_cb" / name     # dołącz folder i plik
     #     cb = Codebook(load=False)
     #     print(path, str(path)[0:-4])
@@ -847,9 +933,9 @@ if __name__=="__main__":
 
     # plot_mean_max_per_carrier_in_trace(results=results, codebooks=cbs, save=False, show=True)
 
-    results = Results(dumpfile="all_mes.pkl", resultfilename="0_All_measurements_merged.csv", directory_path="All_files_merged")
-
-    cbs_files = ["e_cb/euklides_codebook_128_0.pkl", "ea_cb/PK_codebook_final.csv"]
+    results = Results(dumpfile="results.pkl")
+    pass
+    cbs_files = ["e_cb/euklides_codebook_128_0.pkl", "ea_cb/EA_tx_-69_-72_RX_0_80.csv"]
 
     cbs = []
     for cb_file in cbs_files:
