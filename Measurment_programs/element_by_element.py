@@ -157,7 +157,7 @@ class sing_pat_per_run_w_wait():
 
 
 class element_by_element():
-    def __init__(self, ris: RIS, anal: Analyzer, exit_file: str, mask = '0b1', find_min = False, no_start_from_zero = False, Get_Men_Pow: bool = True, subcar_to_maxi: tuple = (10, 20)):
+    def __init__(self, ris: RIS, anal: Analyzer, exit_file: str, mask = '0b1', find_min = False, no_start_from_zero = False, Get_Men_Pow: bool = True, subcar_to_maxi: tuple = (10, 20), Geometry: tuple = ()):
         self.Ris = ris
         self.Anal = anal
         self.file = exit_file
@@ -175,6 +175,14 @@ class element_by_element():
         self.Get_Men_Pow = Get_Men_Pow
         self.Subcar_to_Maxi = subcar_to_maxi
         self.Whole_Trace = None
+        self.Geometry = Geometry
+
+    def reset_vals(self):
+        self.Mes_pow = None
+        self.Best_pow = 100000 if self.Find_Min else -100000
+        self.Current_pattern = copy(self.Start_pattern)
+        self.Best_pattern = BitArray(length=256)
+        return
 
     def change_geometry(self, angle):
         self.Geometry = angle
@@ -213,8 +221,10 @@ class element_by_element():
 
     def start_measure(self):
         self.All_measured = []
-        print(self.Current_pattern)
-        print(len(self.Current_pattern))
+        # print(self.Current_pattern)
+        # print(len(self.Current_pattern))
+        Tx_angle, Rx_angle, a, cc, x, y, b, f = self.Geometry
+        n = 0
         if self.Get_Men_Pow:
             mesure_fun = self.do_measure_mean
         else:
@@ -237,10 +247,12 @@ class element_by_element():
             Do_measure.join()
             #print(time.time() - s_time)
             self.check_if_better()
-            c_datum_2 = self.Mes_pow if(self.Get_Men_Pow) else self.Whole_Trace
-            c_datum = (c_datum_0, 'N/A', c_datum_2)
+            #c_datum_2 = self.Mes_pow if(self.Get_Men_Pow) else self.Whole_Trace
+            c_datum = [n, c_datum_0, 10*log10(self.Mes_pow), Tx_angle, Rx_angle, a, cc, x, y, b, f, self.Whole_Trace]
             self.All_measured.append(c_datum)
             self.Current_pattern = self.Best_pattern ^ mask_pattern
+            n += 1
+        self.reset_vals()
         return self.All_measured
     
     def save_to_file(self):
@@ -263,7 +275,8 @@ class stripe_by_stripe():
         self.file = exit_file
         self.Mask = '0x8000800080008000800080008000800080008000800080008000800080008000'
         self.Find_Min = find_min
-        self.Current_pattern = copy(no_start_from_zero) if no_start_from_zero else BitArray(length=256)
+        self.Start_pattern = copy(no_start_from_zero) if no_start_from_zero else BitArray(length=256)
+        self.Current_pattern = copy(self.Start_pattern)
         self.Mes_pow = None
         self.Best_pow = 100000 if find_min else -100000
         self.All_measured = []
@@ -272,6 +285,14 @@ class stripe_by_stripe():
         self.Subcar_to_Maxi = subcar_to_maxi
         self.Whole_Trace = None
         self.Geometry = Geometry
+
+    def reset_vals(self):
+        self.Mes_pow = None
+        self.Best_pow = 100000 if self.Find_Min else -100000
+        self.Current_pattern = copy(self.Start_pattern)
+        self.Best_pattern = BitArray(length=256)
+        return
+
 
     def change_geometry(self, angle):
         self.Geometry = angle
@@ -327,9 +348,9 @@ class stripe_by_stripe():
         else:
             mesure_fun = self.do_measure_whole
         if self.Find_Min:
-            n = 2000
+            n = 200000 + (self.Subcar_to_Maxi[0]*100)
         else:
-            n = 1000
+            n = 100000 + (self.Subcar_to_Maxi[0]*100)
         for c in range(17):
             #print("Iteration: ", c)
             #print("Pattern: ", self.Current_pattern)
@@ -353,20 +374,21 @@ class stripe_by_stripe():
         # self.do_measure()
         # negated_measure = [n, negated, self.Mes_pow, Tx_angle, Rx_angle, a, cc, x, y, b, f]
         # self.All_measured.append(negated_measure)
+        self.reset_vals()
         return self.All_measured
     
-    def save_to_file(self):
-        with open(self.file, 'w+') as csvfile:
-            csvfile.write("Pattern, Angle, Power")
-            csvfile.write("\n")
-            for datum in self.All_measured:
-                csvfile.write(n+";")
-                for d in datum:
-                    csvfile.write(str(d)+";")
-                csvfile.write("\n")
-                n+=1
-            csvfile.close()
-        return self.All_measured
+    # def save_to_file(self):
+    #     with open(self.file, 'w+') as csvfile:
+    #         csvfile.write("Pattern, Angle, Power")
+    #         csvfile.write("\n")
+    #         for datum in self.All_measured:
+    #             csvfile.write(n+";")
+    #             for d in datum:
+    #                 csvfile.write(str(d)+";")
+    #             csvfile.write("\n")
+    #             n+=1
+    #         csvfile.close()
+    #     return self.All_measured
                     
     def ret_best(self):
         return self.Best_pattern, self.Best_pow
