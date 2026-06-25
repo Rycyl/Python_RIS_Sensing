@@ -1,7 +1,7 @@
 from bitstring import BitArray
 
-file_name = 'codebook_tx_-69_-72_RX_0_80.csv'
-exit_file = 'EA_tx_-69_-72_RX_0_80.csv'
+file_name = 'Arranged_codebook.csv'
+exit_file = 'Arranged_codebook_test.csv'
 
 i = 0
 
