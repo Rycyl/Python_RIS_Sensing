@@ -155,81 +155,62 @@ class Results:
         return np.max(maxsy)
 
     def sort_by_RX(self):
-        # Ensure that all relevant attributes are NumPy arrays
+        if not self.results:
+            return
+
+        ref = self.results[0] # Ref Result object
+        ref.c_values = np.array(ref.c_values) # c_values is? numpy array
+        # get sorting order by c
+        sorted_indices = np.argsort(ref.c_values, kind="stable")
+
+        def get_sortable_attrs(result, expected_len):
+            """
+            retrieves the attributes of the Result object that:
+            - are not private,
+            - are not methods,
+            - can be converted to numpy arrays,
+            - are the same length as c_values.
+            """
+            sortable_attrs = []
+
+            for attr_name, attr_value in vars(result).items():
+                # omit private
+                if attr_name.startswith("_"):
+                    continue
+
+                # omit callable (methods)
+                if callable(attr_value):
+                    continue
+
+                try:
+                    arr = np.array(attr_value)
+                    if len(arr) == expected_len:
+                        sortable_attrs.append(attr_name)
+
+                except TypeError:
+                    continue
+
+            return sortable_attrs
+
+        def sort_result(result, sorted_indices):
+            expected_len = len(sorted_indices)
+            attrs = get_sortable_attrs(result, expected_len)
+
+            for attr in attrs:
+                values = np.array(getattr(result, attr))
+                setattr(result, attr, values[sorted_indices])
+
+        # Sortowanie results
         for result in self.results:
-            result.Rx_Angle = np.array(result.Rx_Angle)
-            result.Tx_Angle = np.array(result.Tx_Angle)
-            result.a_values = np.array(result.a_values)
-            result.b_values = np.array(result.b_values)
-            result.c_values = np.array(result.c_values)
-            result.powers = np.array(result.powers)
-            result.d_values = np.array(result.d_values)
-            result.e_values = np.array(result.e_values)
-            result.f_values = np.array(result.f_values)
-            result.traces = np.array(result.traces)
+            sort_result(result, sorted_indices)
 
+        # Sortowanie mins, jeśli mają zgodne długości
         for min_result in self.mins:
-            min_result.Rx_Angle = np.array(min_result.Rx_Angle)
-            min_result.Tx_Angle = np.array(min_result.Tx_Angle)
-            min_result.a_values = np.array(min_result.a_values)
-            min_result.b_values = np.array(min_result.b_values)
-            min_result.c_values = np.array(min_result.c_values)
-            min_result.powers = np.array(min_result.powers)
-            min_result.d_values = np.array(min_result.d_values)
-            min_result.e_values = np.array(min_result.e_values)
-            min_result.f_values = np.array(min_result.f_values)
-            min_result.traces = np.array(min_result.traces)
+            sort_result(min_result, sorted_indices)
 
+        # Sortowanie maxs, jeśli mają zgodne długości
         for max_result in self.maxs:
-            max_result.Rx_Angle = np.array(max_result.Rx_Angle)
-            max_result.Tx_Angle = np.array(max_result.Tx_Angle)
-            max_result.a_values = np.array(max_result.a_values)
-            max_result.b_values = np.array(max_result.b_values)
-            max_result.c_values = np.array(max_result.c_values)
-            max_result.powers = np.array(max_result.powers)
-            max_result.d_values = np.array(max_result.d_values)
-            max_result.e_values = np.array(max_result.e_values)
-            max_result.f_values = np.array(max_result.f_values)
-            max_result.traces = np.array(max_result.traces)
-            
-        # Now perform the sorting
-        sorted_indices = np.argsort(self.results[0].Rx_Angle)
-
-        for i in range(len(self.results)):
-            self.results[i].Rx_Angle = self.results[i].Rx_Angle[sorted_indices]
-            self.results[i].Tx_Angle = self.results[i].Tx_Angle[sorted_indices]
-            self.results[i].a_values = self.results[i].a_values[sorted_indices]
-            self.results[i].b_values = self.results[i].b_values[sorted_indices]
-            self.results[i].c_values = self.results[i].c_values[sorted_indices]
-            self.results[i].powers = self.results[i].powers[sorted_indices]
-            self.results[i].d_values = self.results[i].d_values[sorted_indices]
-            self.results[i].e_values = self.results[i].e_values[sorted_indices]
-            self.results[i].f_values = self.results[i].f_values[sorted_indices]
-            self.results[i].traces = self.results[i].traces[sorted_indices]
-
-        # for i in range(len(self.mins)):
-        #     self.mins[i].Rx_Angle = self.mins[i].Rx_Angle[sorted_indices]
-        #     self.mins[i].Tx_Angle = self.mins[i].Tx_Angle[sorted_indices]
-        #     self.mins[i].a_values = self.mins[i].a_values[sorted_indices]
-        #     self.mins[i].b_values = self.mins[i].b_values[sorted_indices]
-        #     self.mins[i].c_values = self.mins[i].c_values[sorted_indices]
-        #     self.mins[i].powers = self.mins[i].powers[sorted_indices]
-        #     self.mins[i].d_values = self.mins[i].d_values[sorted_indices]
-        #     self.mins[i].e_values = self.mins[i].e_values[sorted_indices]
-        #     self.mins[i].f_values = self.mins[i].f_values[sorted_indices]
-        #     self.mins[i].traces = self.mins[i].traces[sorted_indices]
-
-        # for i in range(len(self.maxs)):
-        #     self.maxs[i].Rx_Angle = self.maxs[i].Rx_Angle[sorted_indices]
-        #     self.maxs[i].Tx_Angle = self.maxs[i].Tx_Angle[sorted_indices]
-        #     self.maxs[i].a_values = self.maxs[i].a_values[sorted_indices]
-        #     self.maxs[i].b_values = self.maxs[i].b_values[sorted_indices]
-        #     self.maxs[i].c_values = self.maxs[i].c_values[sorted_indices]
-        #     self.maxs[i].powers = self.maxs[i].powers[sorted_indices]
-        #     self.maxs[i].d_values = self.maxs[i].d_values[sorted_indices]
-        #     self.maxs[i].e_values = self.maxs[i].e_values[sorted_indices]
-        #     self.maxs[i].f_values = self.maxs[i].f_values[sorted_indices]
-        #     self.maxs[i].traces = self.maxs[i].traces[sorted_indices]
+            sort_result(max_result, sorted_indices)
 
     def add_result(self, result):
         if isinstance(result, Result):
@@ -424,8 +405,8 @@ class Results:
         return: maxs, RX_angles
         """
         rx_traces = self.get_traces_by_rx()
-        rx_traces = dbm_to_mw(rx_traces[0])
-        means = np.mean(rx_traces, axis=1)
+        traces = dbm_to_mw(rx_traces[0])
+        means = np.mean(traces, axis=1)
         means = mw_to_dbm(means)
         return means, rx_traces[1]
 

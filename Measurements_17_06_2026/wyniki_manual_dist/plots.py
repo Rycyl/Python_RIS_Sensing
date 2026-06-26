@@ -1,5 +1,5 @@
-
-from class_measures_result import *
+from class_measures_result import Result, Results, Trace
+from class_measures_result import dbm_to_mw, mw_to_dbm, linear_mean
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
@@ -9,23 +9,9 @@ from class_codebook import *
 import copy
 from pathlib import Path
 from typing import List, Iterable, Union
-from results_for_codebook import select_results_for_codebook
+from results_for_codebook import select_results_for_codebook, select_results_for_ids
 import json
 from scipy.interpolate import griddata
-
-def dbm_to_mw(x):
-    mW=10**(x/10)
-    return mW
-
-def mw_to_dbm(x):
-    dbm=10*np.log10(x)
-    return dbm
-
-def linear_mean(x):
-    ret_val = dbm_to_mw(x)
-    ret_val = np.mean(ret_val)
-    ret_val = mw_to_dbm(ret_val)
-    return ret_val
 
 def sort_y_by_x(y, x):
     sorted_indices = np.argsort(x)
@@ -382,14 +368,20 @@ def pow_in_pos_channels(results,
             pow_list[-1].append(aaaaaa)
 
     max_ref, trash_rx = results.get_maxs_from_maxs_by_rx()
+    # print(trash_rx)
     min_ref, trash_rx = results.get_mins_from_mins_by_rx()
+    # print(trash_rx)
     for i,mr in enumerate(max_ref):
         max_ref[i] = linear_mean(mr)
     for i,mr in enumerate(min_ref):
         min_ref[i] = linear_mean(mr)
-    max_ref=np.mean(max_ref, axis=0)
-    min_ref=np.mean(min_ref, axis=0)
+    #delete duplicates
+    max_ref=np.mean(max_ref, axis=1)
+    min_ref=np.mean(min_ref, axis=1)
 
+    # print(max_ref)
+    # print(min_ref)
+    # exit()
     num_cb = len(pow_list)
     num_rx = len(pow_list[0])
 
@@ -541,19 +533,19 @@ def plot_heatmap_3d(results, codebooks, show=True, save=False, Cbs_names=None, s
         z_vals = np.array(max_list[seria]) - avg_per_rx
 
         # interpolacja
-        xi = np.linspace(x_vals.min(), x_vals.max(), 180)
-        yi = np.linspace(y_vals.min(), y_vals.max(), 60)
+        xi = np.linspace(x_vals.min(), x_vals.max(), 60)
+        yi = np.linspace(y_vals.min(), y_vals.max(), 30)
         Xi, Yi = np.meshgrid(xi, yi)
 
         Zi = griddata(
             (x_vals, y_vals),
             z_vals,
             (Xi, Yi),
-            method='linear'
+            method='cubic'
         )
 
         # plotting
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(10, 4))
 
         heatmap = plt.contourf(
             Xi, Yi, Zi,
@@ -849,7 +841,541 @@ def list_files_from_folder(folder: str, rozszerzenia: Union[None, str, Iterable[
                 result.append(f.name)
     return result
 
+def plot_minmax_traces(results, 
+                       codebooks,
+                       show=True, 
+                       save=False, 
+                       Cbs_names=None, 
+                       save_format='png',
+                       save_filename="minmax_traces",
+                       minmax='max',
+                       ref_in_range=None,
+                       selection_scope='rx',
+                       plot_selected_avg_line=True,
+                       plot_cb_linear_avg=True,
+                       rx_tol=1e-6,
+                       c_tol=1e-6):
+    """
+    Plot truncated traces for:
+    - best/worst reference trace, depending on minmax mode,
+    - best/worst pattern from each codebook,
+    - linear average of all patterns from each codebook at given RX/c position.
 
+    IMPORTANT:
+    This function does NOT assume that result.traces[rx_idx] means the same
+    measurement position for every Result. Instead, it searches trace by:
+        (Rx_Angle, c_value)
+
+    Parameters
+    ----------
+    minmax : str
+        'max'  -> plot best codebook pattern and best reference from results.maxs
+        'min'  -> plot worst codebook pattern and worst reference from results.mins
+        'both' -> plot best and worst codebook patterns and both references
+
+    selection_scope : str
+        'rx'     -> choose best/worst pattern separately for current (Rx, c) position
+        'global' -> choose best/worst pattern averaged over all available positions
+
+    ref_in_range : None, list/range/tuple, or dict
+        If None:
+            all references from results.maxs/results.mins are considered.
+
+        If list/range/tuple:
+            same ids are used for selected reference source.
+
+        If dict:
+            example:
+                {
+                    'max': list(range(100100, 100118)),
+                    'min': list(range(200100, 200118))
+                }
+    """
+
+    if minmax not in ['max', 'min', 'both']:
+        raise ValueError("minmax must be one of: 'max', 'min', 'both'")
+
+    if selection_scope not in ['rx', 'global']:
+        raise ValueError("selection_scope must be one of: 'rx', 'global'")
+
+    if Cbs_names is None:
+        Cbs_names = [f"CB_{i}" for i in range(len(codebooks))]
+
+    if len(Cbs_names) != len(codebooks):
+        raise ValueError("Cbs_names must have the same length as codebooks")
+
+    if len(results.results) == 0:
+        raise ValueError("results.results is empty")
+
+    Rx_list = results.results[0].Rx_Angle
+    C_list = results.results[0].c_values
+
+    # ------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------
+
+    def get_ids_for_mode(ref_in_range, mode):
+        if ref_in_range is None:
+            return None
+
+        if isinstance(ref_in_range, dict):
+            return ref_in_range.get(mode, None)
+
+        return ref_in_range
+
+    def select_ref_results(results_obj, ids, mode):
+        """
+        Select reference candidates from results.maxs or results.mins by idx.
+        """
+        if mode == 'max':
+            ref_source = results_obj.maxs
+        elif mode == 'min':
+            ref_source = results_obj.mins
+        else:
+            raise ValueError("mode must be 'max' or 'min'")
+
+        if ids is None:
+            return ref_source
+
+        ids_set = set(ids)
+
+        selected = []
+        for result in ref_source:
+            if result.idx in ids_set:
+                selected.append(result)
+
+        return selected
+
+    def get_trace_for_position(result, target_rx, target_c):
+        """
+        Return truncated trace for given measurement position:
+            (Rx_Angle, c_value)
+
+        Returns None if position is not found.
+        """
+        for i in range(len(result.traces)):
+            rx_ok = abs(result.Rx_Angle[i] - target_rx) <= rx_tol
+            c_ok = abs(result.c_values[i] - target_c) <= c_tol
+
+            if rx_ok and c_ok:
+                return result.traces[i].get_truncaded_trace()
+
+        return None
+
+    def result_avg_for_position(result, target_rx, target_c):
+        """
+        Linear average of one result trace at selected (Rx, c) position.
+        """
+        trace_dbm = get_trace_for_position(result, target_rx, target_c)
+
+        if trace_dbm is None:
+            return np.nan
+
+        return linear_mean(trace_dbm)
+
+    def result_avg_global(result):
+        """
+        Linear average of one Result over all available traces.
+        Used only when selection_scope='global'.
+        """
+        vals = []
+
+        for trace in result.traces:
+            trace_dbm = trace.get_truncaded_trace()
+            vals.append(linear_mean(trace_dbm))
+
+        if len(vals) == 0:
+            return np.nan
+
+        return linear_mean(np.array(vals))
+
+    def codebook_linear_avg_for_position(cb_results, target_rx, target_c):
+        """
+        Linear average from all truncated traces of all patterns
+        in one codebook for selected (Rx, c) position.
+
+        Returns scalar in dBm.
+        """
+        traces_mw = []
+
+        for result in cb_results.results:
+            trace_dbm = get_trace_for_position(result, target_rx, target_c)
+
+            if trace_dbm is None:
+                continue
+
+            traces_mw.append(dbm_to_mw(trace_dbm))
+
+        if len(traces_mw) == 0:
+            return np.nan
+
+        traces_mw = np.array(traces_mw)
+
+        avg_mw = np.mean(traces_mw)
+
+        return mw_to_dbm(avg_mw)
+
+    def choose_codebook_result(cb_results, target_rx, target_c, mode):
+        """
+        Choose best/worst result from one codebook.
+
+        mode:
+            'max' -> best pattern
+            'min' -> worst pattern
+
+        selection_scope='rx':
+            selection based on current (Rx, c) position.
+
+        selection_scope='global':
+            selection based on all traces of a pattern.
+            Displayed average still describes current plotted trace.
+        """
+        if len(cb_results.results) == 0:
+            return None, np.nan
+
+        scores = []
+
+        for result in cb_results.results:
+            if selection_scope == 'rx':
+                score = result_avg_for_position(result, target_rx, target_c)
+            else:
+                score = result_avg_global(result)
+
+            scores.append(score)
+
+        scores = np.array(scores, dtype=float)
+        valid_mask = ~np.isnan(scores)
+
+        if not np.any(valid_mask):
+            return None, np.nan
+
+        valid_indices = np.where(valid_mask)[0]
+        valid_scores = scores[valid_mask]
+
+        if mode == 'max':
+            selected_local_idx = int(np.argmax(valid_scores))
+        elif mode == 'min':
+            selected_local_idx = int(np.argmin(valid_scores))
+        else:
+            raise ValueError("mode must be 'max' or 'min'")
+
+        selected_idx = valid_indices[selected_local_idx]
+        selected_result = cb_results.results[selected_idx]
+
+        plotted_avg = result_avg_for_position(
+            selected_result,
+            target_rx,
+            target_c
+        )
+
+        return selected_result, plotted_avg
+
+    def choose_ref_result_for_position(ref_results, target_rx, target_c, mode):
+        """
+        Choose one reference trace for selected (Rx, c) position.
+
+        mode='max' -> reference with highest linear mean
+        mode='min' -> reference with lowest linear mean
+        """
+        if len(ref_results) == 0:
+            return None, np.nan
+
+        scores = []
+
+        for result in ref_results:
+            score = result_avg_for_position(result, target_rx, target_c)
+            scores.append(score)
+
+        scores = np.array(scores, dtype=float)
+        valid_mask = ~np.isnan(scores)
+
+        if not np.any(valid_mask):
+            return None, np.nan
+
+        valid_indices = np.where(valid_mask)[0]
+        valid_scores = scores[valid_mask]
+
+        if mode == 'max':
+            selected_local_idx = int(np.argmax(valid_scores))
+        elif mode == 'min':
+            selected_local_idx = int(np.argmin(valid_scores))
+        else:
+            raise ValueError("mode must be 'max' or 'min'")
+
+        selected_idx = valid_indices[selected_local_idx]
+
+        return ref_results[selected_idx], scores[selected_idx]
+
+    # ------------------------------------------------------------
+    # Select codebook results
+    # ------------------------------------------------------------
+
+    cbs_results = []
+
+    for cb in codebooks:
+        cbs_results.append(
+            select_results_for_codebook(results=results, codebook=cb)
+        )
+
+    # ------------------------------------------------------------
+    # Select reference candidates
+    # ------------------------------------------------------------
+
+    ref_max_results = []
+    ref_min_results = []
+
+    if minmax in ['max', 'both']:
+        ref_max_ids = get_ids_for_mode(ref_in_range, 'max')
+        ref_max_results = select_ref_results(
+            results_obj=results,
+            ids=ref_max_ids,
+            mode='max'
+        )
+
+        if len(ref_max_results) == 0:
+            print("WARNING: No max reference candidates found.")
+
+    if minmax in ['min', 'both']:
+        ref_min_ids = get_ids_for_mode(ref_in_range, 'min')
+        ref_min_results = select_ref_results(
+            results_obj=results,
+            ids=ref_min_ids,
+            mode='min'
+        )
+
+        if len(ref_min_results) == 0:
+            print("WARNING: No min reference candidates found.")
+
+    # ------------------------------------------------------------
+    # Output folder
+    # ------------------------------------------------------------
+
+    folder_name = os.path.dirname(os.path.abspath(__file__))
+    plots_folder = os.path.join(folder_name, 'minmax_traces')
+    os.makedirs(plots_folder, exist_ok=True)
+
+    FONTSIZE = 16
+    plt.rcParams['font.size'] = FONTSIZE
+    plt.rcParams['lines.linewidth'] = 2.5
+
+    # ------------------------------------------------------------
+    # Plot per measurement position
+    # ------------------------------------------------------------
+
+    for pos_idx in range(len(Rx_list)):
+
+        target_rx = Rx_list[pos_idx]
+        target_c = C_list[pos_idx]
+
+        plt.figure(figsize=(12, 8))
+
+        # --------------------------------------------------------
+        # Reference trace/traces
+        # --------------------------------------------------------
+
+        if minmax in ['max', 'both']:
+            selected_ref_max, ref_max_avg = choose_ref_result_for_position(
+                ref_results=ref_max_results,
+                target_rx=target_rx,
+                target_c=target_c,
+                mode='max'
+            )
+
+            if selected_ref_max is not None:
+                ref_trace = get_trace_for_position(
+                    selected_ref_max,
+                    target_rx,
+                    target_c
+                )
+
+                if ref_trace is not None:
+                    plt.plot(
+                        ref_trace,
+                        color='black',
+                        linestyle='--',
+                        alpha=0.85,
+                        linewidth=2.2,
+                        label=(
+                            f"Best reference trace, "
+                            f"idx={selected_ref_max.idx}, "
+                            f"avg={ref_max_avg:.2f} dBm"
+                        )
+                    )
+
+                    if plot_selected_avg_line and not np.isnan(ref_max_avg):
+                        plt.axhline(
+                            y=ref_max_avg,
+                            color='black',
+                            linestyle='-.',
+                            alpha=0.65,
+                            linewidth=1.5,
+                            label="Best reference trace avg"
+                        )
+
+        if minmax in ['min', 'both']:
+            selected_ref_min, ref_min_avg = choose_ref_result_for_position(
+                ref_results=ref_min_results,
+                target_rx=target_rx,
+                target_c=target_c,
+                mode='min'
+            )
+
+            if selected_ref_min is not None:
+                ref_trace = get_trace_for_position(
+                    selected_ref_min,
+                    target_rx,
+                    target_c
+                )
+
+                if ref_trace is not None:
+                    plt.plot(
+                        ref_trace,
+                        color='gray',
+                        linestyle=':',
+                        alpha=0.9,
+                        linewidth=2.2,
+                        label=(
+                            f"Worst reference trace, "
+                            f"idx={selected_ref_min.idx}, "
+                            f"avg={ref_min_avg:.2f} dBm"
+                        )
+                    )
+
+                    if plot_selected_avg_line and not np.isnan(ref_min_avg):
+                        plt.axhline(
+                            y=ref_min_avg,
+                            color='gray',
+                            linestyle='-.',
+                            alpha=0.65,
+                            linewidth=1.5,
+                            label="Worst reference trace avg"
+                        )
+
+        # --------------------------------------------------------
+        # Codebook traces and averages
+        # --------------------------------------------------------
+
+        for cb_idx, cb_results in enumerate(cbs_results):
+
+            color = plt.cm.tab10(cb_idx % 10)
+            cb_name = Cbs_names[cb_idx]
+
+            # ----------------------------------------------------
+            # Linear average for all patterns in this codebook
+            # at selected (Rx, c) position
+            # ----------------------------------------------------
+
+            if plot_cb_linear_avg:
+                cb_linear_avg = codebook_linear_avg_for_position(
+                    cb_results=cb_results,
+                    target_rx=target_rx,
+                    target_c=target_c
+                )
+
+                if not np.isnan(cb_linear_avg):
+                    plt.axhline(
+                        y=cb_linear_avg,
+                        color=color,
+                        linestyle='--',
+                        alpha=0.85,
+                        linewidth=2.0,
+                        label=(
+                            f"{cb_name} all patterns linear avg = "
+                            f"{cb_linear_avg:.2f} dBm"
+                        )
+                    )
+
+            # ----------------------------------------------------
+            # Select best/worst codebook pattern
+            # ----------------------------------------------------
+
+            modes_to_plot = []
+
+            if minmax in ['max', 'both']:
+                modes_to_plot.append('max')
+
+            if minmax in ['min', 'both']:
+                modes_to_plot.append('min')
+
+            for mode in modes_to_plot:
+
+                selected_result, avg_power = choose_codebook_result(
+                    cb_results=cb_results,
+                    target_rx=target_rx,
+                    target_c=target_c,
+                    mode=mode
+                )
+
+                if selected_result is None:
+                    continue
+
+                trace = get_trace_for_position(
+                    selected_result,
+                    target_rx,
+                    target_c
+                )
+
+                if trace is None:
+                    continue
+
+                if mode == 'max':
+                    linestyle = '-'
+                    avg_line_style = '-.'
+                    label_mode = 'best'
+                else:
+                    linestyle = ':'
+                    avg_line_style = ':'
+                    label_mode = 'worst'
+
+                plt.plot(
+                    trace,
+                    color=color,
+                    linestyle=linestyle,
+                    label=(
+                        f"{cb_name} {label_mode} avg, "
+                        f"idx={selected_result.idx}, "
+                        f"avg={avg_power:.2f} dBm"
+                    )
+                )
+
+                if plot_selected_avg_line and not np.isnan(avg_power):
+                    plt.axhline(
+                        y=avg_power,
+                        color=color,
+                        linestyle=avg_line_style,
+                        alpha=0.65,
+                        linewidth=1.5,
+                        label=f"{cb_name} {label_mode} trace avg"
+                    )
+
+        # --------------------------------------------------------
+        # Formatting
+        # --------------------------------------------------------
+
+        rx_angle = int(target_rx)
+
+        plt.title(f"Rx at {rx_angle}°")
+        plt.xlabel("Subcarrier index")
+        plt.ylabel("Power [dBm]")
+        plt.grid(True)
+        plt.legend(loc='best')
+        plt.tight_layout()
+
+        if save:
+            filename = (
+                f"{save_filename}_rx_{rx_angle}_{minmax}_{selection_scope}.{save_format}"
+            )
+            plt.savefig(
+                os.path.join(plots_folder, filename),
+                format=save_format,
+                bbox_inches='tight'
+            )
+
+        if show:
+            plt.show()
+        else:
+            plt.close()
+    return
 
 if __name__=="__main__":
     # dumpfile = "euklides_codebook_128_0_08_May_2026.pkl"
@@ -894,20 +1420,30 @@ if __name__=="__main__":
     show = not save
     veryfy_mins = True
     save_file_format = 'png'
-    pow_in_pos_channels(results=results,
-                                     codebooks=cbs,
-                                     show=show, 
-                                     save=save, 
-                                     Cbs_names=["EU_CB", "EA_CB"], 
-                                     save_format=save_file_format,
-                                     veryfy_mins = veryfy_mins,
-                                     save_filename="Min_weryfikacja_rx"
-                                    )
+    # pow_in_pos_channels(results=results,
+    #                                  codebooks=cbs,
+    #                                  show=show, 
+    #                                  save=save, 
+    #                                  Cbs_names=["EU_CB", "EA_CB"], 
+    #                                  save_format=save_file_format,
+    #                                  veryfy_mins = veryfy_mins,
+    #                                  save_filename="Min_weryfikacja_rx"
+    #                                 )
 
-    plot_heatmap_3d(results=results,
-                    codebooks=cbs,
-                    show=show, 
-                    save=save, 
-                    Cbs_names=["EU_CB", "EA_CB"], 
-                    save_format=save_file_format
-                    )
+    # plot_heatmap_3d(results=results,
+    #                 codebooks=cbs,
+    #                 show=show, 
+    #                 save=save, 
+    #                 Cbs_names=["EU_CB", "EA_CB"], 
+    #                 save_format=save_file_format
+    #                 )
+
+    plot_minmax_traces(
+        results=results,
+        codebooks=cbs,
+        Cbs_names=["EU_CB", "EA_CB"],
+        minmax='max',
+        ref_in_range=list(range(100001, 100017)),
+        show=show,
+        save=save
+    )
