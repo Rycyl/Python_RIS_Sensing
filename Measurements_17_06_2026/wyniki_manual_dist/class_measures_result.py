@@ -433,14 +433,19 @@ class Results:
         #maxs = np.min(maxs, axis=1)
         return maxs, rx_traces[1]
 
-
+    def get_linear_avg_by_rx(self):
+        rx_traces = self.get_traces_by_rx()
+        traces = dbm_to_mw(rx_traces[0])
+        means = np.mean(traces, axis=1)
+        means = mw_to_dbm(means)
+        return means, rx_traces[1]
 
 if __name__=="__main__":       
     # Create class instance
     results_instance = Results(resultfilename="All_measurements_merged.csv")
-    results_instance.dump_class_to_file("results.pkl")
+    # results_instance.dump_class_to_file("results.pkl")
     pass
-    testb = results_instance.get_maxs_from_maxs_by_rx()
+    testb = results_instance.get_linear_avg_by_rx()
     pass
     pass
     #print(results_instance)

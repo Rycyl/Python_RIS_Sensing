@@ -12,6 +12,8 @@ from typing import List, Iterable, Union
 from results_for_codebook import select_results_for_codebook, select_results_for_ids
 import json
 from scipy.interpolate import griddata
+from helpers_defs import *
+
 
 def sort_y_by_x(y, x):
     sorted_indices = np.argsort(x)
@@ -852,44 +854,46 @@ def plot_minmax_traces(results,
                        ref_in_range=None,
                        selection_scope='rx',
                        plot_selected_avg_line=True,
-                       plot_cb_linear_avg=True,
+                       plot_cb_linear_avg=False,
+                       plot_linear_avg=True,
                        rx_tol=1e-6,
                        c_tol=1e-6):
     """
-    Plot truncated traces for:
-    - best/worst reference trace, depending on minmax mode,
-    - best/worst pattern from each codebook,
-    - linear average of all patterns from each codebook at given RX/c position.
+        Plot truncated traces for:
+        - best/worst reference trace, depending on minmax mode,
+        - best/worst pattern from each codebook,
+        - linear average trace for all patterns at given RX/c position,
+        - optionally linear average scalar for all patterns from each codebook.
 
-    IMPORTANT:
-    This function does NOT assume that result.traces[rx_idx] means the same
-    measurement position for every Result. Instead, it searches trace by:
-        (Rx_Angle, c_value)
+        IMPORTANT:
+        This function does NOT assume that result.traces[pos_idx] means the same
+        measurement position for every Result. Instead, it searches traces by:
+            (Rx_Angle, c_value)
 
-    Parameters
-    ----------
-    minmax : str
-        'max'  -> plot best codebook pattern and best reference from results.maxs
-        'min'  -> plot worst codebook pattern and worst reference from results.mins
-        'both' -> plot best and worst codebook patterns and both references
+        Parameters
+        ----------
+        minmax : str
+            'max'  -> plot best codebook pattern and best reference from results.maxs
+            'min'  -> plot worst codebook pattern and worst reference from results.mins
+            'both' -> plot best/worst codebook patterns and both references
 
-    selection_scope : str
-        'rx'     -> choose best/worst pattern separately for current (Rx, c) position
-        'global' -> choose best/worst pattern averaged over all available positions
+        selection_scope : str
+            'rx'     -> choose best/worst pattern separately for current (Rx, c) position
+            'global' -> choose best/worst pattern averaged over all available positions
 
-    ref_in_range : None, list/range/tuple, or dict
-        If None:
-            all references from results.maxs/results.mins are considered.
+        ref_in_range : None, list/range/tuple, or dict
+            If None:
+                all references from results.maxs/results.mins are considered.
 
-        If list/range/tuple:
-            same ids are used for selected reference source.
+            If list/range/tuple:
+                same ids are used for selected reference source.
 
-        If dict:
-            example:
-                {
-                    'max': list(range(100100, 100118)),
-                    'min': list(range(200100, 200118))
-                }
+            If dict:
+                example:
+                    {
+                        'max': list(range(100100, 100118)),
+                        'min': list(range(200100, 200118))
+                    }
     """
 
     if minmax not in ['max', 'min', 'both']:
@@ -911,202 +915,6 @@ def plot_minmax_traces(results,
     C_list = results.results[0].c_values
 
     # ------------------------------------------------------------
-    # Helpers
-    # ------------------------------------------------------------
-
-    def get_ids_for_mode(ref_in_range, mode):
-        if ref_in_range is None:
-            return None
-
-        if isinstance(ref_in_range, dict):
-            return ref_in_range.get(mode, None)
-
-        return ref_in_range
-
-    def select_ref_results(results_obj, ids, mode):
-        """
-        Select reference candidates from results.maxs or results.mins by idx.
-        """
-        if mode == 'max':
-            ref_source = results_obj.maxs
-        elif mode == 'min':
-            ref_source = results_obj.mins
-        else:
-            raise ValueError("mode must be 'max' or 'min'")
-
-        if ids is None:
-            return ref_source
-
-        ids_set = set(ids)
-
-        selected = []
-        for result in ref_source:
-            if result.idx in ids_set:
-                selected.append(result)
-
-        return selected
-
-    def get_trace_for_position(result, target_rx, target_c):
-        """
-        Return truncated trace for given measurement position:
-            (Rx_Angle, c_value)
-
-        Returns None if position is not found.
-        """
-        for i in range(len(result.traces)):
-            rx_ok = abs(result.Rx_Angle[i] - target_rx) <= rx_tol
-            c_ok = abs(result.c_values[i] - target_c) <= c_tol
-
-            if rx_ok and c_ok:
-                return result.traces[i].get_truncaded_trace()
-
-        return None
-
-    def result_avg_for_position(result, target_rx, target_c):
-        """
-        Linear average of one result trace at selected (Rx, c) position.
-        """
-        trace_dbm = get_trace_for_position(result, target_rx, target_c)
-
-        if trace_dbm is None:
-            return np.nan
-
-        return linear_mean(trace_dbm)
-
-    def result_avg_global(result):
-        """
-        Linear average of one Result over all available traces.
-        Used only when selection_scope='global'.
-        """
-        vals = []
-
-        for trace in result.traces:
-            trace_dbm = trace.get_truncaded_trace()
-            vals.append(linear_mean(trace_dbm))
-
-        if len(vals) == 0:
-            return np.nan
-
-        return linear_mean(np.array(vals))
-
-    def codebook_linear_avg_for_position(cb_results, target_rx, target_c):
-        """
-        Linear average from all truncated traces of all patterns
-        in one codebook for selected (Rx, c) position.
-
-        Returns scalar in dBm.
-        """
-        traces_mw = []
-
-        for result in cb_results.results:
-            trace_dbm = get_trace_for_position(result, target_rx, target_c)
-
-            if trace_dbm is None:
-                continue
-
-            traces_mw.append(dbm_to_mw(trace_dbm))
-
-        if len(traces_mw) == 0:
-            return np.nan
-
-        traces_mw = np.array(traces_mw)
-
-        avg_mw = np.mean(traces_mw)
-
-        return mw_to_dbm(avg_mw)
-
-    def choose_codebook_result(cb_results, target_rx, target_c, mode):
-        """
-        Choose best/worst result from one codebook.
-
-        mode:
-            'max' -> best pattern
-            'min' -> worst pattern
-
-        selection_scope='rx':
-            selection based on current (Rx, c) position.
-
-        selection_scope='global':
-            selection based on all traces of a pattern.
-            Displayed average still describes current plotted trace.
-        """
-        if len(cb_results.results) == 0:
-            return None, np.nan
-
-        scores = []
-
-        for result in cb_results.results:
-            if selection_scope == 'rx':
-                score = result_avg_for_position(result, target_rx, target_c)
-            else:
-                score = result_avg_global(result)
-
-            scores.append(score)
-
-        scores = np.array(scores, dtype=float)
-        valid_mask = ~np.isnan(scores)
-
-        if not np.any(valid_mask):
-            return None, np.nan
-
-        valid_indices = np.where(valid_mask)[0]
-        valid_scores = scores[valid_mask]
-
-        if mode == 'max':
-            selected_local_idx = int(np.argmax(valid_scores))
-        elif mode == 'min':
-            selected_local_idx = int(np.argmin(valid_scores))
-        else:
-            raise ValueError("mode must be 'max' or 'min'")
-
-        selected_idx = valid_indices[selected_local_idx]
-        selected_result = cb_results.results[selected_idx]
-
-        plotted_avg = result_avg_for_position(
-            selected_result,
-            target_rx,
-            target_c
-        )
-
-        return selected_result, plotted_avg
-
-    def choose_ref_result_for_position(ref_results, target_rx, target_c, mode):
-        """
-        Choose one reference trace for selected (Rx, c) position.
-
-        mode='max' -> reference with highest linear mean
-        mode='min' -> reference with lowest linear mean
-        """
-        if len(ref_results) == 0:
-            return None, np.nan
-
-        scores = []
-
-        for result in ref_results:
-            score = result_avg_for_position(result, target_rx, target_c)
-            scores.append(score)
-
-        scores = np.array(scores, dtype=float)
-        valid_mask = ~np.isnan(scores)
-
-        if not np.any(valid_mask):
-            return None, np.nan
-
-        valid_indices = np.where(valid_mask)[0]
-        valid_scores = scores[valid_mask]
-
-        if mode == 'max':
-            selected_local_idx = int(np.argmax(valid_scores))
-        elif mode == 'min':
-            selected_local_idx = int(np.argmin(valid_scores))
-        else:
-            raise ValueError("mode must be 'max' or 'min'")
-
-        selected_idx = valid_indices[selected_local_idx]
-
-        return ref_results[selected_idx], scores[selected_idx]
-
-    # ------------------------------------------------------------
     # Select codebook results
     # ------------------------------------------------------------
 
@@ -1126,6 +934,7 @@ def plot_minmax_traces(results,
 
     if minmax in ['max', 'both']:
         ref_max_ids = get_ids_for_mode(ref_in_range, 'max')
+
         ref_max_results = select_ref_results(
             results_obj=results,
             ids=ref_max_ids,
@@ -1137,6 +946,7 @@ def plot_minmax_traces(results,
 
     if minmax in ['min', 'both']:
         ref_min_ids = get_ids_for_mode(ref_in_range, 'min')
+
         ref_min_results = select_ref_results(
             results_obj=results,
             ids=ref_min_ids,
@@ -1156,7 +966,7 @@ def plot_minmax_traces(results,
 
     FONTSIZE = 16
     plt.rcParams['font.size'] = FONTSIZE
-    plt.rcParams['lines.linewidth'] = 2.5
+    plt.rcParams['lines.linewidth'] = 2
 
     # ------------------------------------------------------------
     # Plot per measurement position
@@ -1167,7 +977,7 @@ def plot_minmax_traces(results,
         target_rx = Rx_list[pos_idx]
         target_c = C_list[pos_idx]
 
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(16, 12))
 
         # --------------------------------------------------------
         # Reference trace/traces
@@ -1178,38 +988,38 @@ def plot_minmax_traces(results,
                 ref_results=ref_max_results,
                 target_rx=target_rx,
                 target_c=target_c,
-                mode='max'
+                mode='max',
+                rx_tol=rx_tol,
+                c_tol=c_tol
             )
 
             if selected_ref_max is not None:
                 ref_trace = get_trace_for_position(
-                    selected_ref_max,
-                    target_rx,
-                    target_c
+                    result=selected_ref_max,
+                    target_rx=target_rx,
+                    target_c=target_c,
+                    rx_tol=rx_tol,
+                    c_tol=c_tol
                 )
 
                 if ref_trace is not None:
                     plt.plot(
                         ref_trace,
-                        color='black',
-                        linestyle='--',
-                        alpha=0.85,
-                        linewidth=2.2,
+                        color='magenta',
+                        linestyle='-',
                         label=(
-                            f"Best reference trace, "
-                            f"idx={selected_ref_max.idx}, "
-                            f"avg={ref_max_avg:.2f} dBm"
+                            f"Col opt trace max [{(ref_in_range[0]//100)%1000}:{(ref_in_range[-1]//100)%1000+10}], "
+                            f"idx={selected_ref_max.idx}"
                         )
                     )
 
                     if plot_selected_avg_line and not np.isnan(ref_max_avg):
                         plt.axhline(
                             y=ref_max_avg,
-                            color='black',
-                            linestyle='-.',
-                            alpha=0.65,
-                            linewidth=1.5,
-                            label="Best reference trace avg"
+                            color='magenta',
+                            linewidth=3,
+                            linestyle='--',
+                            label="Col opt max avg"
                         )
 
         if minmax in ['min', 'both']:
@@ -1217,39 +1027,69 @@ def plot_minmax_traces(results,
                 ref_results=ref_min_results,
                 target_rx=target_rx,
                 target_c=target_c,
-                mode='min'
+                mode='min',
+                rx_tol=rx_tol,
+                c_tol=c_tol
             )
 
             if selected_ref_min is not None:
                 ref_trace = get_trace_for_position(
-                    selected_ref_min,
-                    target_rx,
-                    target_c
+                    result=selected_ref_min,
+                    target_rx=target_rx,
+                    target_c=target_c,
+                    rx_tol=rx_tol,
+                    c_tol=c_tol
                 )
 
                 if ref_trace is not None:
                     plt.plot(
                         ref_trace,
-                        color='gray',
-                        linestyle=':',
-                        alpha=0.9,
-                        linewidth=2.2,
+                        color='cyan',
+                        linestyle='-',
                         label=(
-                            f"Worst reference trace, "
-                            f"idx={selected_ref_min.idx}, "
-                            f"avg={ref_min_avg:.2f} dBm"
+                            f"Col opt trace min [{(ref_in_range[0]//100)%1000}:{(ref_in_range[-1]//100)%1000+10}],  "
+                            f"idx={selected_ref_min.idx}"
                         )
                     )
 
                     if plot_selected_avg_line and not np.isnan(ref_min_avg):
                         plt.axhline(
                             y=ref_min_avg,
-                            color='gray',
-                            linestyle='-.',
-                            alpha=0.65,
-                            linewidth=1.5,
-                            label="Worst reference trace avg"
+                            color='cyan',
+                            linewidth=3,
+                            linestyle='--',
+                            label="Col opt min avg"
                         )
+
+        # --------------------------------------------------------
+        # Linear average trace for all patterns from full results
+        # --------------------------------------------------------
+
+        if plot_linear_avg:
+            linear_avg_trace, linear_avg = linear_avg_trace_for_position(
+                result_list=results.results,
+                target_rx=target_rx,
+                target_c=target_c,
+                rx_tol=rx_tol,
+                c_tol=c_tol
+            )
+
+            if linear_avg_trace is not None:
+                plt.plot(
+                    linear_avg_trace,
+                    color='gray',
+                    linestyle='-',
+                    label="All patterns linear avg trace"
+                )
+
+                if not np.isnan(linear_avg):
+                    plt.axhline(
+                        y=linear_avg,
+                        color='gray',
+                        linewidth=3,
+                        linestyle='--',
+                        label="All patterns linear avg"
+                    )
 
         # --------------------------------------------------------
         # Codebook traces and averages
@@ -1261,7 +1101,7 @@ def plot_minmax_traces(results,
             cb_name = Cbs_names[cb_idx]
 
             # ----------------------------------------------------
-            # Linear average for all patterns in this codebook
+            # Linear average scalar for all patterns in this codebook
             # at selected (Rx, c) position
             # ----------------------------------------------------
 
@@ -1269,20 +1109,18 @@ def plot_minmax_traces(results,
                 cb_linear_avg = codebook_linear_avg_for_position(
                     cb_results=cb_results,
                     target_rx=target_rx,
-                    target_c=target_c
+                    target_c=target_c,
+                    rx_tol=rx_tol,
+                    c_tol=c_tol
                 )
 
                 if not np.isnan(cb_linear_avg):
                     plt.axhline(
                         y=cb_linear_avg,
                         color=color,
+                        linewidth=3,
                         linestyle='--',
-                        alpha=0.85,
-                        linewidth=2.0,
-                        label=(
-                            f"{cb_name} all patterns linear avg = "
-                            f"{cb_linear_avg:.2f} dBm"
-                        )
+                        label=f"{cb_name} all patterns linear avg"
                     )
 
             # ----------------------------------------------------
@@ -1303,16 +1141,21 @@ def plot_minmax_traces(results,
                     cb_results=cb_results,
                     target_rx=target_rx,
                     target_c=target_c,
-                    mode=mode
+                    mode=mode,
+                    selection_scope=selection_scope,
+                    rx_tol=rx_tol,
+                    c_tol=c_tol
                 )
 
                 if selected_result is None:
                     continue
 
                 trace = get_trace_for_position(
-                    selected_result,
-                    target_rx,
-                    target_c
+                    result=selected_result,
+                    target_rx=target_rx,
+                    target_c=target_c,
+                    rx_tol=rx_tol,
+                    c_tol=c_tol
                 )
 
                 if trace is None:
@@ -1323,8 +1166,8 @@ def plot_minmax_traces(results,
                     avg_line_style = '-.'
                     label_mode = 'best'
                 else:
-                    linestyle = ':'
-                    avg_line_style = ':'
+                    linestyle = '-'
+                    avg_line_style = '-.'
                     label_mode = 'worst'
 
                 plt.plot(
@@ -1332,9 +1175,8 @@ def plot_minmax_traces(results,
                     color=color,
                     linestyle=linestyle,
                     label=(
-                        f"{cb_name} {label_mode} avg, "
-                        f"idx={selected_result.idx}, "
-                        f"avg={avg_power:.2f} dBm"
+                        f"{cb_name} {label_mode} pattern trace, "
+                        f"idx={selected_result.idx}"
                     )
                 )
 
@@ -1342,15 +1184,14 @@ def plot_minmax_traces(results,
                     plt.axhline(
                         y=avg_power,
                         color=color,
+                        linewidth=3,
                         linestyle=avg_line_style,
-                        alpha=0.65,
-                        linewidth=1.5,
-                        label=f"{cb_name} {label_mode} trace avg"
+                        label=f"{cb_name} {label_mode} pattern avg"
                     )
 
         # --------------------------------------------------------
         # Formatting
-        # --------------------------------------------------------
+        # ------------------------------------------------------------
 
         rx_angle = int(target_rx)
 
@@ -1363,19 +1204,258 @@ def plot_minmax_traces(results,
 
         if save:
             filename = (
-                f"{save_filename}_rx_{rx_angle}_{minmax}_{selection_scope}.{save_format}"
+                f"{pos_idx}_{save_filename}_rx_{rx_angle}_"
+                f"{minmax}_{selection_scope}.{save_format}"
             )
+
             plt.savefig(
                 os.path.join(plots_folder, filename),
                 format=save_format,
                 bbox_inches='tight'
             )
+            print(f"FILE SAVED: {filename}")
 
         if show:
             plt.show()
         else:
             plt.close()
+    print("Done plotting!")
     return
+
+def plot_optimization_process_traces(results,
+                                     process='max',
+                                     opt_N=None,
+                                     iteration_range=None,
+                                     show=True,
+                                     save=False,
+                                     save_format='png',
+                                     save_filename='optimization_process_traces',
+                                     rx_tol=1e-6,
+                                     c_tol=1e-6,
+                                     cmap_name=None,
+                                     highlight_optimized_range=False,
+                                     optimized_range_len=10):
+    """
+        Plot truncated traces only for optimization results from results.maxs/results.mins.
+
+        The plotted traces are selected by optimization process encoded in Result.idx.
+
+        ID format:
+            first digit:
+                1 -> maximization
+                2 -> minimization
+
+            middle digits:
+                first optimized subcarrier N
+
+            last two digits:
+                i-th optimization in given localization/process
+
+        Parameters
+        ----------
+        results : Results
+            Main Results object.
+
+        process : str
+            'max' -> plot traces from results.maxs
+            'min' -> plot traces from results.mins
+
+        opt_N : int
+            First optimized subcarrier N.
+            Example:
+                opt_N=10 means process optimized subcarriers N...N+10.
+
+        iteration_range : iterable or None
+            Optional filter for optimization iterations.
+            Example:
+                range(0, 18)
+
+        show : bool
+            If True, show plots.
+
+        save : bool
+            If True, save plots.
+
+        save_format : str
+            File format, e.g. 'png', 'svg', 'pdf'.
+
+        save_filename : str
+            Prefix of saved files.
+
+        rx_tol, c_tol : float
+            Tolerances for matching measurement position:
+                (Rx_Angle, c_value)
+
+        cmap_name : str or None
+            Matplotlib colormap name.
+            If None:
+                'Blues' for max,
+                'Reds' for min.
+
+        highlight_optimized_range : bool
+            If True, marks optimized carrier range [N, N + optimized_range_len].
+
+        optimized_range_len : int
+            Length of optimized carrier range.
+    """
+
+    if process not in ['max', 'min']:
+        raise ValueError("process must be one of: 'max', 'min'")
+
+    if opt_N is None:
+        raise ValueError("opt_N must be given, e.g. opt_N=10")
+
+    if len(results.results) == 0:
+        raise ValueError("results.results is empty")
+
+    Rx_list = results.results[0].Rx_Angle
+    C_list = results.results[0].c_values
+
+    selected = select_optimization_results(
+        results=results,
+        process=process,
+        opt_N=opt_N,
+        iteration_range=iteration_range
+    )
+
+    if len(selected) == 0:
+        print(
+            f"WARNING: No optimization results found for "
+            f"process={process}, opt_N={opt_N}, iteration_range={iteration_range}"
+        )
+        return
+
+    iterations = np.array([parsed["iteration"] for _, parsed in selected])
+
+    iter_min = np.min(iterations)
+    iter_max = np.max(iterations)
+
+    if iter_max == iter_min:
+        norm_iterations = np.ones_like(iterations, dtype=float)
+    else:
+        norm_iterations = (iterations - iter_min) / (iter_max - iter_min)
+
+    if cmap_name is None:
+        if process == 'max':
+            cmap_name = 'Blues'
+        else:
+            cmap_name = 'Reds'
+
+    cmap = plt.get_cmap(cmap_name)
+
+    # Avoid very pale colors.
+    colors = [
+        cmap(0.25 + 0.75 * norm_val)
+        for norm_val in norm_iterations
+    ]
+
+    folder_name = os.path.dirname(os.path.abspath(__file__))
+    plots_folder = os.path.join(folder_name, 'optimization_process_traces')
+    os.makedirs(plots_folder, exist_ok=True)
+
+    FONTSIZE = 16
+    plt.rcParams['font.size'] = FONTSIZE
+    plt.rcParams['lines.linewidth'] = 2
+
+    process_label = "Maximization" if process == 'max' else "Minimization"
+
+    for pos_idx in range(len(Rx_list)):
+
+        target_rx = Rx_list[pos_idx]
+        target_c = C_list[pos_idx]
+
+        plt.figure(figsize=(12, 8))
+
+        plotted_any = False
+
+        for (result, parsed), color in zip(selected, colors):
+
+            trace = get_trace_for_position(
+                result=result,
+                target_rx=target_rx,
+                target_c=target_c,
+                rx_tol=rx_tol,
+                c_tol=c_tol
+            )
+
+            if trace is None:
+                continue
+
+            iteration = parsed["iteration"]
+
+            plt.plot(
+                trace,
+                color=color,
+                linestyle='-',
+                label=f"i={iteration}, idx={result.idx}"
+            )
+
+            plt.axhline(
+                y = linear_mean(trace[opt_N:opt_N+optimized_range_len]),
+                color = color,
+                linestyle = "--"
+            )
+            plotted_any = True
+
+        if not plotted_any:
+            plt.close()
+            print(
+                f"WARNING: No traces found for Rx={target_rx}, c={target_c}, "
+                f"process={process}, opt_N={opt_N}"
+            )
+            continue
+
+        if highlight_optimized_range:
+            plt.axvspan(
+                opt_N,
+                opt_N + optimized_range_len,
+                color='gray',
+                alpha=0.15,
+                label=f"Optimized carriers {opt_N}:{opt_N + optimized_range_len}"
+            )
+
+        rx_angle = int(target_rx)
+
+        plt.title(
+            f"{process_label} col opt {opt_N}:{opt_N+10}, Rx at {rx_angle}°"
+        )
+
+        plt.xlabel("Subcarrier index")
+        plt.ylabel("Power [dBm]")
+        plt.grid(True)
+
+        sm = plt.cm.ScalarMappable(
+            cmap=cmap,
+            norm=plt.Normalize(vmin=iter_min, vmax=iter_max)
+        )
+        sm.set_array([])
+
+        cbar = plt.colorbar(sm, ax=plt.gca())
+        cbar.set_label("Optimization iteration i")
+
+        # plt.legend(loc='best')
+        plt.tight_layout()
+
+        if save:
+            filename = (
+                f"{pos_idx}_{save_filename}_"
+                f"{process}_N{opt_N}_"
+                f"rx_{rx_angle}.{save_format}"
+            )
+
+            plt.savefig(
+                os.path.join(plots_folder, filename),
+                format=save_format,
+                bbox_inches='tight'
+            )
+            print(f"Saved plot: {filename}")
+        if show:
+            plt.show()
+        else:
+            plt.close()
+    print("Done plotting optimisation process:", process)
+    return
+
 
 if __name__=="__main__":
     # dumpfile = "euklides_codebook_128_0_08_May_2026.pkl"
@@ -1416,7 +1496,7 @@ if __name__=="__main__":
     #         break
     # print(len(results.results[-1].traces[-1].trace))
     # exit()
-    save = True
+    save = False
     show = not save
     veryfy_mins = True
     save_file_format = 'png'
@@ -1438,12 +1518,31 @@ if __name__=="__main__":
     #                 save_format=save_file_format
     #                 )
 
-    plot_minmax_traces(
+    # plot_minmax_traces(
+    #     results=results,
+    #     codebooks=cbs,
+    #     Cbs_names=["EU_CB", "EA_CB"],
+    #     minmax='max',
+    #     ref_in_range=list(range(100001, 100017)),
+    #     show=show,
+    #     save=save
+    # )
+
+    # plot_minmax_traces(
+    #     results=results,
+    #     codebooks=cbs,
+    #     Cbs_names=["EU_CB", "EA_CB"],
+    #     minmax='min',
+    #     ref_in_range=list(range(200001, 200017)),
+    #     show=show,
+    #     save=save
+    # )
+
+    plot_optimization_process_traces(
         results=results,
-        codebooks=cbs,
-        Cbs_names=["EU_CB", "EA_CB"],
-        minmax='max',
-        ref_in_range=list(range(100001, 100017)),
+        process='min',
+        opt_N=0,
         show=show,
-        save=save
-    )
+        save=save,
+        cmap_name="Reds"
+    )   
