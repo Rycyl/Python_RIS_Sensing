@@ -332,8 +332,7 @@ def pow_in_pos_channels(results,
     min, max, mean
     which represents best/worst/mean channel while using all codebook patterns
     """
-    Rx_list = results.results[0].Rx_Angle #taken from Rx's from any result
-
+    Rx_list = None
     cbs_results = []
     cbs_labels = []
     cbs_len = []
@@ -342,7 +341,6 @@ def pow_in_pos_channels(results,
         cbs_results.append(select_results_for_codebook(results=results,codebook=cb))
         cbs_len.append(len(cb.patterns))
 
-    rxs = None
     min_list = []
     max_list = [] 
     mean_list= []
@@ -352,27 +350,27 @@ def pow_in_pos_channels(results,
         max_list.append([])
         mean_list.append([])
         pow_list.append([])
-        mins, rxs = cb_results.get_minimums_by_rx() #minima
+        mins, Rx_list = cb_results.get_minimums_by_rx() #minima
         # print(rxs)
         for rx_pos_mins in mins:
             min_list[-1].append(linear_mean(rx_pos_mins))
-        maxs, rxs = cb_results.get_maximums_by_rx() #maxy
+        maxs, Rx_list = cb_results.get_maximums_by_rx() #maxy
         # print(rxs)
         for rx_pos_maxs in maxs:
             max_list[-1].append(linear_mean(rx_pos_maxs))
-        means, rxs = cb_results.get_means_by_rx() #srednie dla rxow
+        means, Rx_list = cb_results.get_means_by_rx() #srednie dla rxow
         # print(rxs)
         for rx_pos_means in means:
             mean_list[-1].append(linear_mean(rx_pos_means))
-        mean_pat_rx, rxs = cb_results.get_means_for_patterns_by_rx()
+        mean_pat_rx, Rx_list = cb_results.get_means_for_patterns_by_rx()
         for aaaaaa in mean_pat_rx:
             aaaaaa = np.sort(aaaaaa)
             pow_list[-1].append(aaaaaa)
 
-    max_ref, trash_rx = results.get_maxs_from_maxs_by_rx()
+    max_ref, Rx_list = results.get_maxs_from_maxs_by_rx()
     # print(trash_rx)
-    min_ref, trash_rx = results.get_mins_from_mins_by_rx()
-    # print(trash_rx)
+    min_ref, Rx_list = results.get_mins_from_mins_by_rx()
+    print(Rx_list)
     for i,mr in enumerate(max_ref):
         max_ref[i] = linear_mean(mr)
     for i,mr in enumerate(min_ref):
@@ -453,7 +451,7 @@ def pow_in_pos_channels(results,
                 label=f'Col opt min'
             )
         
-        plt.title(f"Rx at {int(Rx_list[rx])}°")
+        plt.title(f"Rx at {int(Rx_list[rx][0])}°")
         plt.grid(True)
         
         plt.legend(
@@ -469,6 +467,8 @@ def pow_in_pos_channels(results,
             plt.savefig(os.path.join(plots_folder, f'{save_filename}_rx{rx}.{save_format}'), format=save_format,  bbox_inches='tight')  
         if show:
             plt.show()
+        else:
+            plt.close()
     return
 
 
@@ -1479,7 +1479,7 @@ if __name__=="__main__":
 
     results = Results(dumpfile="results.pkl")
     pass
-    cbs_files = ["codebooks/Arranged_codebook_Tx-72_RX0-90_.csv", "codebooks/full_codebook_TXat-72_RXAT0-90_6rot_.csv", "codebooks/full_codebook_TXat-72_RXAT0-90_6rot_.csv"]
+    cbs_files = ["codebooks/Arranged_codebook_Tx-72_RX0-90_.csv", "codebooks/full_codebook_TXat-72_RXAT0-90_6rot_.csv", "codebooks/euklides_codebook_128_0.csv"]
     cbs_names = ["EA_CB", "FEA_CB", "EU_CB"]
     cbs = []
     for cb_file in cbs_files:
@@ -1498,17 +1498,17 @@ if __name__=="__main__":
     # exit()
     save = True
     show = not save
-    veryfy_mins = True
+    veryfy_mins = False
     save_file_format = 'png'
-    # pow_in_pos_channels(results=results,
-    #                                  codebooks=cbs,
-    #                                  show=show, 
-    #                                  save=save, 
-    #                                  Cbs_names=["EU_CB", "EA_CB"], 
-    #                                  save_format=save_file_format,
-    #                                  veryfy_mins = veryfy_mins,
-    #                                  save_filename="Min_weryfikacja_rx"
-    #                                 )
+    pow_in_pos_channels(results=results,
+                                     codebooks=cbs,
+                                     show=show, 
+                                     save=save, 
+                                     Cbs_names=cbs_names, 
+                                     save_format=save_file_format,
+                                     veryfy_mins = veryfy_mins,
+                                     save_filename="Min_weryfikacja_rx"
+                                    )
 
     plot_heatmap_3d(results=results,
                     codebooks=cbs,
@@ -1518,31 +1518,40 @@ if __name__=="__main__":
                     save_format=save_file_format
                     )
 
-    # plot_minmax_traces(
-    #     results=results,
-    #     codebooks=cbs,
-    #     Cbs_names=["EU_CB", "EA_CB"],
-    #     minmax='max',
-    #     ref_in_range=list(range(100001, 100017)),
-    #     show=show,
-    #     save=save
-    # )
+    plot_minmax_traces(
+        results=results,
+        codebooks=cbs,
+        Cbs_names=cbs_names,
+        minmax='max',
+        ref_in_range=list(range(100001, 100017)),
+        show=show,
+        save=save
+    )
 
-    # plot_minmax_traces(
-    #     results=results,
-    #     codebooks=cbs,
-    #     Cbs_names=["EU_CB", "EA_CB"],
-    #     minmax='min',
-    #     ref_in_range=list(range(200001, 200017)),
-    #     show=show,
-    #     save=save
-    # )
+    plot_minmax_traces(
+        results=results,
+        codebooks=cbs,
+        Cbs_names=cbs_names,
+        minmax='min',
+        ref_in_range=list(range(200001, 200017)),
+        show=show,
+        save=save
+    )
 
-    # plot_optimization_process_traces(
-    #     results=results,
-    #     process='min',
-    #     opt_N=0,
-    #     show=show,
-    #     save=save,
-    #     cmap_name="Reds"
-    # )   
+    plot_optimization_process_traces(
+        results=results,
+        process='min',
+        opt_N=0,
+        show=show,
+        save=save,
+        cmap_name="Reds"
+    )   
+
+    plot_optimization_process_traces(
+        results=results,
+        process='max',
+        opt_N=0,
+        show=show,
+        save=save,
+        cmap_name="Reds"
+    )   

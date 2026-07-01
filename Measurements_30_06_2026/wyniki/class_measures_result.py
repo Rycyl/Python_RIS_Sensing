@@ -317,7 +317,7 @@ class Results:
                             result = Result(*core_data)
                             result.add_measure(*rest_data)
                             self.add_result(result=result)
-                    elif int(data[0]) < 200000 and int(data[0]) > 100000:
+                    elif int(data[0]) < 200000 and int(data[0]) >= 100000:
                         for i in range(len(self.maxs)):
                             if self.maxs[i].idx == int(data[0]):
                                 #only add measure
@@ -362,7 +362,7 @@ class Results:
 
         for result in res:
             for i in range(len(result.Rx_Angle)):
-                rx = round(result.Rx_Angle[i], )  # stabilizacja floata
+                rx = int(result.Rx_Angle[i], )  # stabilizacja floata
                 c_val = result.c_values[i]
 
                 key = (rx, c_val)  
@@ -443,9 +443,9 @@ class Results:
 if __name__=="__main__":       
     # Create class instance
     results_instance = Results(resultfilename="All_measurements_merged.csv")
-    # results_instance.dump_class_to_file("results.pkl")
+    results_instance.dump_class_to_file("results.pkl")
     pass
-    testb = results_instance.get_linear_avg_by_rx()
+    # testb = results_instance.get_linear_avg_by_rx()
     pass
     pass
     #print(results_instance)

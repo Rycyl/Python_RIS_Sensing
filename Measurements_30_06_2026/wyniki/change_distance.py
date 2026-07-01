@@ -2,58 +2,68 @@ from mes_grid import PointGrid
 import pandas as pd
 import os
 import numpy as np
+import re
 
-Ea_file = 'EA_tx_-69_-72_RX_0_80_17_Jun_2026_'
-Eu_file = 'euklides_codebook_128_0_17_Jun_2026_'
-ref_file_head = 'ref_strip_by_strip_carrier_'
-ref_file_tail = '_17_Jun_2026_'
+def process_folder(folder_path, grid, A3_y):
+    # dopasowanie numeru punktu z końcówki nazwy (_N.csv)
+    pattern = re.compile(r'_(\d+)\.csv$')
 
-start_x = 0
-start_y = 240
-dx = 122
-dy = 122
-rows = 3
-cols = 6
+    # {punkt: [pliki]}
+    points_files = {}
 
-A3_y = 6.98
+    # zbieranie plików
+    for file in os.listdir(folder_path):
+        match = pattern.search(file)
+        if match:
+            point_id = int(match.group(1))
+            points_files.setdefault(point_id, []).append(file)
 
-num_of_points = rows*cols
+    # przetwarzanie
+    for i in sorted(points_files.keys()):
+        c, beta = grid.get_polar(i)
+        e = grid.get_distance_from_y_axis_point(i, A3_y)
 
-grid = PointGrid(start_x, start_y, dx, dy, rows, cols)
+        print(f"Point {i}")
+        print(c / 100)
+        print(beta)
+        print(e / 100)
 
-c_list = np.linspace(0, 789, 10, dtype=np.int16)
+        for file in points_files[i]:
+            full_path = os.path.join(folder_path, file)
 
-for i in range(num_of_points):
-    input_Ea = Ea_file+f'{i+1}.csv'
-    input_Eu = Eu_file+f'{i+1}.csv'
-    c, beta = grid.get_polar(i+1)
-    e = grid.get_distance_from_y_axis_point(i+1, A3_y)
-    print(c/100)
-    print(beta)
-    print(e/100)
-    df_s = []
-    df_s.append(pd.read_csv(input_Ea,sep=';',index_col=False))
-    df_s.append(pd.read_csv(input_Eu,sep=';',index_col=False))
-    for carier in c_list:
-        input_ref = ref_file_head+f'{carier}'+ref_file_tail+f'{i+1}.csv'
-        input_ref_min = ref_file_head+f'{carier}_min'+ref_file_tail+f'{i+1}.csv'
-        df_s.append(pd.read_csv(input_ref,sep=';',index_col=False))
-        df_s.append(pd.read_csv(input_ref_min,sep=';',index_col=False))
-    for df in df_s:
-        df[' Beta'] = str(beta)
-        df[' c'] = str(c/100)
-        df[' e'] = str(e/100)
-    Ea_df = df_s.pop(0)
-    Eu_df = df_s.pop(0)
-    Ea_df.to_csv(input_Ea, sep=';', index=False)
-    Eu_df.to_csv(input_Eu, sep=';', index=False)
-    for carier in c_list:
-        output_ref = ref_file_head+f'{carier}'+ref_file_tail+f'{i+1}.csv'
-        output_ref_min = ref_file_head+f'{carier}_min'+ref_file_tail+f'{i+1}.csv'
-        Ref_df = df_s.pop(0)
-        Ref_df.to_csv(output_ref, sep=';', index=False)
-        Ref_df = df_s.pop(0)
-        Ref_df.to_csv(output_ref_min, sep=';', index=False)
-print("Done")
+            # wczytaj
+            df = pd.read_csv(full_path, sep=';', index_col=False)
 
+            # dodaj kolumny
+            df[' Beta'] = str(beta)
+            df[' c'] = str(c / 100)
+            df[' e'] = str(e / 100)
+
+            # nadpisz plik
+            df.to_csv(full_path, sep=';', index=False)
+
+    print("Done")
+
+if __name__ == "__main__":
     
+    start_x = 0
+    start_y = 240
+    dx = 122
+    dy = 122
+    rows = 4
+    cols = 6
+
+    A3_y = 7.02
+
+    num_of_points = rows*cols
+
+    grid = PointGrid(start_x, start_y, dx, dy, rows, cols)
+    c_list = np.linspace(0, 789, 10, dtype=np.int32)
+
+    folder = os.getcwd()
+
+    process_folder(
+        folder_path=folder,
+        grid=grid,     # zakładam, że masz już utworzony obiekt grid
+        A3_y=A3_y
+    )

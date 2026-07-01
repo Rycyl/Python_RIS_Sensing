@@ -111,7 +111,6 @@ def merge_csv_builtin(file_prefix, output_filename, directory="."):
 
 # --- Run the script ---
 if __name__ == "__main__":
-    # Example: Merges all files starting with "report_" into "master_report.csv"
     files_to_merge = ["1_euklides_codebook_merged.csv", "2_Arranged_codebook_merged.csv", "3_full_codebook_merged.csv"]
     merge_csv_builtin(file_prefix="euklides_codebook_128", output_filename="1_euklides_codebook_merged.csv")
     merge_csv_builtin(file_prefix="Arranged_codebook", output_filename="2_Arranged_codebook_merged.csv")
@@ -120,26 +119,16 @@ if __name__ == "__main__":
     increment_n_in_files(file_prefix="2_Arranged_codebook_merged", add_value=5000, new_N=False)
     increment_n_in_files(file_prefix="3_full_codebook_merged", add_value=10000, new_N=False)
     print("Normal Done")
+    
     ref_carriers = np.linspace(0, 789, 10, dtype=np.int32)
-    # n = 3
     for i, n in enumerate(ref_carriers):
         out_file_one = f"{i}_ref_strip_by_strip_carrier_{n}_merged"
-        out_file_two = f"{i}_ref_strip_by_strip_carrier_{n}_merged"
+        out_file_two = f"{i}_ref_strip_by_strip_carrier_{n}_min_merged"
 
         print("Doing mearg for files", (out_file_one, out_file_two))
 
-        merge_csv_builtin(file_prefix=f"ref_strip_by_strip_carrier_{n}", output_filename=out_file_one+".csv")
+        merge_csv_builtin(file_prefix=f"ref_strip_by_strip_carrier_{n}_30", output_filename=out_file_one+".csv")
         merge_csv_builtin(file_prefix=f"ref_strip_by_strip_carrier_{n}_min", output_filename=out_file_two+".csv")
-
-        # print("Fixing N for files", (out_file_one, out_file_two))
-
-        # increment_n_in_files(file_prefix=out_file_one, add_value=-1000, new_N=False)
-        # increment_n_in_files(file_prefix=out_file_two, add_value=-2000, new_N=False)
-
-        # print("Adding N for files", (out_file_one, out_file_two))
-
-        # increment_n_in_files(file_prefix=out_file_one, add_value=100000 + (i*100), new_N=False)
-        # increment_n_in_files(file_prefix=out_file_two, add_value=200000 + (i*100), new_N=False)
 
         files_to_merge.append(out_file_one+".csv")
         files_to_merge.append(out_file_two+".csv")
