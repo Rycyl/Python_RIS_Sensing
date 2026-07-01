@@ -27,7 +27,7 @@ def angle_from_points(a, b, c, degrees=True):
 def angle_from_distances(a, b, c, degrees=True):
     """
     calculate ab angle from distances of triangle sides
-    a,b,c
+    a,b,c (hdg)
     """
     print(a,b,c)
     print(type(a), type(b), type(c))
@@ -194,10 +194,10 @@ class Antenna_Geometry_MDEK1001():
         print("Rx_angle: ", self.Rx)
         return
 
-    def calc_distances(self):
-        '''
-        calculate distances of devices from last locations and append them to store
-        '''
+    # def calc_distances(self):
+    #     '''
+    #     calculate distances of devices from last locations and append them to store
+    #     '''
         #dist = np.linalg.norm(a-b)
         # self.a.append(np.linalg.norm(self.loc_a1[-1]  - self.loc_ris[-1]))
         # self.b.append(np.linalg.norm(self.loc_ris[-1] - self.loc_a2[-1]))
@@ -207,51 +207,118 @@ class Antenna_Geometry_MDEK1001():
         # self.f.append(np.linalg.norm(self.loc_a2[-1]  - self.loc_tag[-1]))
         # self.g.append(np.linalg.norm(self.loc_a3[-1]  - self.loc_tag[-1]))
         # self.h.append(np.linalg.norm(self.loc_ris[-1] - self.loc_a3[-1]))
-        return
+        # return
+
+    import numpy as np
 
     def mean_sigma(self, vals, ddof=0):
         """
-        Metoda klasy. Używa self.n_sigma (float) i self.stat_mode ('mean' lub 'median').
-        vals: lista lub array 1D (N,) albo 2D (N,D).
-        ddof: dla std (0 populacyjne, 1 estymator próbki).
-        Zwraca: (stat_kept) - stat_kept: skalar dla 1D, array(D,) dla ND;
+        Metoda klasy.
+
+        Używa:
+            self.n_sigma   (float)
+            self.stat_mode ('mean' lub 'median')
+
+        Parametry:
+            vals : lista lub array
+                1D (N,) albo 2D (N,D)
+            ddof : int
+                dla std (0 populacyjne, 1 estymator próbki)
+
+        Zwraca:
+            (stat_kept, mask)
+
+            stat_kept:
+                - skalar dla 1D
+                - array(D,) dla 2D
+
+            mask:
+                - bool array długości N wskazujący zachowane rekordy
         """
+
         arr = np.asarray(vals, dtype=float)
+
+        # puste wejście
         if arr.size == 0:
             if arr.ndim <= 1:
                 return np.nan, np.array([], dtype=bool)
-            return np.full((arr.shape[1],), np.nan), np.array([], dtype=bool)
 
-        # normy: dla 1D używamy wartości, dla ND norma wektorów
-        norms = arr if arr.ndim == 1 else np.linalg.norm(arr, axis=1)
+            return np.full(arr.shape[1], np.nan), np.array([], dtype=bool)
 
-        mu = norms.mean()
-        sigma = norms.std(ddof=ddof)
+        # --------------------
+        # 1D
+        # --------------------
+        if arr.ndim == 1:
 
-        if sigma == 0:
-            mask = np.ones(len(norms), dtype=bool)
+            valid = ~np.isnan(arr)
+
+            if not valid.any():
+                return np.nan, np.zeros(len(arr), dtype=bool)
+
+            norms = arr[valid]
+
+            mu = np.nanmean(norms)
+            sigma = np.nanstd(norms, ddof=ddof)
+
+            mask = np.zeros(len(arr), dtype=bool)
+
+            if sigma == 0 or np.isnan(sigma):
+                mask[valid] = True
+            else:
+                mask[valid] = (
+                    np.abs(norms - mu)
+                    <= self.n_sigma * sigma
+                )
+
+            if not mask.any():
+                return np.nan, mask
+
+            kept = arr[mask]
+
+            if self.stat_mode == "median":
+                stat_kept = np.nanmedian(kept)
+            else:
+                stat_kept = np.nanmean(kept)
+
+            return stat_kept
+
+        # --------------------
+        # 2D
+        # --------------------
+        valid_rows = ~np.isnan(arr).any(axis=1)
+
+        if not valid_rows.any():
+            return np.full(arr.shape[1], np.nan), np.zeros(arr.shape[0], dtype=bool)
+
+        norms = np.linalg.norm(arr[valid_rows], axis=1)
+
+        mu = np.nanmean(norms)
+        sigma = np.nanstd(norms, ddof=ddof)
+
+        mask = np.zeros(arr.shape[0], dtype=bool)
+
+        if sigma == 0 or np.isnan(sigma):
+            mask[valid_rows] = True
         else:
-            mask = np.abs(norms - mu) <= (self.n_sigma * sigma)
+            mask_valid = (
+                np.abs(norms - mu)
+                <= self.n_sigma * sigma
+            )
+            mask[valid_rows] = mask_valid
 
         if not mask.any():
-            # brak zachowanych punktów -> NaN odpowiedniego kształtu
-            if arr.ndim == 1:
-                return np.nan, mask
-            return np.full((arr.shape[1],), np.nan), mask
+            return np.full(arr.shape[1], np.nan), mask
 
         kept = arr[mask]
-        if self.stat_mode == 'median':
-            if arr.ndim == 1:
-                stat_kept = np.median(kept)
-            else:
-                stat_kept = np.median(kept, axis=0)
-        else:  # domyślnie 'mean'
-            if arr.ndim == 1:
-                stat_kept = kept.mean()
-            else:
-                stat_kept = kept.mean(axis=0)
+
+        if self.stat_mode == "median":
+            stat_kept = np.nanmedian(kept, axis=0)
+        else:
+            stat_kept = np.nanmean(kept, axis=0)
 
         return stat_kept
+
+
 
 
     def calc_angles(self, degrees=True):
@@ -268,20 +335,23 @@ class Antenna_Geometry_MDEK1001():
         """
         while True:
             parsed_line = (self.tag.parse_line(self.a3_id, self.ris_id))
+            if None in parsed_line:
+                print("None in line, continue")
+                continue
             try:
                 parsed_line = np.array(parsed_line)
-                #print(parsed_line)
+                print(parsed_line)
             except:
                 #print("line skipped")
                 continue
             #print(parsed_line, "\n LEN OF LINE = ",len(parsed_line))
             if len(parsed_line)<2 :
-                #print("line skipped") 
+                print("line skipped") 
                 continue
             else:
                 self.d.append(parsed_line[1])
                 self.g.append(parsed_line[0])
-                self.calc_distances()        
+                # self.calc_distances()        
             return
 
     # def calc_angles_one_triangle_set(l_ris, l_a1, l_tx, l_tag, l_a3):
@@ -328,9 +398,13 @@ if __name__ == "__main__":
     geo.n_sigma = 2
     geo.stat_mode = 'mean'
     i = 0
+    a_val = 3.35
+    c_val = 3.98
+    e_val = 1.31
+    h_val = 7.02
     while True:
         try:
-            res = geo.get_angles(Print_vals=False, a=[5], c=[4], e=[3], h=[4.4])
+            res = geo.get_angles(Print_vals=False, a=[a_val], c=[c_val], e=[e_val], h=[h_val])
             print(f"POMIAR {i}, \n {res}")
         except Exception as e:
             print(e)
