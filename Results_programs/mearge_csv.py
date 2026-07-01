@@ -35,7 +35,7 @@ def merge_specific_files_builtin(file_list, output_filename):
     print(f"Success! Merged data saved to '{output_filename}'")
 
 
-def increment_n_in_files(file_prefix, directory=".", add_value=10000, new_N = False):
+def increment_n_in_files(file_prefix, directory=os.getcwd(), add_value=10000, new_N = False):
     # Find all files matching the prefix
     pattern = os.path.join(directory, f"{file_prefix}*.csv")
     matching_files = glob.glob(pattern)
@@ -111,38 +111,29 @@ def merge_csv_builtin(file_prefix, output_filename, directory="."):
 
 # --- Run the script ---
 if __name__ == "__main__":
-    # Example: Merges all files starting with "report_" into "master_report.csv"
-    files_to_merge = ["1_euklides_codebook_128_0_17_Jun_2026_merged.csv", "2_EA_tx_-69_-72_RX_0_80_17_Jun_2026_merged.csv"]
-    merge_csv_builtin(file_prefix="euklides_codebook_128", output_filename="1_euklides_codebook_128_0_17_Jun_2026_merged.csv")
-    merge_csv_builtin(file_prefix="EA_tx_-69_-72", output_filename="2_EA_tx_-69_-72_RX_0_80_17_Jun_2026_merged.csv")
+    files_to_merge = ["1_euklides_codebook_merged.csv", "2_Arranged_codebook_merged.csv", "3_full_codebook_merged.csv"]
+    merge_csv_builtin(file_prefix="euklides_codebook_128", output_filename="1_euklides_codebook_merged.csv")
+    merge_csv_builtin(file_prefix="Arranged_codebook", output_filename="2_Arranged_codebook_merged.csv")
+    merge_csv_builtin(file_prefix="full_codebook", output_filename="3_full_codebook_merged.csv")
+    #fix ids:
+    increment_n_in_files(file_prefix="2_Arranged_codebook_merged", add_value=5000, new_N=False)
+    increment_n_in_files(file_prefix="3_full_codebook_merged", add_value=10000, new_N=False)
     print("Normal Done")
+    
     ref_carriers = np.linspace(0, 789, 10, dtype=np.int32)
-    n = 3
-    for i in ref_carriers:
-        out_file_one = f"{n}_ref_strip_by_strip_carrier_{i}_17_Jun_2026_merged"
-        out_file_two = f"{n+1}_ref_strip_by_strip_carrier_{i}_min_17_Jun_2026_merged"
+    for i, n in enumerate(ref_carriers):
+        out_file_one = f"{i}_ref_strip_by_strip_carrier_{n}_merged"
+        out_file_two = f"{i}_ref_strip_by_strip_carrier_{n}_min_merged"
 
         print("Doing mearg for files", (out_file_one, out_file_two))
 
-        merge_csv_builtin(file_prefix=f"ref_strip_by_strip_carrier_{i}_17_Jun_2026", output_filename=out_file_one+".csv")
-        merge_csv_builtin(file_prefix=f"ref_strip_by_strip_carrier_{i}_min_17_Jun_2026", output_filename=out_file_two+".csv")
-
-        print("Fixing N for files", (out_file_one, out_file_two))
-
-        increment_n_in_files(file_prefix=out_file_one, add_value=-1000, new_N=False)
-        increment_n_in_files(file_prefix=out_file_two, add_value=-2000, new_N=False)
-
-        print("Adding N for files", (out_file_one, out_file_two))
-
-        increment_n_in_files(file_prefix=out_file_one, add_value=100000 + (i*100), new_N=False)
-        increment_n_in_files(file_prefix=out_file_two, add_value=200000 + (i*100), new_N=False)
+        merge_csv_builtin(file_prefix=f"ref_strip_by_strip_carrier_{n}_30", output_filename=out_file_one+".csv")
+        merge_csv_builtin(file_prefix=f"ref_strip_by_strip_carrier_{n}_min", output_filename=out_file_two+".csv")
 
         files_to_merge.append(out_file_one+".csv")
         files_to_merge.append(out_file_two+".csv")
 
-        n += 1
+        n += 2
         
-    increment_n_in_files(file_prefix="2_EA_tx_-69_-72_RX_0_80_17_Jun_2026_merged", add_value=5000, new_N=False)
-    #increment_n_in_files(file_prefix="3_ref_strp_by_strp_08_May_2026_merged_new_N", add_value=10000, new_N=True)
-    #files_to_merge = ["euklides_codebook_128_0_08_May_2026_merged.csv", "2_PK_codebook_final_08_May_2026_merged.csv", "3_ref_strp_by_strp_08_May_2026_merged_new_N.csv"]
+
     merge_specific_files_builtin(files_to_merge, "All_measurements_merged.csv")
