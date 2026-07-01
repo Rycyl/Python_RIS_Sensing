@@ -536,7 +536,7 @@ def plot_heatmap_3d(results, codebooks, show=True, save=False, Cbs_names=None, s
 
         # interpolacja
         xi = np.linspace(x_vals.min(), x_vals.max(), 60)
-        yi = np.linspace(y_vals.min(), y_vals.max(), 30)
+        yi = np.linspace(y_vals.min(), y_vals.max(), 40)
         Xi, Yi = np.meshgrid(xi, yi)
 
         Zi = griddata(
