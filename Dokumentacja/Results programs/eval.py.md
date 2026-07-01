@@ -1,0 +1,1 @@
+Funkcje pomocnicze przy klasie Codebook i generowaniu codebooka (starym). Chyba nie używane,

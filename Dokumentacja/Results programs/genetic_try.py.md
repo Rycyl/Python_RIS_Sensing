@@ -1,0 +1,1 @@
+Próby z algorytmem genetycznym z mgr. Plik nieużywany obecnie do niczego.

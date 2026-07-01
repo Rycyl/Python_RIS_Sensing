@@ -55,7 +55,7 @@ def build_structure(path: Path, docs: list):
  
 
 # Set your base directory here
-base_dir = Path("C:\\Users\\cyryl\\Documents\\GitHub\\Python_RIS_Sensing")
+base_dir = Path("/home/tom/Dokumenty/GitHub/Python_RIS_Sensing")
 
 #
 docs = get_docs(base_dir)
