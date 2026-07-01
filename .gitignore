@@ -17,3 +17,5 @@ Measurements_30_06_2026/wyniki/1_ref_strip_by_strip_carrier_87_merged.csv
 Measurements_30_06_2026/wyniki/1_euklides_codebook_merged.csv
 Measurements_30_06_2026/wyniki/0_ref_strip_by_strip_carrier_0_merged.csv
 *.csv
+*.pkl
+*.png
