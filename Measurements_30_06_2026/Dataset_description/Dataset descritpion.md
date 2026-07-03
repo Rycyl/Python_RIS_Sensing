@@ -97,16 +97,28 @@ TO DO
 - signal generator (TODO MODEL)
 - RIS matrix (`https://github.com/mheinri/OpenSourceRIS`)
 - Custom made RIS rotable stand (wasn't rotated during this measurments)
-- ROCK64 - Single Board Computer - to pass patterns to RIS via USB from PC via Ethernet
+- ROCK64 - Single Board Computer - to setup RIS patterns via USB, by a PC via Ethernet
 - notebook (Lenovo ThinkPad L480 with i5-TODO XXXX and TODO X GB RAM)
 - UWB modules MDEK1001 (it occures that was inaccurate, so we changed distances to grid we performed manually - those are in /wyniki_manual_distances)
 - Router TP-Link TL-WDR4300 (only wired connections ware used)
 - Cables, cables, cables...
 
 ### Signal generator setup
-TODO
+TODO: sygnał nadawany, moc nadawana (10 dBm), szerokośc pasma
+
 ### Spectrum analyser setup
-TODO
+TODO: sygnał odbierany, jak wybierać próbki, szerokość pasma, nastawy analizatora
+
+Z config.json:
+
+- `CENTRAL_FREQ`: 5.53E9,
+- `SPAN` : 102400000,
+- `REVLEVEL` : -50,
+- `ANALYZER_MODE`:"WRITe",
+- `RBW` : "50000 Hz",
+- `DETECTOR` : "RMS",
+ - `SWEEP_TIME` : 0.064,
+- `SWEEP_TYPE` : "FFT"
 
 
 ## PS
