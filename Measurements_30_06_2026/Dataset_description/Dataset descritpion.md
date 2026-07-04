@@ -85,7 +85,28 @@ N = 1
 generate_euclidean_codebooks_of_size(codebooks_sizes=[128], N=1, i_bound=10000, k_bound=1000000)
 ```
 
-## Optimisation `strip_by_strip`
+## Optimisation `stripe_by_stripe`
+
+stripe_by_stripe is a greedy algorithm that tries to achieve the optimal RIS pattern by seting an entire column of RIS on and comapring power at the reciver after that change. The power level is an average from selected subcariers indexed with python indexing not traditional ofdm indexing, so for input of (10, 20) and signal used here subcariers with the traditional index of -390 to -380 would be used.
+example usage:
+```python
+mes_obj = stripe_by_stripe(ris, analyzer, exit_file ,Get_Men_Pow= False, Geometry=angle, find_min=False, subcar_to_maxi=(500, 600))
+
+mes_data = mes_obj.start_measure()
+```
+- ris is an RIS type object allowing for setting patterns
+- analyzer is Analizer type object that allows for reading data from used signal analyser
+- note: exit_file is no depreciated and should be removed from functionality
+- Get_Mean_Pow is a bool that allows for calculating mean power from the whole trace
+- Geometry is a tuple containing Tx and Rx angles used for data structure that gets returned by start_measure method
+- find_min is a bool that when set to True will find pattern with the lowest power at the reciever insted of the highest
+- subcar_to_maxi is a tuple containing the binds of indexes for subcariers to be used when calculating power at the reciever
+- There is also a no_start_from_zero parameter, that when set to any value other than False or 0 will attempt to convert it in to a RIS pattern and set it as the initial RIS pattern
+
+start_measure() returns a data structure that can be used to create a single row in a .csv file as described in this document above
+
+- note: For conviniance sake this object assumes the exact subcarier spacing as used by us, when using diffrent number of subcariers, diffrent spacing or diffrend analyser settings slice indiceses in the do_measure_whole methode need to be modified
+
 
 TO DO
 
@@ -93,32 +114,36 @@ TO DO
 
 ### Hardware:
 
-- spectrum analyser (TODO MODEL)
-- signal generator (TODO MODEL)
+- spectrum analyser (R&S FSV3000 spectrum analyzer)
+- signal generator (R&S SMM100A)
 - RIS matrix (`https://github.com/mheinri/OpenSourceRIS`)
 - Custom made RIS rotable stand (wasn't rotated during this measurments)
 - ROCK64 - Single Board Computer - to setup RIS patterns via USB, by a PC via Ethernet
-- notebook (Lenovo ThinkPad L480 with i5-TODO XXXX and TODO X GB RAM)
+- notebook (Lenovo ThinkPad L480 with i5-8250U (8 core) @ 3.4 GHz and 8 GB RAM)
 - UWB modules MDEK1001 (it occures that was inaccurate, so we changed distances to grid we performed manually - those are in /wyniki_manual_distances)
 - Router TP-Link TL-WDR4300 (only wired connections ware used)
 - Cables, cables, cables...
 
 ### Signal generator setup
-TODO: sygnał nadawany, moc nadawana (10 dBm), szerokośc pasma
+Transmision was an Arbitrary Waveform Generator otuput taking source from file "sym_1_N1024_podn_od-400 do -1 i od 1 do 400_low_PAPR_100MSps.iq.wv" with internal clock at 102.4 MHz
+Transmited power level: 10 dBm
+
 
 ### Spectrum analyser setup
-TODO: sygnał odbierany, jak wybierać próbki, szerokość pasma, nastawy analizatora
+Main Analyser settings:
+- Central Frequency: 5.53 GHz
+- Frequency Span: 102.4 MHz
+- Resolution Bandwith: 50 kHz
+- Reference level: -50 dBm
 
-Z config.json:
+Misc Analyser settings:
+- Detector type: RMS
+- Sweep type: FFT
+- Sweep time: 0.064s 
 
-- `CENTRAL_FREQ`: 5.53E9,
-- `SPAN` : 102400000,
-- `REVLEVEL` : -50,
-- `ANALYZER_MODE`:"WRITe",
-- `RBW` : "50000 Hz",
-- `DETECTOR` : "RMS",
- - `SWEEP_TIME` : 0.064,
-- `SWEEP_TYPE` : "FFT"
+Amount of points returend by Analyser can be determined by formula : sweptime*(RBW^-1) with minimum of 101
+
+To get the readings for used subcariers the returned trace needs to be sliced, for regular python indexing that would be a slice of [224:1824:2] where 224 is the index of first subcarier, 1824 is the index of the last subcarier and 2 is the step of a slice (only every second subcarier is used from the file). This slice still keeps the DC (zero) subcarier with the index of 1024 in the original trace.
 
 
 ## PS
